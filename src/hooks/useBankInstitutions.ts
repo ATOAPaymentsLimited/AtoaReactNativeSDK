@@ -1,0 +1,311 @@
+import { useCallback, useRef, useEffect } from 'react';
+import { Linking, Platform } from 'react-native';
+import { usePaymentContext } from './PaymentContext';
+import type { BankInstitution } from '../types/bank';
+import { AtoaException } from '../types/error';
+import { buildPaymentAuthBody } from '../utils/buildPaymentAuthBody';
+import { isAppInstalled } from '../utils/appInstalled';
+import { getBrandingColors } from '../utils/brandingColors';
+
+export function useBankInstitutions() {
+  const { state, dispatch, client, options } = usePaymentContext();
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pollingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const linkExpiredTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
+  const linkRefreshCountRef = useRef(0);
+  const stopPollingRef = useRef<() => void>(() => {});
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimerRef.current) {
+        clearTimeout(searchTimerRef.current);
+      }
+      stopPollingRef.current();
+    };
+  }, []);
+
+  const getPaymentDetails = useCallback(async () => {
+    dispatch({ type: 'SET_LOADING_DETAILS', payload: true });
+    try {
+      const paymentRes = await client.getPaymentDetails(
+        options.paymentId,
+        options.customerDetails
+      );
+      dispatch({ type: 'SET_PAYMENT_DETAILS', payload: paymentRes });
+    } catch (e) {
+      if (e instanceof AtoaException) {
+        options.onError?.(e);
+      }
+      dispatch({
+        type: 'SET_PAYMENT_DETAILS_ERROR',
+        payload: e instanceof Error ? e : new Error(String(e)),
+      });
+      dispatch({ type: 'SET_PAYMENT_DETAILS', payload: null });
+    } finally {
+      dispatch({ type: 'SET_LOADING_DETAILS', payload: false });
+    }
+  }, [client, dispatch, options]);
+
+  const fetchBanks = useCallback(async () => {
+    dispatch({ type: 'SET_LOADING', payload: true });
+    try {
+      const res = await client.fetchInstitutions();
+
+      // Check for saved bank (last payment bank)
+      const lastPaymentBank =
+        state.paymentDetails?.lastPaymentBankDetails;
+      if (lastPaymentBank?.institutionId) {
+        const lastBank = res.find(
+          (b: BankInstitution) => b.id === lastPaymentBank.institutionId
+        );
+        if (lastBank && state.paymentDetails?.amount?.amount != null) {
+          dispatch({
+            type: 'SET_HAS_LAST_PAYMENT_DETAILS',
+            payload:
+              lastBank.enabled &&
+              lastBank.transactionAmountLimit >=
+                state.paymentDetails.amount.amount,
+          });
+          dispatch({ type: 'SET_LAST_BANK_DETAILS', payload: lastBank });
+        }
+      }
+
+      dispatch({ type: 'SET_BANK_LIST', payload: res });
+    } catch (e) {
+      if (e instanceof AtoaException) {
+        options.onError?.(e);
+      }
+      dispatch({
+        type: 'SET_BANK_FETCHING_ERROR',
+        payload: e instanceof Error ? e : new Error(String(e)),
+      });
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }
+  }, [client, dispatch, options, state.paymentDetails]);
+
+  const fetchFilteredBanks = useCallback(
+    async (searchTerm: string) => {
+      dispatch({ type: 'SET_LOADING_FILTER_BANKS', payload: true });
+      try {
+        const res = await client.fetchInstitutions(searchTerm);
+        dispatch({ type: 'SET_BANK_LIST', payload: res });
+      } catch (e) {
+        if (e instanceof AtoaException) {
+          options.onError?.(e);
+        }
+        dispatch({
+          type: 'SET_BANK_FETCHING_ERROR',
+          payload: e instanceof Error ? e : new Error(String(e)),
+        });
+      } finally {
+        dispatch({ type: 'SET_LOADING_FILTER_BANKS', payload: false });
+      }
+    },
+    [client, dispatch, options]
+  );
+
+  const search = useCallback(
+    (value: string) => {
+      dispatch({ type: 'SET_SEARCH_TERM', payload: value });
+      if (searchTimerRef.current) {
+        clearTimeout(searchTimerRef.current);
+      }
+      searchTimerRef.current = setTimeout(() => {
+        fetchFilteredBanks(value);
+      }, 600);
+    },
+    [dispatch, fetchFilteredBanks]
+  );
+
+  const checkBankAppAvailability = useCallback(
+    async (authResponse?: import('../types/payment').PaymentAuthResponse) => {
+      const auth = authResponse ?? state.paymentAuth;
+      if (!auth) {
+        return;
+      }
+
+      let urlSchemeEmptyFromApi = false;
+
+      if (Platform.OS === 'ios') {
+        const bundleId = auth.iOSPackageName;
+        urlSchemeEmptyFromApi = !(bundleId && bundleId.length > 0);
+      } else {
+        const pkgName = auth.androidPackageName;
+        urlSchemeEmptyFromApi = !(pkgName && pkgName.length > 0);
+      }
+
+      if (urlSchemeEmptyFromApi) {
+        dispatch({ type: 'SET_IS_APP_INSTALLED', payload: true });
+        return;
+      }
+
+      const result = await isAppInstalled(
+        auth.androidPackageName ?? undefined,
+        auth.iOSPackageName ?? undefined
+      );
+      dispatch({ type: 'SET_IS_APP_INSTALLED', payload: result });
+    },
+    [state.paymentAuth, dispatch]
+  );
+
+  const selectBank = useCallback(
+    async (selectedBank: BankInstitution | null) => {
+      if (!selectedBank) {
+        return;
+      }
+
+      dispatch({ type: 'SET_SELECTED_BANK', payload: selectedBank });
+      dispatch({ type: 'SET_LOADING_AUTH', payload: true });
+      dispatch({ type: 'SET_PAYMENT_AUTH', payload: null });
+      dispatch({ type: 'SET_BANK_AUTH_ERROR', payload: null });
+
+      const paymentDetails = state.paymentDetails;
+      if (!paymentDetails) {
+        dispatch({ type: 'SET_LOADING_AUTH', payload: false });
+        return;
+      }
+
+      try {
+        const body = buildPaymentAuthBody({
+          paymentDetails,
+          institutionId: selectedBank.id,
+          paymentRequestId: options.paymentId,
+          features: selectedBank.features,
+          requestCreatedAt: paymentDetails.requestCreatedAt ?? '',
+        });
+
+        const paymentAuth = await client.getPaymentAuth(body);
+        dispatch({ type: 'SET_PAYMENT_AUTH', payload: paymentAuth });
+
+        // Check bank app availability using the response directly
+        // (state.paymentAuth would be stale here since dispatch is async)
+        await checkBankAppAvailability(paymentAuth);
+      } catch (e) {
+        if (e instanceof AtoaException) {
+          options.onError?.(e);
+        }
+        dispatch({ type: 'SET_SELECTED_BANK', payload: null });
+        dispatch({ type: 'SET_PAYMENT_AUTH', payload: null });
+        dispatch({
+          type: 'SET_BANK_AUTH_ERROR',
+          payload: e instanceof Error ? e : new Error(String(e)),
+        });
+      } finally {
+        dispatch({ type: 'SET_LOADING_AUTH', payload: false });
+      }
+    },
+    [state.paymentDetails, dispatch, client, options, checkBankAppAvailability]
+  );
+
+  const authorizeBank = useCallback(async (): Promise<boolean> => {
+    const paymentAuth = state.paymentAuth;
+    if (!paymentAuth) {
+      return false;
+    }
+
+    try {
+      let url: string;
+      if (Platform.OS === 'android') {
+        url =
+          paymentAuth.deepLinkAndroidAuthorisationUrl ??
+          paymentAuth.authorisationUrl;
+      } else {
+        url =
+          paymentAuth.deepLinkAuthorisationUrlIOS ??
+          paymentAuth.authorisationUrl;
+      }
+
+      const canOpen = await Linking.canOpenURL(url);
+      if (canOpen) {
+        await Linking.openURL(url);
+        return true;
+      }
+
+      // Fallback to authorisation URL
+      await Linking.openURL(paymentAuth.authorisationUrl);
+      return true;
+    } catch (e) {
+      dispatch({
+        type: 'SET_ERROR',
+        payload: e instanceof Error ? e : new Error(String(e)),
+      });
+      return false;
+    }
+  }, [state.paymentAuth, dispatch]);
+
+  const getPaymentDetailsAndBanks = useCallback(
+    async (showHowPaymentWork: boolean) => {
+      await getPaymentDetails();
+      await fetchBanks();
+
+      // Set showHowPaymentWorks based on conditions
+      // (will be evaluated after state updates via effect in the modal)
+    },
+    [getPaymentDetails, fetchBanks]
+  );
+
+  const resetSelectBank = useCallback(() => {
+    dispatch({ type: 'RESET_SELECT_BANK' });
+  }, [dispatch]);
+
+  const stopPolling = useCallback(() => {
+    if (pollingTimerRef.current) {
+      clearInterval(pollingTimerRef.current);
+      pollingTimerRef.current = null;
+    }
+    if (linkExpiredTimerRef.current) {
+      clearTimeout(linkExpiredTimerRef.current);
+      linkExpiredTimerRef.current = null;
+    }
+  }, []);
+
+  // Keep ref in sync for cleanup effect
+  stopPollingRef.current = stopPolling;
+
+  const startPolling = useCallback(() => {
+    stopPolling();
+    linkRefreshCountRef.current = 0;
+
+    pollingTimerRef.current = setInterval(() => {
+      linkRefreshCountRef.current++;
+      if (linkRefreshCountRef.current > 5) {
+        // After 30 min (6 refreshes), set link expired after 5 more min
+        linkExpiredTimerRef.current = setTimeout(() => {
+          dispatch({ type: 'SET_SHOW_LINK_EXPIRED', payload: true });
+        }, 5 * 60 * 1000);
+        stopPolling();
+      } else {
+        selectBank(state.selectedBank);
+      }
+    }, 5 * 60 * 1000);
+  }, [stopPolling, selectBank, state.selectedBank, dispatch]);
+
+  const personalBanks = state.bankList.filter((b) => !b.businessBank);
+  const businessBanks = state.bankList.filter((b) => b.businessBank);
+  const brandingColors = getBrandingColors(
+    state.paymentDetails?.merchantThemeDetails
+  );
+
+  return {
+    state,
+    dispatch,
+    getPaymentDetails,
+    fetchBanks,
+    fetchFilteredBanks,
+    search,
+    selectBank,
+    authorizeBank,
+    checkBankAppAvailability,
+    getPaymentDetailsAndBanks,
+    resetSelectBank,
+    startPolling,
+    stopPolling,
+    personalBanks,
+    businessBanks,
+    brandingColors,
+  };
+}

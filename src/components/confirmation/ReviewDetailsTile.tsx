@@ -1,0 +1,99 @@
+import React from 'react';
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+} from 'react-native';
+import { Colors } from '../../constants/colors';
+import { Spacing } from '../../constants/spacing';
+
+interface ReviewDetailsTileProps {
+  iconUrl?: string;
+  heading: string;
+  content: string;
+  actionText?: string;
+  onAction?: () => void;
+}
+
+export function ReviewDetailsTile({
+  iconUrl,
+  heading,
+  content,
+  actionText,
+  onAction,
+}: ReviewDetailsTileProps) {
+  return (
+    <View style={styles.container}>
+      {iconUrl && (
+        <View style={styles.iconContainer}>
+          <Image
+            source={{ uri: iconUrl }}
+            style={styles.icon}
+            resizeMode="contain"
+          />
+        </View>
+      )}
+      <View style={styles.textContainer}>
+        <Text style={styles.heading}>{heading}</Text>
+        <Text style={styles.content} numberOfLines={1}>
+          {content}
+        </Text>
+        {actionText && onAction && (
+          <TouchableOpacity onPress={onAction}>
+            <Text style={styles.actionText}>{actionText}</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    backgroundColor: Colors.grey50,
+    padding: Spacing.medium,
+    borderRadius: Spacing.medium,
+    borderWidth: 1,
+    borderColor: Colors.grey200,
+    alignItems: 'center',
+  },
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    overflow: 'hidden',
+    marginRight: Spacing.medium,
+  },
+  icon: {
+    width: 40,
+    height: 40,
+  },
+  textContainer: {
+    flex: 1,
+  },
+  heading: {
+    fontFamily: 'Figtree',
+    fontSize: 12,
+    fontWeight: '500',
+    color: Colors.grey600,
+  },
+  content: {
+    fontFamily: 'Figtree',
+    fontSize: 14,
+    fontWeight: '700',
+    color: Colors.black,
+    marginTop: 2,
+  },
+  actionText: {
+    fontFamily: 'Figtree',
+    fontSize: 12,
+    fontWeight: '600',
+    color: Colors.brandPrimary,
+    textDecorationLine: 'underline',
+    textDecorationStyle: 'dotted',
+    marginTop: Spacing.mini,
+  },
+});
