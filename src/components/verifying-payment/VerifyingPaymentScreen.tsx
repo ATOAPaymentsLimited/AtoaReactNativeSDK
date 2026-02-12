@@ -22,6 +22,7 @@ export function VerifyingPaymentScreen({
   const { startListening, stop, transactionDetails, paymentStatusError } =
     usePaymentStatus();
   const hasStartedRef = useRef(false);
+  const hasCompletedRef = useRef(false);
   const stopRef = useRef(stop);
   stopRef.current = stop;
   const { height } = useWindowDimensions();
@@ -39,7 +40,7 @@ export function VerifyingPaymentScreen({
 
     const start = async () => {
       // Delay 1 second before opening bank app (matching Flutter)
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise<void>((resolve) => setTimeout(resolve, 1000));
       await authorizeBank();
       startPolling();
       startListening(paymentAuth.paymentIdempotencyId);
@@ -63,9 +64,13 @@ export function VerifyingPaymentScreen({
 
   // Auto-dismiss on completed status
   useEffect(() => {
+    if (hasCompletedRef.current) {
+      return;
+    }
     if (transactionDetails && isCompleted(transactionDetails)) {
+      hasCompletedRef.current = true;
+      stop();
       const timer = setTimeout(() => {
-        stop();
         onClose('completed');
       }, 5000);
       return () => clearTimeout(timer);

@@ -48,11 +48,11 @@ function getRequestData(amount: number) {
 
 async function getPaymentRequestId(amount: number): Promise<string> {
   const response = await fetch(
-    'https://devapi.atoa.me/api/payments/process-payment',
+    'https://api.atoa.me/api/payments/process-payment',
     {
       method: 'POST',
       headers: {
-        Authorization: `Bearer MTlmMjFhYjQtNDhlOS00MzdiLTg3MmQtZThmMmUyNmQ0OThmOmlsVlFrRDdOTDlZNXNLd2I=`,
+        Authorization: `Bearer ${ATOA_TOKEN}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(getRequestData(amount)),
