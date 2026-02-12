@@ -20,8 +20,8 @@ function App(): React.JSX.Element {
   const handlePayNow = async () => {
     try {
       const options: AtoaPayOptions = {
-        paymentId: 'your-payment-request-id', // Replace with actual payment ID
-        env: 'sandbox',
+        paymentId: 'payment-request-id', // Replace with actual payment ID
+        env: 'prod',
         showHowPaymentWorks: true,
         customerDetails: {
           phoneCountryCode: '44',

@@ -48,8 +48,6 @@ function AtoaPaymentModalInner({
   const { state, dispatch } = usePaymentContext();
   const {
     getPaymentDetailsAndBanks,
-    authorizeBank,
-    startPolling,
     stopPolling,
     resetSelectBank,
   } = useBankInstitutions();
@@ -62,7 +60,7 @@ function AtoaPaymentModalInner({
       return;
     }
     hasInitializedRef.current = true;
-    getPaymentDetailsAndBanks(options.showHowPaymentWorks);
+    getPaymentDetailsAndBanks();
   }, [getPaymentDetailsAndBanks, options.showHowPaymentWorks]);
 
   // Determine showHowPaymentWorks after data is loaded

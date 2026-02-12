@@ -4,11 +4,10 @@ import LottieView from 'lottie-react-native';
 import { usePaymentStatus } from '../../hooks/usePaymentStatus';
 import { useBankInstitutions } from '../../hooks/useBankInstitutions';
 import { getBankIcon } from '../../types/bank';
-import { isCompleted, isFailed, isAwaitingAuth, isNotInitiated } from '../../types/payment';
+import { isCompleted, isAwaitingAuth, isNotInitiated } from '../../types/payment';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { BottomSheetHeader } from '../shared/BottomSheetHeader';
-import { FetchingBankLoader } from '../shared/FetchingBankLoader';
 import { ErrorWidget } from '../shared/ErrorWidget';
 import { PaymentStatusView } from './PaymentStatusView';
 
@@ -71,6 +70,7 @@ export function VerifyingPaymentScreen({
       }, 2000);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [transactionDetails, stop, onClose]);
 
   // Show payment status view when we have a terminal status

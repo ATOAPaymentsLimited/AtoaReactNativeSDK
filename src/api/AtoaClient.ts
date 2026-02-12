@@ -85,7 +85,7 @@ export class AtoaClient {
   }
 
   async fetchInstitutions(searchTerm?: string): Promise<BankInstitution[]> {
-    let endpoint = Endpoints.institutions;
+    let endpoint: string = Endpoints.institutions;
     if (searchTerm && searchTerm.length > 0) {
       endpoint = `${endpoint}&search=${encodeURIComponent(searchTerm)}`;
     }

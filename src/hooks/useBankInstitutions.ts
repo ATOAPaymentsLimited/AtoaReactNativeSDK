@@ -238,7 +238,7 @@ export function useBankInstitutions() {
   }, [state.paymentAuth, dispatch]);
 
   const getPaymentDetailsAndBanks = useCallback(
-    async (showHowPaymentWork: boolean) => {
+    async () => {
       await getPaymentDetails();
       await fetchBanks();
 

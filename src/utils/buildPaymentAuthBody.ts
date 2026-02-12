@@ -1,9 +1,9 @@
-import { v4 as uuidv4 } from 'uuid';
 import type {
   PaymentRequestData,
   PaymentAuthRequestBody,
 } from '../types/payment';
 import { getDeviceInfo } from './deviceInfo';
+import { generateUUID } from './uuid';
 
 /**
  * Builds the PaymentAuthRequestBody from PaymentRequestData,
@@ -20,7 +20,7 @@ export function buildPaymentAuthBody(params: {
 
   let consumerId = paymentDetails.consumerId;
   if (!consumerId || consumerId.length === 0) {
-    consumerId = uuidv4();
+    consumerId = generateUUID();
   }
 
   const deviceInfo = getDeviceInfo();
