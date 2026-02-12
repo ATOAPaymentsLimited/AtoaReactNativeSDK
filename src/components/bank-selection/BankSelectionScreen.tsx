@@ -69,6 +69,12 @@ export function BankSelectionScreen({
     await fetchBanks();
   }, [dispatch, getPaymentDetails, fetchBanks]);
 
+  const gridItemWidth = (width - Spacing.large * 2 - Spacing.large * 3) / 4;
+  const gridItemStyle = useMemo(
+    () => ({ width: gridItemWidth, marginBottom: Spacing.large }),
+    [gridItemWidth]
+  );
+
   if (isLoading) {
     return (
       <View style={styles.container}>
@@ -100,12 +106,6 @@ export function BankSelectionScreen({
       </View>
     );
   }
-
-  const gridItemWidth = (width - Spacing.large * 2 - Spacing.large * 3) / 4;
-  const gridItemStyle = useMemo(
-    () => ({ width: gridItemWidth, marginBottom: Spacing.large }),
-    [gridItemWidth]
-  );
 
   const renderGridItem = ({ item }: { item: BankInstitution }) => (
     <View style={gridItemStyle}>

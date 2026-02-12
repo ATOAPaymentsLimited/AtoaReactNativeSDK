@@ -67,7 +67,7 @@ export function VerifyingPaymentScreen({
       const timer = setTimeout(() => {
         stop();
         onClose('completed');
-      }, 2000);
+      }, 5000);
       return () => clearTimeout(timer);
     }
     return undefined;
