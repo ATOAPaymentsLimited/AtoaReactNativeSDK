@@ -1,18 +1,21 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, BackHandler } from 'react-native';
+import { View, StyleSheet, BackHandler, useWindowDimensions } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { PaymentProvider, usePaymentContext } from '../hooks/PaymentContext';
+import { ConnectivityProvider } from '../hooks/ConnectivityContext';
 import { useBankInstitutions } from '../hooks/useBankInstitutions';
 import type { AtoaPayOptions } from '../types/sdk';
 import type { TransactionDetails } from '../types/payment';
 import { Colors } from '../constants/colors';
+import { Spacing } from '../constants/spacing';
 import { BankSelectionScreen } from './bank-selection/BankSelectionScreen';
 import { HowToMakePaymentScreen } from './how-to-pay/HowToMakePaymentScreen';
 import { ConfirmationScreen } from './confirmation/ConfirmationScreen';
 import { PaymentPaidWidget } from './confirmation/PaymentPaidWidget';
 import { VerifyingPaymentScreen } from './verifying-payment/VerifyingPaymentScreen';
 import { AtoaException } from '../types/error';
+import { ConnectivityWrapper } from './shared/ConnectivityWrapper';
 
 type Screen =
   | 'howToPay'
@@ -32,9 +35,11 @@ export function AtoaPaymentModal({
 }: AtoaPaymentModalProps) {
   return (
     <GestureHandlerRootView style={styles.root}>
-      <PaymentProvider options={options}>
-        <AtoaPaymentModalInner options={options} onComplete={onComplete} />
-      </PaymentProvider>
+      <ConnectivityProvider>
+        <PaymentProvider options={options}>
+          <AtoaPaymentModalInner options={options} onComplete={onComplete} />
+        </PaymentProvider>
+      </ConnectivityProvider>
     </GestureHandlerRootView>
   );
 }
@@ -163,6 +168,8 @@ function AtoaPaymentModalInner({
     [state.transactionDetails, onComplete, handleClose]
   );
 
+  const { height } = useWindowDimensions();
+
   const renderScreen = () => {
     switch (currentScreen) {
       case 'howToPay':
@@ -211,14 +218,16 @@ function AtoaPaymentModalInner({
     <View style={styles.overlay}>
       <BottomSheet
         ref={bottomSheetRef}
-        snapPoints={['90%']}
+        enableDynamicSizing
+        maxDynamicContentSize={height * 0.9}
         enablePanDownToClose={false}
-        enableDynamicSizing={false}
         handleIndicatorStyle={styles.handle}
         backgroundStyle={styles.background}
       >
         <BottomSheetView style={styles.sheetContent}>
-          {renderScreen()}
+          <ConnectivityWrapper onBack={handleClose}>
+            {renderScreen()}
+          </ConnectivityWrapper>
         </BottomSheetView>
       </BottomSheet>
     </View>
@@ -239,10 +248,8 @@ const styles = StyleSheet.create({
   },
   background: {
     backgroundColor: Colors.white,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderTopLeftRadius: Spacing.xtraLarge,
+    borderTopRightRadius: Spacing.xtraLarge,
   },
-  sheetContent: {
-    flex: 1,
-  },
+  sheetContent: {},
 });

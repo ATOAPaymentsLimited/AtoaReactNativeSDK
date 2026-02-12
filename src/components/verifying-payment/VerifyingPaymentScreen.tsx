@@ -151,6 +151,7 @@ export function VerifyingPaymentScreen({
         <View style={styles.spacerSmall} />
 
         <Text style={styles.warningText}>
+          <Text style={styles.warningBold}>Note: </Text>
           Do not close this window
         </Text>
       </View>
@@ -160,7 +161,6 @@ export function VerifyingPaymentScreen({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: Colors.white,
   },
   centerContent: {
@@ -173,23 +173,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   atoaLogo: {
-    width: 72,
-    height: 72,
+    width: Spacing.xtraLarge * 2,
+    height: Spacing.xtraLarge * 2,
   },
   dotContainer: {
-    width: 72,
-    height: 40,
+    width: Spacing.xtraLarge * 2 + Spacing.tiny,
+    height: Spacing.xtraLarge * 2,
     justifyContent: 'center',
     alignItems: 'center',
   },
   dotAnimation: {
-    width: 72,
-    height: 40,
+    width: Spacing.xtraLarge * 2 + Spacing.tiny,
+    height: 30,
   },
   bankIconContainer: {
-    width: 72,
-    height: 72,
-    borderRadius: Spacing.medium,
+    width: Spacing.xtraLarge * 2,
+    height: Spacing.xtraLarge * 2,
+    borderRadius: Spacing.small,
     borderWidth: 1.25,
     borderColor: Colors.grey100,
     justifyContent: 'center',
@@ -197,12 +197,12 @@ const styles = StyleSheet.create({
     padding: Spacing.small,
   },
   bankIcon: {
-    width: 56,
-    height: 56,
+    width: 25,
+    height: 25,
   },
   bankIconPlaceholder: {
-    width: 72,
-    height: 72,
+    width: Spacing.xtraLarge * 2,
+    height: Spacing.xtraLarge * 2,
   },
   spacerLarge: {
     height: Spacing.large * 2,
@@ -219,7 +219,10 @@ const styles = StyleSheet.create({
   warningText: {
     fontFamily: 'Figtree',
     fontSize: 12,
-    fontWeight: '400',
+    fontWeight: '500',
     color: Colors.grey500,
+  },
+  warningBold: {
+    fontWeight: '700',
   },
 });

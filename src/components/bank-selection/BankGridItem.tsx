@@ -4,6 +4,7 @@ import type { BankInstitution } from '../../types/bank';
 import { getBankIcon } from '../../types/bank';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
+import { SvgIcon } from '../shared/SvgIcon';
 
 interface BankGridItemProps {
   bank: BankInstitution;
@@ -19,14 +20,16 @@ export const BankGridItem = React.memo(function BankGridItem({ bank, isSelected,
     <TouchableOpacity
       style={[
         styles.container,
-        isSelected && styles.selected,
         isDisabled && styles.disabled,
       ]}
       onPress={() => onPress(bank)}
       disabled={isDisabled}
       activeOpacity={0.7}
     >
-      <View style={styles.iconContainer}>
+      <View style={[
+        styles.iconContainer,
+        isSelected && styles.iconContainerSelected,
+      ]}>
         {iconUrl && (
           <Image
             source={{ uri: iconUrl }}
@@ -36,12 +39,12 @@ export const BankGridItem = React.memo(function BankGridItem({ bank, isSelected,
         )}
         {isSelected && (
           <View style={styles.checkmark}>
-            <Text style={styles.checkmarkText}>✓</Text>
+            <SvgIcon name="tick" size={10} color={Colors.white} />
           </View>
         )}
         {isDisabled && (
           <View style={styles.downBadge}>
-            <Text style={styles.downBadgeText}>↓</Text>
+            <SvgIcon name="iconError" size={12} color={Colors.white} />
           </View>
         )}
       </View>
@@ -60,18 +63,20 @@ export const BankGridItem = React.memo(function BankGridItem({ bank, isSelected,
   );
 });
 
+const ICON_CONTAINER_SIZE = Spacing.xtraLarge * 3 + Spacing.medium + Spacing.tiny;
+const ICON_SIZE = Spacing.mediumLarge * 2 + Spacing.tiny;
+
 const styles = StyleSheet.create({
   container: {
     width: '100%',
     alignItems: 'center',
   },
-  selected: {},
   disabled: {
     opacity: 0.4,
   },
   iconContainer: {
-    width: 80,
-    height: 80,
+    width: ICON_CONTAINER_SIZE,
+    height: Spacing.xtraLarge * 3,
     borderRadius: Spacing.medium,
     borderWidth: 1.5,
     borderColor: Colors.grey100,
@@ -79,41 +84,37 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: Colors.white,
     overflow: 'visible',
+    padding: Spacing.small,
+  },
+  iconContainerSelected: {
+    borderWidth: 2,
+    borderColor: Colors.black,
   },
   icon: {
-    width: 56,
-    height: 56,
+    width: ICON_SIZE,
+    height: ICON_SIZE,
   },
   checkmark: {
     position: 'absolute',
-    top: -4,
-    right: -4,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    top: Spacing.mini,
+    right: Spacing.mini,
+    width: Spacing.small * 2,
+    height: Spacing.small * 2,
+    borderRadius: Spacing.small,
     backgroundColor: Colors.black,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  checkmarkText: {
-    color: Colors.white,
-    fontSize: 12,
-    fontWeight: '700',
-  },
   downBadge: {
     position: 'absolute',
-    top: -4,
-    right: -4,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    top: Spacing.mini,
+    right: Spacing.mini,
+    width: Spacing.small * 2,
+    height: Spacing.small * 2,
+    borderRadius: Spacing.small,
     backgroundColor: Colors.errorDarker,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  downBadgeText: {
-    color: Colors.white,
-    fontSize: 12,
   },
   name: {
     fontFamily: 'Figtree',

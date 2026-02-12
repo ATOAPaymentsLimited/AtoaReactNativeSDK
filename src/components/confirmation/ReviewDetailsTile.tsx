@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
+import { SvgIcon } from '../shared/SvgIcon';
 
 interface ReviewDetailsTileProps {
   iconUrl?: string;
@@ -26,15 +27,17 @@ export function ReviewDetailsTile({
 }: ReviewDetailsTileProps) {
   return (
     <View style={styles.container}>
-      {iconUrl && (
-        <View style={styles.iconContainer}>
+      <View style={styles.iconContainer}>
+        {iconUrl ? (
           <Image
             source={{ uri: iconUrl }}
             style={styles.icon}
             resizeMode="contain"
           />
-        </View>
-      )}
+        ) : (
+          <SvgIcon name="businessImg" size={40} />
+        )}
+      </View>
       <View style={styles.textContainer}>
         <Text style={styles.heading}>{heading}</Text>
         <Text style={styles.content} numberOfLines={1}>
@@ -89,8 +92,8 @@ const styles = StyleSheet.create({
   },
   actionText: {
     fontFamily: 'Figtree',
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 14,
+    fontWeight: '700',
     color: Colors.brandPrimary,
     textDecorationLine: 'underline',
     textDecorationStyle: 'dotted',

@@ -17,10 +17,21 @@ type ButtonVariant =
   | 'tertiary'
   | 'ghost';
 
+type ButtonSize = 'xtraLarge' | 'large' | 'medium' | 'small' | 'xtraSmall';
+
+const BUTTON_HEIGHTS: Record<ButtonSize, number> = {
+  xtraLarge: 48,
+  large: 40,
+  medium: 32,
+  small: 28,
+  xtraSmall: 24,
+};
+
 interface LedgerButtonProps {
   title: string;
   onPress: () => void;
   variant?: ButtonVariant;
+  size?: ButtonSize;
   disabled?: boolean;
   loading?: boolean;
   backgroundColor?: string;
@@ -33,6 +44,7 @@ export function LedgerButton({
   title,
   onPress,
   variant = 'primary1',
+  size = 'large',
   disabled = false,
   loading = false,
   backgroundColor,
@@ -50,6 +62,7 @@ export function LedgerButton({
     <TouchableOpacity
       style={[
         styles.base,
+        { height: BUTTON_HEIGHTS[size] },
         variantStyles.container,
         disabled && styles.disabled,
         style,
@@ -106,7 +119,7 @@ function getVariantStyles(
         container: {
           backgroundColor: Colors.white,
           borderWidth: 1,
-          borderColor: Colors.grey300,
+          borderColor: Colors.black,
         },
         text: { color: Colors.black },
       };
@@ -115,7 +128,7 @@ function getVariantStyles(
 
 const styles = StyleSheet.create({
   base: {
-    height: 48,
+    height: BUTTON_HEIGHTS.large,
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
@@ -123,10 +136,10 @@ const styles = StyleSheet.create({
   },
   text: {
     fontFamily: 'Figtree',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '700',
   },
   disabled: {
-    opacity: 0.5,
+    opacity: 0.4,
   },
 });

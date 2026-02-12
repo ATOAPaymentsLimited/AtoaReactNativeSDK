@@ -3,12 +3,12 @@ import {
   View,
   TextInput,
   TouchableOpacity,
-  Text,
   StyleSheet,
   Animated,
 } from 'react-native';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
+import { SvgIcon } from '../shared/SvgIcon';
 
 interface AnimatedSearchFieldProps {
   value: string;
@@ -48,14 +48,16 @@ export function AnimatedSearchField({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.searchIcon}>🔍</Text>
+      <View style={styles.searchIconContainer}>
+        <SvgIcon name="search" size={16} color={Colors.black} />
+      </View>
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
           value={value}
           onChangeText={onChangeText}
           placeholder=""
-          placeholderTextColor={Colors.grey400}
+          placeholderTextColor={Colors.grey500}
           cursorColor={Colors.black}
         />
         {value.length === 0 && (
@@ -63,9 +65,9 @@ export function AnimatedSearchField({
             style={[styles.placeholderContainer, { opacity: fadeAnim }]}
             pointerEvents="none"
           >
-            <Text style={styles.placeholderText}>
+            <Animated.Text style={styles.placeholderText}>
               {PLACEHOLDER_TEXTS[placeholderIndex]}
-            </Text>
+            </Animated.Text>
           </Animated.View>
         )}
       </View>
@@ -74,7 +76,7 @@ export function AnimatedSearchField({
           onPress={() => onChangeText('')}
           style={styles.clearButton}
         >
-          <Text style={styles.clearText}>✕</Text>
+          <SvgIcon name="close" size={18} color={Colors.black} />
         </TouchableOpacity>
       )}
     </View>
@@ -93,8 +95,7 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.small + Spacing.tiny,
     marginHorizontal: Spacing.large,
   },
-  searchIcon: {
-    fontSize: 14,
+  searchIconContainer: {
     marginRight: Spacing.small,
   },
   inputContainer: {
@@ -104,6 +105,7 @@ const styles = StyleSheet.create({
   input: {
     fontFamily: 'Figtree',
     fontSize: 14,
+    fontWeight: '600',
     color: Colors.black,
     padding: 0,
     height: 20,
@@ -116,7 +118,8 @@ const styles = StyleSheet.create({
   placeholderText: {
     fontFamily: 'Figtree',
     fontSize: 14,
-    color: Colors.grey400,
+    fontWeight: '500',
+    color: Colors.grey500,
   },
   clearButton: {
     marginLeft: Spacing.small,
@@ -124,9 +127,5 @@ const styles = StyleSheet.create({
     height: 20,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  clearText: {
-    fontSize: 12,
-    color: Colors.grey500,
   },
 });

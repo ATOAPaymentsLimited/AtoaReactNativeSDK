@@ -79,7 +79,6 @@ export function PaymentStatusView({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: Colors.white,
   },
   successContent: {
@@ -87,8 +86,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   tickAnimation: {
-    width: 96,
-    height: 96,
+    width: Spacing.xtraLarge * 3,
+    height: Spacing.xtraLarge * 3,
   },
   spacer: {
     height: Spacing.medium,
@@ -100,9 +99,9 @@ const styles = StyleSheet.create({
     color: Colors.black,
   },
   centerContent: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingVertical: 32,
   },
   statusText: {
     fontFamily: 'Figtree',

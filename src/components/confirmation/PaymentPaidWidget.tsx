@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
+import { SvgIcon } from '../shared/SvgIcon';
 
 interface PaymentPaidWidgetProps {
   amount?: number;
@@ -17,7 +18,7 @@ export function PaymentPaidWidget({
   return (
     <View style={styles.container}>
       <View style={styles.checkCircle}>
-        <Text style={styles.checkText}>✓</Text>
+        <SvgIcon name="tick" size={Spacing.large} color={Colors.white} />
       </View>
 
       <View style={styles.spacerLarge} />
@@ -43,23 +44,19 @@ export function PaymentPaidWidget({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    padding: Spacing.huge,
+    paddingHorizontal: Spacing.huge,
+    paddingTop: 48,
+    paddingBottom: 32,
   },
   checkCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: Spacing.large * 2,
+    height: Spacing.large * 2,
+    borderRadius: Spacing.large,
     backgroundColor: Colors.positiveDarker,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  checkText: {
-    color: Colors.white,
-    fontSize: 28,
-    fontWeight: '700',
+    padding: Spacing.small,
   },
   spacerLarge: {
     height: Spacing.xtraLarge,

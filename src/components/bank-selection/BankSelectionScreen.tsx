@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { View, FlatList, StyleSheet, useWindowDimensions } from 'react-native';
+import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { useBankInstitutions } from '../../hooks/useBankInstitutions';
 import type { BankInstitution } from '../../types/bank';
 import { Colors } from '../../constants/colors';
@@ -150,18 +151,18 @@ export function BankSelectionScreen({
       )}
 
       {isSearching ? (
-        <FlatList
+        <BottomSheetFlatList
           data={searchResults}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item: BankInstitution) => item.id}
           renderItem={renderListItem}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
         />
       ) : (
-        <FlatList
+        <BottomSheetFlatList
           data={[{ type: 'grid' as const }, { type: 'list' as const }]}
-          keyExtractor={(item) => item.type}
-          renderItem={({ item }) => {
+          keyExtractor={(item: { type: string }) => item.type}
+          renderItem={({ item }: { item: { type: string } }) => {
             if (item.type === 'grid' && popularBanks.length > 0) {
               return (
                 <FlatList
@@ -201,7 +202,6 @@ export function BankSelectionScreen({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: Colors.white,
   },
   spacer: {
@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: Spacing.large,
-    paddingBottom: Spacing.huge,
+    paddingBottom: 32,
   },
   allBanksContainer: {
     paddingHorizontal: Spacing.large,

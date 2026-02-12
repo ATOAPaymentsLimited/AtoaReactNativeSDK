@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
+import { SvgIcon } from './SvgIcon';
 
 type InfoVariant = 'info' | 'error' | 'warning';
 
@@ -15,6 +16,7 @@ export const InfoWidget = React.memo(function InfoWidget({ message, variant = 'i
 
   return (
     <View style={[styles.container, { backgroundColor: variantColors.bg }]}>
+      <SvgIcon name="info" size={Spacing.large} color={variantColors.text} />
       <Text style={[styles.text, { color: variantColors.text }]}>
         {message}
       </Text>
@@ -35,13 +37,18 @@ function getVariantColors(variant: InfoVariant) {
 
 const styles = StyleSheet.create({
   container: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     borderRadius: Spacing.small,
-    padding: Spacing.medium,
+    paddingVertical: Spacing.small,
+    paddingHorizontal: Spacing.medium,
   },
   text: {
     fontFamily: 'Figtree',
     fontSize: 12,
     fontWeight: '500',
     lineHeight: 18,
+    flex: 1,
+    marginLeft: Spacing.small,
   },
 });

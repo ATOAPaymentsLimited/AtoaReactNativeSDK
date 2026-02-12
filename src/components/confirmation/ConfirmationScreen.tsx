@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
-import { View, Text, ScrollView, StyleSheet, Linking, Platform } from 'react-native';
+import { View, Text, StyleSheet, Linking, Platform } from 'react-native';
+import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useBankInstitutions } from '../../hooks/useBankInstitutions';
 import { getBankIcon } from '../../types/bank';
 import { Colors } from '../../constants/colors';
@@ -65,8 +66,7 @@ export function ConfirmationScreen({
     <View style={styles.container}>
       <BottomSheetHeader title="Review" onClose={onClose} />
 
-      <ScrollView
-        style={styles.scrollView}
+      <BottomSheetScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
@@ -145,27 +145,23 @@ export function ConfirmationScreen({
             Terms of Service
           </Text>
         </Text>
-      </ScrollView>
+      </BottomSheetScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: Colors.white,
   },
   loaderContainer: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  scrollView: {
-    flex: 1,
+    paddingVertical: 32,
   },
   content: {
     paddingHorizontal: Spacing.large,
-    paddingBottom: Spacing.huge,
+    paddingBottom: 80,
   },
   spacer: {
     height: Spacing.large,
@@ -183,7 +179,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   termsLink: {
-    color: Colors.brandPrimary,
-    textDecorationLine: 'underline',
+    color: Colors.grey500,
+    fontWeight: '700',
   },
 });

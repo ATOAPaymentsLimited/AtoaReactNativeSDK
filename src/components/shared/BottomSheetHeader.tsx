@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
+import { SvgIcon } from './SvgIcon';
 
 interface BottomSheetHeaderProps {
   title: string;
@@ -23,20 +24,20 @@ export function BottomSheetHeader({
       <View style={styles.side}>
         {onBack && (
           <TouchableOpacity onPress={onBack} style={styles.iconButton}>
-            <Text style={styles.iconText}>{'‹'}</Text>
+            <SvgIcon name="back" size={Spacing.large} color={Colors.black} />
           </TouchableOpacity>
         )}
       </View>
       <Text style={styles.title}>{title}</Text>
-      <View style={styles.side}>
+      <View style={styles.sideRight}>
         {showHelp && onHelp && (
           <TouchableOpacity onPress={onHelp} style={styles.iconButton}>
-            <Text style={styles.iconText}>?</Text>
+            <SvgIcon name="help" size={Spacing.large} />
           </TouchableOpacity>
         )}
         {onClose && (
           <TouchableOpacity onPress={onClose} style={styles.iconButton}>
-            <Text style={styles.closeText}>✕</Text>
+            <SvgIcon name="close" size={Spacing.large} color={Colors.black} />
           </TouchableOpacity>
         )}
       </View>
@@ -57,6 +58,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  sideRight: {
+    width: 48,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
   title: {
     fontFamily: 'Figtree',
     fontSize: 18,
@@ -67,17 +74,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   iconButton: {
-    width: 32,
-    height: 32,
+    width: Spacing.large * 2,
+    height: Spacing.large * 2,
+    borderRadius: Spacing.large,
+    backgroundColor: Colors.grey50,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  iconText: {
-    fontSize: 20,
-    color: Colors.grey600,
-  },
-  closeText: {
-    fontSize: 16,
-    color: Colors.grey600,
   },
 });

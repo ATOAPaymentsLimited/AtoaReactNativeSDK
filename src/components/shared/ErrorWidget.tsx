@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
+import { SvgIcon } from './SvgIcon';
 
 interface ErrorWidgetProps {
   title?: string;
@@ -16,7 +17,7 @@ export function ErrorWidget({
 }: ErrorWidgetProps) {
   return (
     <View style={styles.container}>
-      <Text style={styles.errorIcon}>⚠</Text>
+      <SvgIcon name="iconError" size={48} />
       <View style={styles.spacerLarge} />
       <Text style={styles.title}>{title}</Text>
       {message && (
@@ -43,10 +44,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: Spacing.huge,
-  },
-  errorIcon: {
-    fontSize: 64,
-    color: Colors.grey600,
   },
   spacerLarge: {
     height: Spacing.huge,
