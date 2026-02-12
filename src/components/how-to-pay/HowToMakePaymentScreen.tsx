@@ -1,12 +1,12 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import LottieView from 'lottie-react-native';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { BottomSheetHeader } from '../shared/BottomSheetHeader';
 import { LedgerButton } from '../shared/LedgerButton';
 import { SvgIcon } from '../shared/SvgIcon';
+import { DotLoadingAnimation } from '../shared/DotLoadingAnimation';
 import { useBankInstitutions } from '../../hooks/useBankInstitutions';
 
 interface HowToMakePaymentScreenProps {
@@ -43,14 +43,7 @@ export function HowToMakePaymentScreen({
             style={styles.atoaLogo}
             resizeMode="contain"
           />
-          <View style={styles.dotContainer}>
-            <LottieView
-              source={require('../../assets/animations/dot-loading.json')}
-              autoPlay
-              loop
-              style={styles.dotAnimation}
-            />
-          </View>
+          <DotLoadingAnimation />
           <Image
             source={require('../../assets/images/bank-logos.png')}
             style={styles.bankLogos}
@@ -119,15 +112,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
   },
-  dotContainer: {
-    width: 41,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  dotAnimation: {
-    width: 41,
-    height: 30,
-  },
   bankLogos: {
     height: 40,
     width: 120,
@@ -164,7 +148,6 @@ const styles = StyleSheet.create({
   trustContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: Colors.positiveLighter,
     borderRadius: Spacing.small + Spacing.tiny,
     paddingVertical: Spacing.small,

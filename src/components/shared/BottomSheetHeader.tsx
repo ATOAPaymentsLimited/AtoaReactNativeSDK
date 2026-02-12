@@ -35,11 +35,6 @@ export function BottomSheetHeader({
             <SvgIcon name="help" size={Spacing.large} />
           </TouchableOpacity>
         )}
-        {onClose && (
-          <TouchableOpacity onPress={onClose} style={styles.iconButton}>
-            <SvgIcon name="close" size={Spacing.large} color={Colors.black} />
-          </TouchableOpacity>
-        )}
       </View>
     </View>
   );

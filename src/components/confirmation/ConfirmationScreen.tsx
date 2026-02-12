@@ -28,7 +28,7 @@ export function ConfirmationScreen({
 
   const amount = paymentDetails?.amount;
   const amountStr = amount
-    ? `${amount.currency === 'GBP' ? '£' : amount.currency} ${amount.amount.toFixed(2)}`
+    ? `${!amount.currency || amount.currency === 'GBP' ? '£' : amount.currency}${amount.amount.toFixed(2)}`
     : '';
   const merchantName = paymentDetails?.merchantBusinessName ?? '';
   const bankName = selectedBank?.fullName ?? '';
@@ -77,8 +77,9 @@ export function ConfirmationScreen({
         {/* Payment details tile */}
         <ReviewDetailsTile
           iconUrl={storeImg}
-          heading={`Paying to ${merchantName}`}
-          content={amountStr}
+          heading="Paying to"
+          content={merchantName}
+          rightText={amountStr}
         />
 
         <View style={styles.spacer} />
@@ -135,14 +136,14 @@ export function ConfirmationScreen({
 
         {/* Terms */}
         <Text style={styles.termsText}>
-          By continuing you accept Atoa&apos;s{' '}
+          By continuing, you trust this merchant and accept Atoa&apos;s{' '}
           <Text
             style={styles.termsLink}
             onPress={() =>
               Linking.openURL('https://paywithatoa.co.uk/terms-of-service')
             }
           >
-            Terms of Service
+            terms
           </Text>
         </Text>
       </BottomSheetScrollView>

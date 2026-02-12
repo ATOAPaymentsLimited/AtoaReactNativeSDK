@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import { View, Text, Image, StyleSheet, useWindowDimensions } from 'react-native';
-import LottieView from 'lottie-react-native';
 import { usePaymentStatus } from '../../hooks/usePaymentStatus';
 import { useBankInstitutions } from '../../hooks/useBankInstitutions';
 import { getBankIcon } from '../../types/bank';
@@ -9,6 +8,7 @@ import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { BottomSheetHeader } from '../shared/BottomSheetHeader';
 import { ErrorWidget } from '../shared/ErrorWidget';
+import { DotLoadingAnimation } from '../shared/DotLoadingAnimation';
 import { PaymentStatusView } from './PaymentStatusView';
 
 interface VerifyingPaymentScreenProps {
@@ -122,14 +122,7 @@ export function VerifyingPaymentScreen({
             resizeMode="contain"
           />
 
-          <View style={styles.dotContainer}>
-            <LottieView
-              source={require('../../assets/animations/dot-loading.json')}
-              autoPlay
-              loop
-              style={styles.dotAnimation}
-            />
-          </View>
+          <DotLoadingAnimation />
 
           {bankIconUrl ? (
             <View style={styles.bankIconContainer}>
@@ -177,16 +170,6 @@ const styles = StyleSheet.create({
   atoaLogo: {
     width: Spacing.xtraLarge * 2,
     height: Spacing.xtraLarge * 2,
-  },
-  dotContainer: {
-    width: Spacing.xtraLarge * 2 + Spacing.tiny,
-    height: Spacing.xtraLarge * 2,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  dotAnimation: {
-    width: Spacing.xtraLarge * 2 + Spacing.tiny,
-    height: 30,
   },
   bankIconContainer: {
     width: Spacing.xtraLarge * 2,

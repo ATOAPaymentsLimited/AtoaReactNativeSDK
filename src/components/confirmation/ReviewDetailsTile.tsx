@@ -14,6 +14,7 @@ interface ReviewDetailsTileProps {
   iconUrl?: string;
   heading: string;
   content: string;
+  rightText?: string;
   actionText?: string;
   onAction?: () => void;
 }
@@ -22,6 +23,7 @@ export function ReviewDetailsTile({
   iconUrl,
   heading,
   content,
+  rightText,
   actionText,
   onAction,
 }: ReviewDetailsTileProps) {
@@ -43,12 +45,15 @@ export function ReviewDetailsTile({
         <Text style={styles.content} numberOfLines={1}>
           {content}
         </Text>
-        {actionText && onAction && (
-          <TouchableOpacity onPress={onAction}>
-            <Text style={styles.actionText}>{actionText}</Text>
-          </TouchableOpacity>
-        )}
       </View>
+      {rightText && (
+        <Text style={styles.rightText}>{rightText}</Text>
+      )}
+      {actionText && onAction && (
+        <TouchableOpacity onPress={onAction}>
+          <Text style={styles.actionText}>{actionText}</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -90,13 +95,20 @@ const styles = StyleSheet.create({
     color: Colors.black,
     marginTop: 2,
   },
+  rightText: {
+    fontFamily: 'Figtree',
+    fontSize: 16,
+    fontWeight: '700',
+    color: Colors.black,
+    marginLeft: Spacing.small,
+  },
   actionText: {
     fontFamily: 'Figtree',
     fontSize: 14,
     fontWeight: '700',
-    color: Colors.brandPrimary,
+    color: Colors.errorDarker,
     textDecorationLine: 'underline',
     textDecorationStyle: 'dotted',
-    marginTop: Spacing.mini,
+    marginLeft: Spacing.small,
   },
 });
