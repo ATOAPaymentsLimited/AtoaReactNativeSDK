@@ -1,4 +1,5 @@
 export { AtoaSdk } from './AtoaSdk';
+export { AtoaProvider } from './AtoaProvider';
 
 // Types
 export type { AtoaEnv } from './types/environment';

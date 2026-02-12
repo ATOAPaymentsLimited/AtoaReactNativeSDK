@@ -49,8 +49,8 @@ buck-out/
 # Misc
 .env
 
-// VS Code
+# VS Code
 .vscode/
 
-// Claude
+# Claude
 .claude/

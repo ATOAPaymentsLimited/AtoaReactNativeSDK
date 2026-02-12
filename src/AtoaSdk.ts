@@ -8,10 +8,21 @@ import { AtoaPaymentModal } from './components/AtoaPaymentModal';
  * Atoa React Native SDK
  *
  * Provides a single imperative method `pay()` to initiate the Atoa payment flow.
- * No provider wrapper or setup needed in the host app.
+ * Requires `<AtoaProvider>` to wrap your app root.
  *
  * @example
  * ```tsx
+ * // In index.js — wrap your app once:
+ * import { AtoaProvider } from '@atoapayments/atoa-react-native-sdk';
+ *
+ * const Root = () => (
+ *   <AtoaProvider>
+ *     <App />
+ *   </AtoaProvider>
+ * );
+ * AppRegistry.registerComponent(appName, () => Root);
+ *
+ * // Then anywhere in your app:
  * import { AtoaSdk } from '@atoapayments/atoa-react-native-sdk';
  *
  * const result = await AtoaSdk.pay({
