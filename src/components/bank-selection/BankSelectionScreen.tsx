@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { View, FlatList, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Text, FlatList, StyleSheet, useWindowDimensions } from 'react-native';
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { useBankInstitutions } from '../../hooks/useBankInstitutions';
 import type { BankInstitution } from '../../types/bank';
@@ -8,6 +8,7 @@ import { Spacing } from '../../constants/spacing';
 import { BottomSheetHeader } from '../shared/BottomSheetHeader';
 import { FetchingBankLoader } from '../shared/FetchingBankLoader';
 import { ErrorWidget } from '../shared/ErrorWidget';
+import { InfoWidget } from '../shared/InfoWidget';
 import { AnimatedSearchField } from './AnimatedSearchField';
 import { BankTabBar } from './BankTabBar';
 import { BankGridItem } from './BankGridItem';
@@ -16,11 +17,13 @@ import { BankListItem } from './BankListItem';
 interface BankSelectionScreenProps {
   onBack?: () => void;
   onClose: () => void;
+  onHelp?: () => void;
 }
 
 export function BankSelectionScreen({
   onBack,
   onClose,
+  onHelp,
 }: BankSelectionScreenProps) {
   const {
     state,
@@ -83,6 +86,8 @@ export function BankSelectionScreen({
           title="Select your bank"
           onClose={onClose}
           onBack={onBack}
+          showHelp={!!onHelp}
+          onHelp={onHelp}
         />
         <FetchingBankLoader />
       </View>
@@ -96,6 +101,8 @@ export function BankSelectionScreen({
           title="Select your bank"
           onClose={onClose}
           onBack={onBack}
+          showHelp={!!onHelp}
+          onHelp={onHelp}
         />
         <ErrorWidget
           message={
@@ -132,6 +139,8 @@ export function BankSelectionScreen({
         title="Select your bank"
         onClose={onClose}
         onBack={onBack}
+        showHelp={!!onHelp}
+        onHelp={onHelp}
       />
 
       <AnimatedSearchField
@@ -145,6 +154,13 @@ export function BankSelectionScreen({
         <>
           <View style={styles.tabBarContainer}>
             <BankTabBar selectedIndex={tabIndex} onTabChange={setTabIndex} />
+          </View>
+          <View style={styles.spacer} />
+          <View style={styles.infoBannerContainer}>
+            <InfoWidget
+              message="Ensure the selected bank's app is installed on your phone"
+              variant="warning"
+            />
           </View>
           <View style={styles.spacer} />
         </>
@@ -179,6 +195,7 @@ export function BankSelectionScreen({
             if (item.type === 'list') {
               return (
                 <View style={styles.allBanksContainer}>
+                  <Text style={styles.allBanksLabel}>ALL BANKS</Text>
                   {remainingBanks.map((bank) => (
                     <BankListItem
                       key={bank.id}
@@ -220,11 +237,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.large,
     paddingBottom: 32,
   },
+  infoBannerContainer: {
+    paddingHorizontal: Spacing.large,
+  },
   allBanksContainer: {
     paddingHorizontal: Spacing.large,
     borderTopWidth: 1,
     borderTopColor: Colors.grey200,
     marginTop: Spacing.large,
     paddingTop: Spacing.large,
+  },
+  allBanksLabel: {
+    fontFamily: 'Figtree',
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.grey500,
+    letterSpacing: 1,
+    marginBottom: Spacing.small,
   },
 });

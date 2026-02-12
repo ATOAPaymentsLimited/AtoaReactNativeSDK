@@ -29,7 +29,7 @@ export function BottomSheetHeader({
         )}
       </View>
       <Text style={styles.title}>{title}</Text>
-      <View style={styles.sideRight}>
+      <View style={[styles.sideRight, showHelp && onHelp && styles.sideRightWide]}>
         {showHelp && onHelp && (
           <TouchableOpacity onPress={onHelp} style={styles.iconButton}>
             <SvgIcon name="help" size={Spacing.large} />
@@ -63,6 +63,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
+    gap: Spacing.small,
+  },
+  sideRightWide: {
+    width: 48 + Spacing.large * 2 + Spacing.small,
   },
   title: {
     fontFamily: 'Figtree',

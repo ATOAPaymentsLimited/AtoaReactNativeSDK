@@ -28,7 +28,7 @@ export function HowToMakePaymentScreen({
 
   return (
     <View style={styles.container}>
-      <BottomSheetHeader title="How to pay with bank app" onClose={onClose} />
+      <BottomSheetHeader title="How to pay with bank app?" onClose={onClose} />
 
       <BottomSheetScrollView
         contentContainerStyle={styles.content}
@@ -78,14 +78,14 @@ export function HowToMakePaymentScreen({
           <SvgIcon name="shield" size={Spacing.xtraLarge} />
           <View style={{ width: Spacing.small }} />
           <Text style={styles.trustText}>
-            Trusted by thousands of businesses across the UK
+            Trusted by thousands of businesses in the UK
           </Text>
         </View>
 
         <View style={styles.spacerHuge} />
 
         <LedgerButton
-          title="I understand, Continue"
+          title="I understand, continue →"
           onPress={onContinue}
           variant="primary2"
           backgroundColor={brandingColors.backgroundColor}

@@ -1,102 +1,77 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   SafeAreaView,
-  ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
-  Alert,
+  Switch,
   Pressable,
 } from 'react-native';
 import {
   AtoaSdk,
-  type TransactionDetails,
+  type AtoaEnv,
   type AtoaPayOptions,
 } from '@atoapayments/atoa-react-native-sdk';
 
 function App(): React.JSX.Element {
-  const [lastResult, setLastResult] = useState<TransactionDetails | null>(null);
+  const [paymentId, setPaymentId] = useState('');
+  const [isSandbox, setIsSandbox] = useState(true);
 
-  const handlePayNow = async () => {
-    try {
-      const options: AtoaPayOptions = {
-        paymentId: 'payment-request-id', // Replace with actual payment ID
-        env: 'prod',
-        environment: 'production', // 'development' | 'staging' | 'production'
-        showHowPaymentWorks: true,
-        customerDetails: {
-          phoneCountryCode: '44',
-          phoneNumber: '8788899999',
-          email: 'customer@example.com',
-        },
-        onUserClose: ({ paymentRequestId }) => {
-          console.log(
-            `User closed payment for paymentRequestId: ${paymentRequestId}`
-          );
-        },
-        onPaymentStatusChange: ({ status }) => {
-          console.log(`Payment Status Changed to ${status}`);
-        },
-        onError: (error) => {
-          console.error(`Error in Atoa SDK: ${error.message}`);
-        },
-      };
+  const env: AtoaEnv = isSandbox ? 'sandbox' : 'prod';
 
-      const result = await AtoaSdk.pay(options);
-      setLastResult(result);
-
-      if (result) {
-        if (result.status === 'COMPLETED') {
-          Alert.alert('Success', 'Payment completed successfully!');
-        } else {
-          Alert.alert('Payment Status', `Status: ${result.status}`);
-        }
-      } else {
-        Alert.alert('Cancelled', 'Payment was cancelled by user.');
-      }
-    } catch (error) {
-      console.error('Payment error:', error);
-      Alert.alert('Error', 'Failed to initiate payment.');
+  const handleInitiatePayment = async () => {
+    const trimmed = paymentId.trim();
+    if (!trimmed) {
+      return;
     }
+
+    const options: AtoaPayOptions = {
+      paymentId: trimmed,
+      env,
+      showHowPaymentWorks: false,
+    };
+
+    await AtoaSdk.pay(options);
   };
+
+  const isButtonDisabled = paymentId.trim().length === 0;
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.title}>Atoa SDK Demo</Text>
-        <Text style={styles.subtitle}>React Native Example App</Text>
+      <View style={styles.body}>
+        {/* Payment ID Input */}
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.textInput}
+            value={paymentId}
+            onChangeText={setPaymentId}
+            placeholder="Payment ID"
+            placeholderTextColor="#999"
+          />
+        </View>
 
         <View style={styles.spacer} />
 
-        {/* Product Card */}
-        <View style={styles.productCard}>
-          <Text style={styles.productEmoji}>👟</Text>
-          <Text style={styles.productName}>Nike Air Max 90</Text>
-          <Text style={styles.productPrice}>£130.00</Text>
-          <View style={styles.spacerSmall} />
-          <Pressable style={styles.payButton} onPress={handlePayNow}>
-            <Text style={styles.payButtonText}>
-              Pay Now
-            </Text>
-          </Pressable>
+        {/* Sandbox Toggle */}
+        <View style={styles.switchRow}>
+          <Text style={styles.switchLabel}>is Sandbox?</Text>
+          <Switch value={isSandbox} onValueChange={setIsSandbox} />
         </View>
+      </View>
 
-        {/* Last Result */}
-        {lastResult && (
-          <View style={styles.resultCard}>
-            <Text style={styles.resultTitle}>Last Payment Result</Text>
-            <Text style={styles.resultText}>
-              Status: {lastResult.status}
-            </Text>
-            <Text style={styles.resultText}>
-              Amount: £{lastResult.paidAmount?.toFixed(2)}
-            </Text>
-            <Text style={styles.resultText}>
-              ID: {lastResult.paymentIdempotencyId}
-            </Text>
-          </View>
-        )}
-      </ScrollView>
+      {/* Initiate Payment Button */}
+      <View style={styles.buttonContainer}>
+        <Pressable
+          style={[
+            styles.payButton,
+            isButtonDisabled && styles.payButtonDisabled,
+          ]}
+          onPress={handleInitiatePayment}
+          disabled={isButtonDisabled}>
+          <Text style={styles.payButtonText}>Initiate Payment</Text>
+        </Pressable>
+      </View>
     </SafeAreaView>
   );
 }
@@ -104,88 +79,54 @@ function App(): React.JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#FAFAFA',
   },
-  content: {
-    padding: 20,
-    alignItems: 'center',
+  body: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 16,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#000',
-    marginTop: 40,
+  inputContainer: {
+    paddingHorizontal: 16,
   },
-  subtitle: {
+  textInput: {
     fontSize: 16,
-    color: '#666',
-    marginTop: 8,
+    color: '#000',
+    borderBottomWidth: 1,
+    borderBottomColor: '#999',
+    paddingVertical: 8,
   },
   spacer: {
-    height: 40,
-  },
-  spacerSmall: {
     height: 16,
   },
-  productCard: {
-    backgroundColor: '#FFF',
-    borderRadius: 16,
-    padding: 24,
-    width: '100%',
+  switchRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
-  productEmoji: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
-  productName: {
-    fontSize: 20,
-    fontWeight: '700',
+  switchLabel: {
+    fontSize: 16,
     color: '#000',
   },
-  productPrice: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#6B4EFF',
-    marginTop: 8,
+  buttonContainer: {
+    alignItems: 'center',
+    paddingBottom: 32,
   },
   payButton: {
-    backgroundColor: '#6B4EFF',
+    backgroundColor: '#6750A4',
     borderRadius: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 48,
-    width: '100%',
-    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+  },
+  payButtonDisabled: {
+    opacity: 0.5,
   },
   payButtonText: {
-    color: '#FFF',
+    color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '700',
-  },
-  resultCard: {
-    backgroundColor: '#FFF',
-    borderRadius: 16,
-    padding: 20,
-    width: '100%',
-    marginTop: 20,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-  },
-  resultTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#000',
-    marginBottom: 12,
-  },
-  resultText: {
-    fontSize: 14,
-    color: '#333',
-    marginBottom: 4,
+    fontWeight: '500',
   },
 });
 

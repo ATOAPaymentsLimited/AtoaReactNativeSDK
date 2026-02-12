@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect, useCallback} from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -15,9 +15,9 @@ import {
   isCompleted,
   isFailed,
   isPending,
-  type TransactionDetails,
   type AtoaPayOptions,
 } from '@atoapayments/atoa-react-native-sdk';
+import NetInfo from '@react-native-community/netinfo';
 import Svg, {Path, G, ClipPath, Rect, Defs} from 'react-native-svg';
 
 const ATOA_TOKEN = 'YOUR_ATOA_TOKEN_HERE'; // Replace with your actual Atoa API token
@@ -80,6 +80,136 @@ async function getPaymentRequestId(amount: number): Promise<string> {
     timestamp: new Date().toISOString(),
   });
   return data.paymentRequestId ?? '';
+}
+
+type ConnectivityStatus = 'wifi' | 'cellular' | 'offline' | 'waiting' | 'other';
+
+function useConnectivity(): {
+  status: ConnectivityStatus;
+  isOffline: boolean;
+  checkConnection: () => Promise<void>;
+} {
+  const [status, setStatus] = useState<ConnectivityStatus>('waiting');
+
+  const resolveStatus = useCallback(async (): Promise<ConnectivityStatus> => {
+    const state = await NetInfo.fetch();
+    if (state.isConnected === null) {
+      return 'waiting';
+    }
+    if (!state.isConnected) {
+      return 'offline';
+    }
+    if (state.type === 'cellular') {
+      return 'cellular';
+    }
+    if (state.type === 'wifi') {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        const response = await fetch('https://api.atoa.me/api/', {
+          method: 'GET',
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+        return response.status === 200 ? 'wifi' : 'offline';
+      } catch {
+        return 'offline';
+      }
+    }
+    if (
+      state.type === 'vpn' ||
+      state.type === 'other' ||
+      state.type === 'ethernet' ||
+      state.type === 'bluetooth'
+    ) {
+      return 'other';
+    }
+    return 'offline';
+  }, []);
+
+  const checkConnection = useCallback(async () => {
+    const newStatus = await resolveStatus();
+    setStatus(newStatus);
+  }, [resolveStatus]);
+
+  useEffect(() => {
+    checkConnection();
+    const unsubscribe = NetInfo.addEventListener(async state => {
+      let newStatus: ConnectivityStatus;
+      if (state.isConnected === null) {
+        newStatus = 'waiting';
+      } else if (!state.isConnected) {
+        newStatus = 'offline';
+      } else if (state.type === 'cellular') {
+        newStatus = 'cellular';
+      } else if (state.type === 'wifi') {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 15000);
+          const response = await fetch('https://api.atoa.me/api/', {
+            method: 'GET',
+            signal: controller.signal,
+          });
+          clearTimeout(timeoutId);
+          newStatus = response.status === 200 ? 'wifi' : 'offline';
+        } catch {
+          newStatus = 'offline';
+        }
+      } else if (
+        state.type === 'vpn' ||
+        state.type === 'other' ||
+        state.type === 'ethernet' ||
+        state.type === 'bluetooth'
+      ) {
+        newStatus = 'other';
+      } else {
+        newStatus = 'offline';
+      }
+      setStatus(newStatus);
+    });
+    return () => unsubscribe();
+  }, [checkConnection]);
+
+  const isOffline = status === 'offline' || status === 'waiting';
+
+  return {status, isOffline, checkConnection};
+}
+
+function WifiOffIcon() {
+  return (
+    <Svg width={24} height={20} viewBox="0 0 47 38" fill="none">
+      <Path
+        d="M42.7501 16.3178C40.2547 13.898 37.3627 12.0044 34.074 10.6367C30.784 9.27035 27.2593 8.58716 23.5001 8.58716C22.8195 8.58716 22.1636 8.61042 21.5323 8.65693C20.8997 8.70469 20.2593 8.77571 19.6112 8.86999L14.6529 4.06191C16.0788 3.6848 17.5293 3.40198 19.0045 3.21342C20.4784 3.02487 21.9769 2.93059 23.5001 2.93059C28.1019 2.93059 32.3959 3.76337 36.382 5.42891C40.3681 7.09446 43.8519 9.37279 46.8334 12.2639L42.7501 16.3178ZM34.9723 23.7656L25.1529 14.2437C27.7779 14.4951 30.233 15.1393 32.5184 16.1764C34.8025 17.2134 36.8195 18.5804 38.5695 20.2774L34.9723 23.7656ZM38.5695 38.0013L20.2917 20.1831C18.7686 20.5288 17.3511 21.0473 16.0392 21.7387C14.7261 22.43 13.551 23.2942 12.514 24.3313L8.43064 20.2774C9.46767 19.2718 10.5857 18.3919 11.7848 17.6377C12.9839 16.8835 14.264 16.2235 15.6251 15.6579L11.2501 11.4154C9.92138 12.0754 8.68212 12.8057 7.5323 13.6064C6.38119 14.4084 5.28712 15.3122 4.25008 16.3178L0.166748 12.2639C1.20379 11.2583 2.28166 10.3545 3.40036 9.55255C4.51777 8.75183 5.70841 7.99008 6.9723 7.2673L2.88897 3.3077L5.61119 0.667969L41.389 35.3616L38.5695 38.0013ZM23.5001 34.9845L16.6459 28.2909C17.5209 27.4424 18.5417 26.7743 19.7084 26.2866C20.8751 25.8001 22.139 25.5569 23.5001 25.5569C24.8612 25.5569 26.1251 25.8001 27.2917 26.2866C28.4584 26.7743 29.4792 27.4424 30.3542 28.2909L23.5001 34.9845Z"
+        fill="#1A1A1A"
+      />
+    </Svg>
+  );
+}
+
+function OfflineBanner({
+  onRetry,
+  isRetrying,
+}: {
+  onRetry: () => void;
+  isRetrying: boolean;
+}) {
+  return (
+    <View style={styles.offlineBanner}>
+      <WifiOffIcon />
+      <View style={styles.offlineBannerGap} />
+      <Text style={styles.offlineBannerText} numberOfLines={1}>
+        No internet connection
+      </Text>
+      <View style={styles.offlineBannerSpacer} />
+      {isRetrying ? (
+        <ActivityIndicator color="#3498DB" size="small" />
+      ) : (
+        <Pressable onPress={onRetry} hitSlop={8}>
+          <Text style={styles.offlineBannerRetry}>Retry</Text>
+        </Pressable>
+      )}
+    </View>
+  );
 }
 
 function DeleteIcon() {
@@ -195,7 +325,10 @@ function ProductCard({
 function App(): React.JSX.Element {
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [isRetrying, setIsRetrying] = useState(false);
   const showHowPaymentWorksRef = useRef(true);
+  const {isOffline, checkConnection} = useConnectivity();
 
   const totalAmount = products.reduce(
     (sum, p) => sum + p.price * p.quantity,
@@ -247,7 +380,9 @@ function App(): React.JSX.Element {
       },
     };
 
+    setIsSheetOpen(true);
     const result = await AtoaSdk.pay(options);
+    setIsSheetOpen(false);
     showHowPaymentWorksRef.current = false;
 
     if (result) {
@@ -261,6 +396,15 @@ function App(): React.JSX.Element {
         Alert.alert('Payment Status', `Status: ${result.status}`);
       }
     }
+  };
+
+  const handleRetry = async () => {
+    setIsRetrying(true);
+    await Promise.all([
+      checkConnection(),
+      new Promise<void>(resolve => setTimeout(() => resolve(), 500)),
+    ]);
+    setIsRetrying(false);
   };
 
   const handlePayNow = async () => {
@@ -353,26 +497,36 @@ function App(): React.JSX.Element {
         <View style={styles.bottomPadding} />
       </ScrollView>
 
+      {/* Offline Banner */}
+      {isOffline && (
+        <OfflineBanner onRetry={handleRetry} isRetrying={isRetrying} />
+      )}
+
       {/* Bottom Sheet - Pay Now */}
-      <View style={styles.bottomSheet}>
-        <View style={styles.bottomSheetLeft}>
-          <Text style={styles.totalLabel}>Total</Text>
-          <Text style={styles.totalAmount}>£ {totalAmount.toFixed(2)}</Text>
+      {!isSheetOpen && (
+        <View style={styles.bottomSheet}>
+          <View style={styles.bottomSheetLeft}>
+            <Text style={styles.totalLabel}>Total</Text>
+            <Text style={styles.totalAmount}>
+              £ {totalAmount.toFixed(2)}
+            </Text>
+          </View>
+          <Pressable
+            style={[
+              styles.payButton,
+              (isLoading || products.length === 0 || isOffline) &&
+                styles.payButtonDisabled,
+            ]}
+            onPress={handlePayNow}
+            disabled={isLoading || products.length === 0 || isOffline}>
+            {isLoading ? (
+              <ActivityIndicator color="#FFF" size="small" />
+            ) : (
+              <Text style={styles.payButtonText}>Pay Now</Text>
+            )}
+          </Pressable>
         </View>
-        <Pressable
-          style={[
-            styles.payButton,
-            (isLoading || products.length === 0) && styles.payButtonDisabled,
-          ]}
-          onPress={handlePayNow}
-          disabled={isLoading || products.length === 0}>
-          {isLoading ? (
-            <ActivityIndicator color="#FFF" size="small" />
-          ) : (
-            <Text style={styles.payButtonText}>Pay Now</Text>
-          )}
-        </Pressable>
-      </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -552,7 +706,35 @@ const styles = StyleSheet.create({
 
   // Bottom Padding
   bottomPadding: {
-    height: 100,
+    height: 32,
+  },
+
+  // Offline Banner
+  offlineBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginBottom: 16,
+    padding: 12,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+  },
+  offlineBannerGap: {
+    width: 12,
+  },
+  offlineBannerText: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1A1A1A',
+  },
+  offlineBannerSpacer: {
+    width: 8,
+  },
+  offlineBannerRetry: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#3498DB',
   },
 
   // Bottom Sheet

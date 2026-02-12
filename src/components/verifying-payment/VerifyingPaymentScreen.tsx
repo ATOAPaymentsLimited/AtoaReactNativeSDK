@@ -96,7 +96,7 @@ export function VerifyingPaymentScreen({
   if (paymentStatusError) {
     return (
       <View style={styles.container}>
-        <BottomSheetHeader title="Payment In Progress" onClose={handleClose} />
+        <BottomSheetHeader title="Payment in progress" onClose={handleClose} />
         <ErrorWidget
           message={paymentStatusError.message}
           onRetry={() => {
@@ -111,7 +111,7 @@ export function VerifyingPaymentScreen({
 
   return (
     <View style={styles.container}>
-      <BottomSheetHeader title="Payment In Progress" onClose={handleClose} />
+      <BottomSheetHeader title="Payment in progress" onClose={handleClose} />
 
       <View style={[styles.centerContent, { height: height * 0.4 }]}>
         {/* Atoa Logo → Dot Loading → Bank Icon */}
@@ -146,13 +146,15 @@ export function VerifyingPaymentScreen({
 
         <View style={styles.spacerLarge} />
 
-        <Text style={styles.verifyingText}>Verifying your payment</Text>
+        <Text style={styles.verifyingText}>
+          Verifying payment status with your bank.
+        </Text>
 
         <View style={styles.spacerSmall} />
 
         <Text style={styles.warningText}>
-          <Text style={styles.warningBold}>Note: </Text>
-          Do not close this window
+          Do not press back or close this screen until the transaction is
+          complete
         </Text>
       </View>
     </View>
@@ -221,8 +223,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
     color: Colors.grey500,
-  },
-  warningBold: {
-    fontWeight: '700',
+    textAlign: 'center',
+    paddingHorizontal: Spacing.large,
   },
 });

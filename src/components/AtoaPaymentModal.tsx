@@ -189,6 +189,7 @@ function AtoaPaymentModalInner({
                 : undefined
             }
             onClose={handleClose}
+            onHelp={() => setCurrentScreen('howToPay')}
           />
         );
       case 'confirmation':

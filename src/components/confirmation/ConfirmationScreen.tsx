@@ -70,14 +70,14 @@ export function ConfirmationScreen({
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <InfoWidget message="Confirm the details below and go to your bank to authorise the payment." />
+        <InfoWidget message="We'll send you to your bank's app or website to confirm this payment" />
 
         <View style={styles.spacer} />
 
         {/* Payment details tile */}
         <ReviewDetailsTile
           iconUrl={storeImg}
-          heading={merchantName}
+          heading={`Paying to ${merchantName}`}
           content={amountStr}
         />
 
@@ -86,7 +86,7 @@ export function ConfirmationScreen({
         {/* Bank details tile */}
         <ReviewDetailsTile
           iconUrl={bankIconUrl}
-          heading="Paying from"
+          heading="From"
           content={bankName}
           actionText="Change"
           onAction={onChangeBank}
@@ -123,7 +123,7 @@ export function ConfirmationScreen({
         <View style={styles.spacerLarge} />
 
         <LedgerButton
-          title="Go to Bank"
+          title={`Go to ${selectedBank?.name ?? 'Bank'} →`}
           onPress={onGoToBank}
           variant="primary2"
           backgroundColor={brandingColors.backgroundColor}

@@ -43,9 +43,9 @@ export const BankListItem = React.memo(function BankListItem({ bank, isSelected,
         )}
       </View>
       <View
-        style={[styles.checkbox, isSelected && styles.checkboxSelected]}
+        style={[styles.radioOuter, isSelected && styles.radioOuterSelected]}
       >
-        {isSelected && <SvgIcon name="tick" size={12} color={Colors.white} />}
+        {isSelected && <View style={styles.radioInner} />}
       </View>
     </TouchableOpacity>
   );
@@ -94,19 +94,24 @@ const styles = StyleSheet.create({
   downIndicator: {
     marginLeft: Spacing.small,
   },
-  checkbox: {
+  radioOuter: {
     width: Spacing.xtraLarge + Spacing.mini,
     height: Spacing.xtraLarge + Spacing.mini,
-    borderRadius: Spacing.medium,
+    borderRadius: (Spacing.xtraLarge + Spacing.mini) / 2,
     borderWidth: 1.5,
     borderColor: Colors.grey300,
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: Spacing.medium,
-    padding: Spacing.mini,
   },
-  checkboxSelected: {
-    backgroundColor: Colors.black,
+  radioOuterSelected: {
+    borderWidth: 2,
     borderColor: Colors.black,
+  },
+  radioInner: {
+    width: Spacing.medium,
+    height: Spacing.medium,
+    borderRadius: Spacing.medium / 2,
+    backgroundColor: Colors.black,
   },
 });

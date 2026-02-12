@@ -15,7 +15,7 @@ interface AnimatedSearchFieldProps {
   onChangeText: (text: string) => void;
 }
 
-const PLACEHOLDER_TEXTS = ['Personal Banks', 'Business Banks'];
+const PLACEHOLDER_TEXTS = ['Search your Personal Banks', 'Search your Business Banks'];
 
 export function AnimatedSearchField({
   value,
