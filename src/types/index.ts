@@ -1,4 +1,4 @@
-export type { AtoaEnv } from './environment';
+export type { AtoaEnv, AtoaEnvironment } from './environment';
 export type {
   BankInstitution,
   BankMedia,

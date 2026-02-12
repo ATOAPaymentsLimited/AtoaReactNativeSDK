@@ -1,12 +1,13 @@
-import type { AtoaEnv } from '../types';
+import type { AtoaEnv, AtoaEnvironment } from '../types';
 
-const BASE_URLS: Record<AtoaEnv, string> = {
-  sandbox: 'https://devapi.atoa.me/api/',
-  prod: 'https://api.atoa.me/api/',
+const ENVIRONMENT_BASE_URLS: Record<AtoaEnvironment, string> = {
+  development: 'https://devapi.atoa.me/api/',
+  staging: 'https://uatapi.atoa.me/api/',
+  production: 'https://api.atoa.me/api/',
 };
 
-export function getBaseUrl(env: AtoaEnv): string {
-  return BASE_URLS[env];
+export function getBaseUrl(environment: AtoaEnvironment): string {
+  return ENVIRONMENT_BASE_URLS[environment];
 }
 
 export const Endpoints = {

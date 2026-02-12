@@ -1,4 +1,4 @@
-import type { AtoaEnv } from '../types/environment';
+import type { AtoaEnv, AtoaEnvironment } from '../types/environment';
 import type { BankInstitution } from '../types/bank';
 import type { CustomerDetails } from '../types/customer';
 import type {
@@ -15,9 +15,9 @@ export class AtoaClient {
   private baseUrl: string;
   private env: AtoaEnv;
 
-  constructor(env: AtoaEnv) {
+  constructor(env: AtoaEnv, environment: AtoaEnvironment = 'production') {
     this.env = env;
-    this.baseUrl = getBaseUrl(env);
+    this.baseUrl = getBaseUrl(environment);
   }
 
   private async request<T>(

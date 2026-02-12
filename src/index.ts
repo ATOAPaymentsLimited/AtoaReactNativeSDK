@@ -2,7 +2,7 @@ export { AtoaSdk } from './AtoaSdk';
 export { AtoaProvider } from './AtoaProvider';
 
 // Types
-export type { AtoaEnv } from './types/environment';
+export type { AtoaEnv, AtoaEnvironment } from './types/environment';
 export type { BankInstitution, BankMedia } from './types/bank';
 export type { CustomerDetails } from './types/customer';
 export type {

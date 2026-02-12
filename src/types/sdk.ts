@@ -1,4 +1,4 @@
-import type { AtoaEnv } from './environment';
+import type { AtoaEnv, AtoaEnvironment } from './environment';
 import type { CustomerDetails } from './customer';
 import type { AtoaException } from './error';
 import type { TransactionDetails } from './payment';
@@ -6,8 +6,10 @@ import type { TransactionDetails } from './payment';
 export interface AtoaPayOptions {
   /** The payment request ID (required) */
   paymentId: string;
-  /** The Atoa environment to use (required) */
+  /** The Atoa environment to use (required) - controls sandbox query params */
   env: AtoaEnv;
+  /** The API environment for base URL selection (optional, defaults to 'production') */
+  environment?: AtoaEnvironment;
   /** Shows a sheet explaining the steps for making a payment (required) */
   showHowPaymentWorks: boolean;
   /** Customer details for pre-selecting bank (optional) */

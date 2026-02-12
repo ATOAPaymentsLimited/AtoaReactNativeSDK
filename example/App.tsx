@@ -22,6 +22,7 @@ function App(): React.JSX.Element {
       const options: AtoaPayOptions = {
         paymentId: 'payment-request-id', // Replace with actual payment ID
         env: 'prod',
+        environment: 'production', // 'development' | 'staging' | 'production'
         showHowPaymentWorks: true,
         customerDetails: {
           phoneCountryCode: '44',
