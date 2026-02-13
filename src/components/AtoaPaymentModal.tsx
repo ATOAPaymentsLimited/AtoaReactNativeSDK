@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, BackHandler, useWindowDimensions } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { View, StyleSheet, BackHandler } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheet from '@gorhom/bottom-sheet';
 import { PaymentProvider, usePaymentContext } from '../hooks/PaymentContext';
 import { ConnectivityProvider } from '../hooks/ConnectivityContext';
 import { useBankInstitutions } from '../hooks/useBankInstitutions';
@@ -190,7 +190,7 @@ function AtoaPaymentModalInner({
     [state.transactionDetails, onComplete, handleClose]
   );
 
-  const { height } = useWindowDimensions();
+  const snapPoints = useMemo(() => ['90%'], []);
 
   const renderScreen = () => {
     switch (currentScreen) {
@@ -240,17 +240,16 @@ function AtoaPaymentModalInner({
     <View style={styles.overlay}>
       <BottomSheet
         ref={bottomSheetRef}
-        enableDynamicSizing
-        maxDynamicContentSize={height * 0.9}
+        snapPoints={snapPoints}
         enablePanDownToClose={false}
         handleIndicatorStyle={styles.handle}
         backgroundStyle={styles.background}
       >
-        <BottomSheetView style={styles.sheetContent}>
+        <View style={styles.sheetContent}>
           <ConnectivityWrapper onBack={handleClose}>
             {renderScreen()}
           </ConnectivityWrapper>
-        </BottomSheetView>
+        </View>
       </BottomSheet>
     </View>
   );
@@ -273,5 +272,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: Spacing.xtraLarge,
     borderTopRightRadius: Spacing.xtraLarge,
   },
-  sheetContent: {},
+  sheetContent: {
+    flex: 1,
+  },
 });

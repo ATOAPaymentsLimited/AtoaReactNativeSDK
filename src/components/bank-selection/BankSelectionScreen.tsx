@@ -49,9 +49,6 @@ export function BankSelectionScreen({
   const popularBanks = currentBanks
     .filter((b) => b.popularBank)
     .slice(0, 8);
-  const remainingBanks = currentBanks.filter(
-    (b) => !popularBanks.find((p) => p.id === b.id)
-  );
 
   const handleBankPress = useCallback(
     (bank: BankInstitution) => {
@@ -166,13 +163,28 @@ export function BankSelectionScreen({
       )}
 
       {isSearching ? (
-        <BottomSheetFlatList
-          data={searchResults}
-          keyExtractor={(item: BankInstitution) => item.id}
-          renderItem={renderListItem}
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-        />
+        <>
+          <View style={styles.resultsHeaderContainer}>
+            <Text style={styles.resultsLabel}>RESULTS</Text>
+          </View>
+          <BottomSheetFlatList
+            data={searchResults}
+            keyExtractor={(item: BankInstitution) => item.id}
+            renderItem={renderListItem}
+            contentContainerStyle={[styles.listContent, styles.searchListContent]}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyTitle}>No results</Text>
+                <Text style={styles.emptySubtitle}>
+                  No results for "{state.searchTerm}" in banks. Try using
+                  different keywords.
+                </Text>
+              </View>
+            }
+          />
+        </>
       ) : (
         <BottomSheetFlatList
           data={[{ type: 'grid' as const }, { type: 'list' as const }]}
@@ -195,7 +207,7 @@ export function BankSelectionScreen({
               return (
                 <View style={styles.allBanksContainer}>
                   <Text style={styles.allBanksLabel}>ALL BANKS</Text>
-                  {remainingBanks.map((bank) => (
+                  {state.bankList.map((bank) => (
                     <BankListItem
                       key={bank.id}
                       bank={bank}
@@ -210,6 +222,7 @@ export function BankSelectionScreen({
           }}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         />
       )}
     </View>
@@ -218,6 +231,7 @@ export function BankSelectionScreen({
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     backgroundColor: Colors.white,
   },
   spacer: {
@@ -236,6 +250,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.large,
     paddingBottom: 32,
   },
+  searchListContent: {
+    flexGrow: 1,
+  },
   infoBannerContainer: {
     paddingHorizontal: Spacing.large,
   },
@@ -253,5 +270,37 @@ const styles = StyleSheet.create({
     color: Colors.grey500,
     letterSpacing: 1,
     marginBottom: Spacing.small,
+  },
+  resultsHeaderContainer: {
+    paddingHorizontal: Spacing.large,
+    marginBottom: Spacing.small,
+  },
+  resultsLabel: {
+    fontFamily: 'Figtree',
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.grey500,
+    letterSpacing: 1,
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.large,
+  },
+  emptyTitle: {
+    fontFamily: 'Figtree',
+    fontSize: 16,
+    fontWeight: '700',
+    color: Colors.black,
+    marginBottom: Spacing.small,
+  },
+  emptySubtitle: {
+    fontFamily: 'Figtree',
+    fontSize: 14,
+    fontWeight: '400',
+    color: Colors.grey500,
+    textAlign: 'center',
+    lineHeight: 20,
   },
 });

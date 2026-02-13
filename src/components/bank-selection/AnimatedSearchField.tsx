@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   Animated,
 } from 'react-native';
+import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { SvgIcon } from '../shared/SvgIcon';
@@ -52,7 +52,7 @@ export function AnimatedSearchField({
         <SvgIcon name="search" size={16} color={Colors.black} />
       </View>
       <View style={styles.inputContainer}>
-        <TextInput
+        <BottomSheetTextInput
           style={styles.input}
           value={value}
           onChangeText={onChangeText}
