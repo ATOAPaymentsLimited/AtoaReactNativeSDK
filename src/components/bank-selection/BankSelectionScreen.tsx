@@ -16,13 +16,11 @@ import { BankListItem } from './BankListItem';
 
 interface BankSelectionScreenProps {
   onBack?: () => void;
-  onClose: () => void;
   onHelp?: () => void;
 }
 
 export function BankSelectionScreen({
   onBack,
-  onClose,
   onHelp,
 }: BankSelectionScreenProps) {
   const {
@@ -37,9 +35,9 @@ export function BankSelectionScreen({
   } = useBankInstitutions();
 
   const [tabIndex, setTabIndex] = useState(0);
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
 
-  const isLoading = state.isLoading || state.isLoadingDetails;
+  const isLoading = state.isLoading || state.isLoadingDetails || state.hasLastPaymentDetails;
   const hasError = state.bankFetchingError || state.paymentDetailsError;
   const currentBanks = tabIndex === 0 ? personalBanks : businessBanks;
   const isSearching = state.searchTerm.length > 0;
@@ -84,12 +82,13 @@ export function BankSelectionScreen({
       <View style={styles.container}>
         <BottomSheetHeader
           title="Select your bank"
-          onClose={onClose}
           onBack={onBack}
           showHelp={!!onHelp}
           onHelp={onHelp}
         />
-        <FetchingBankLoader />
+        <View style={{ height: height * 0.6 }}>
+          <FetchingBankLoader />
+        </View>
       </View>
     );
   }
@@ -99,18 +98,19 @@ export function BankSelectionScreen({
       <View style={styles.container}>
         <BottomSheetHeader
           title="Select your bank"
-          onClose={onClose}
           onBack={onBack}
           showHelp={!!onHelp}
           onHelp={onHelp}
         />
-        <ErrorWidget
-          message={
-            state.bankFetchingError?.message ||
-            state.paymentDetailsError?.message
-          }
-          onRetry={handleRetry}
-        />
+        <View style={{ height: height * 0.6 }}>
+          <ErrorWidget
+            message={
+              state.bankFetchingError?.message ||
+              state.paymentDetailsError?.message
+            }
+            onRetry={handleRetry}
+          />
+        </View>
       </View>
     );
   }
@@ -137,7 +137,6 @@ export function BankSelectionScreen({
     <View style={styles.container}>
       <BottomSheetHeader
         title="Select your bank"
-        onClose={onClose}
         onBack={onBack}
         showHelp={!!onHelp}
         onHelp={onHelp}

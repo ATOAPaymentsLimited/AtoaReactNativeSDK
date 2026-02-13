@@ -148,6 +148,7 @@ export function paymentReducer(
         showLinkExpired: false,
         isAppInstalled: true,
         lastBankDetails: null,
+        hasLastPaymentDetails: false,
       };
     case 'RESET_APP_INSTALLED':
       return { ...state, isAppInstalled: true };

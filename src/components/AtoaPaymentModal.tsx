@@ -55,6 +55,7 @@ function AtoaPaymentModalInner({
     getPaymentDetailsAndBanks,
     stopPolling,
     resetSelectBank,
+    selectBank,
   } = useBankInstitutions();
   const hasInitializedRef = useRef(false);
   const handleCloseRef = useRef<() => void>(() => {});
@@ -93,6 +94,27 @@ function AtoaPaymentModalInner({
     state.lastBankDetails,
     options.showHowPaymentWorks,
     dispatch,
+  ]);
+
+  // Auto-select last bank if available, skip to confirmation
+  const hasAutoSelectedRef = useRef(false);
+  useEffect(() => {
+    if (
+      !hasAutoSelectedRef.current &&
+      state.hasLastPaymentDetails &&
+      state.lastBankDetails &&
+      !state.isLoading &&
+      !state.isLoadingDetails
+    ) {
+      hasAutoSelectedRef.current = true;
+      selectBank(state.lastBankDetails);
+    }
+  }, [
+    state.hasLastPaymentDetails,
+    state.lastBankDetails,
+    state.isLoading,
+    state.isLoadingDetails,
+    selectBank,
   ]);
 
   // Navigate to confirmation when bank is selected and auth is ready
@@ -186,9 +208,8 @@ function AtoaPaymentModalInner({
               state.showHowPaymentWorks === false &&
               options.showHowPaymentWorks
                 ? () => setCurrentScreen('howToPay')
-                : undefined
+                : handleClose
             }
-            onClose={handleClose}
             onHelp={() => setCurrentScreen('howToPay')}
           />
         );

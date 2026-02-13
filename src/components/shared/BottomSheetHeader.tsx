@@ -29,10 +29,15 @@ export function BottomSheetHeader({
         )}
       </View>
       <Text style={styles.title}>{title}</Text>
-      <View style={[styles.sideRight, showHelp && onHelp && styles.sideRightWide]}>
+      <View style={[styles.sideRight, showHelp && onHelp && onClose && styles.sideRightWide]}>
         {showHelp && onHelp && (
           <TouchableOpacity onPress={onHelp} style={styles.iconButton}>
             <SvgIcon name="help" size={Spacing.large} />
+          </TouchableOpacity>
+        )}
+        {onClose && (
+          <TouchableOpacity onPress={onClose} style={styles.iconButton}>
+            <SvgIcon name="close" size={Spacing.large} color={Colors.black} />
           </TouchableOpacity>
         )}
       </View>

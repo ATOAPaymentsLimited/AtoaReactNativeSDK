@@ -27,7 +27,7 @@ export function useBankInstitutions() {
     };
   }, []);
 
-  const getPaymentDetails = useCallback(async () => {
+  const getPaymentDetails = useCallback(async (): Promise<import('../types/payment').PaymentRequestData | null> => {
     dispatch({ type: 'SET_LOADING_DETAILS', payload: true });
     try {
       const paymentRes = await client.getPaymentDetails(
@@ -35,6 +35,7 @@ export function useBankInstitutions() {
         options.customerDetails
       );
       dispatch({ type: 'SET_PAYMENT_DETAILS', payload: paymentRes });
+      return paymentRes;
     } catch (e) {
       if (e instanceof AtoaException) {
         options.onError?.(e);
@@ -44,30 +45,31 @@ export function useBankInstitutions() {
         payload: e instanceof Error ? e : new Error(String(e)),
       });
       dispatch({ type: 'SET_PAYMENT_DETAILS', payload: null });
+      return null;
     } finally {
       dispatch({ type: 'SET_LOADING_DETAILS', payload: false });
     }
   }, [client, dispatch, options]);
 
-  const fetchBanks = useCallback(async () => {
+  const fetchBanks = useCallback(async (paymentDetails?: import('../types/payment').PaymentRequestData | null) => {
+    const details = paymentDetails ?? state.paymentDetails;
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
       const res = await client.fetchInstitutions();
 
       // Check for saved bank (last payment bank)
-      const lastPaymentBank =
-        state.paymentDetails?.lastPaymentBankDetails;
+      const lastPaymentBank = details?.lastPaymentBankDetails;
       if (lastPaymentBank?.institutionId) {
         const lastBank = res.find(
           (b: BankInstitution) => b.id === lastPaymentBank.institutionId
         );
-        if (lastBank && state.paymentDetails?.amount?.amount != null) {
+        if (lastBank && details?.amount?.amount != null) {
           dispatch({
             type: 'SET_HAS_LAST_PAYMENT_DETAILS',
             payload:
               lastBank.enabled &&
               lastBank.transactionAmountLimit >=
-                state.paymentDetails.amount.amount,
+                details.amount.amount,
           });
           dispatch({ type: 'SET_LAST_BANK_DETAILS', payload: lastBank });
         }
@@ -239,8 +241,8 @@ export function useBankInstitutions() {
 
   const getPaymentDetailsAndBanks = useCallback(
     async () => {
-      await getPaymentDetails();
-      await fetchBanks();
+      const paymentDetails = await getPaymentDetails();
+      await fetchBanks(paymentDetails);
 
       // Set showHowPaymentWorks based on conditions
       // (will be evaluated after state updates via effect in the modal)
