@@ -101,7 +101,7 @@ function getVariantStyles(
       };
     case 'primary2':
       return {
-        container: { backgroundColor: bgColor ?? Colors.brandPrimary },
+        container: { backgroundColor: bgColor ?? Colors.black },
         text: { color: fgColor ?? Colors.white },
       };
     case 'secondary':

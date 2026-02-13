@@ -127,8 +127,8 @@ export function ConfirmationScreen({
           title={`Go to ${selectedBank?.name ?? 'Bank'} →`}
           onPress={onGoToBank}
           variant="primary2"
-          backgroundColor={brandingColors.backgroundColor}
-          foregroundColor={brandingColors.foregroundColor}
+          backgroundColor={brandingColors?.backgroundColor}
+          foregroundColor={brandingColors?.foregroundColor}
           disabled={showLinkExpired}
         />
 

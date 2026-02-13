@@ -79,15 +79,15 @@ function App(): React.JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFAFA',
+    backgroundColor: '#FFFFFF',
   },
   body: {
     flex: 1,
     justifyContent: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: 12,
   },
   inputContainer: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 12,
   },
   textInput: {
     fontSize: 16,
@@ -97,13 +97,13 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   spacer: {
-    height: 16,
+    height: 12,
   },
   switchRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
+    paddingHorizontal: 12,
     paddingVertical: 12,
   },
   switchLabel: {
@@ -112,13 +112,13 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     alignItems: 'center',
-    paddingBottom: 32,
+    paddingBottom: 24,
   },
   payButton: {
     backgroundColor: '#6750A4',
     borderRadius: 12,
     paddingVertical: 12,
-    paddingHorizontal: 32,
+    paddingHorizontal: 24,
   },
   payButtonDisabled: {
     opacity: 0.5,

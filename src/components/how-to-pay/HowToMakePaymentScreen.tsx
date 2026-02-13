@@ -81,8 +81,8 @@ export function HowToMakePaymentScreen({
           title="I understand, continue →"
           onPress={onContinue}
           variant="primary2"
-          backgroundColor={brandingColors.backgroundColor}
-          foregroundColor={brandingColors.foregroundColor}
+          backgroundColor={brandingColors?.backgroundColor}
+          foregroundColor={brandingColors?.foregroundColor}
         />
       </BottomSheetScrollView>
     </View>
