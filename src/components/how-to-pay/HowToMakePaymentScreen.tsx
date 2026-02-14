@@ -24,7 +24,10 @@ export function HowToMakePaymentScreen({
   onContinue,
   onClose,
 }: HowToMakePaymentScreenProps) {
-  const { brandingColors } = useBankInstitutions();
+  const { brandingColors, state } = useBankInstitutions();
+
+  const VISIBLE_BANK_COUNT = 3;
+  const remainingCount = state.bankList.length - VISIBLE_BANK_COUNT;
 
   return (
     <View style={styles.container}>
@@ -44,11 +47,18 @@ export function HowToMakePaymentScreen({
             resizeMode="contain"
           />
           <DotLoadingAnimation />
-          <Image
-            source={require('../../assets/images/bank-logos.png')}
-            style={styles.bankLogos}
-            resizeMode="contain"
-          />
+          <View style={styles.bankIconsRow}>
+                    <Image
+                        source={require('../../assets/images/bank-logos.png')}
+                        style={styles.bankLogos}
+                        resizeMode="contain"
+                    />
+            {remainingCount > 0 && (
+              <View style={[styles.bankIconCircle, styles.bankCountCircle, styles.bankIconOverlap]}>
+                <Text style={styles.bankCountText}>+{remainingCount}</Text>
+              </View>
+            )}
+          </View>
         </View>
 
         <View style={styles.spacerXtraLarge} />
@@ -64,7 +74,6 @@ export function HowToMakePaymentScreen({
           </View>
         ))}
 
-        <View style={styles.spacerHuge} />
 
         {/* Trust badge */}
         <View style={styles.trustContainer}>
@@ -101,7 +110,7 @@ const styles = StyleSheet.create({
     height: Spacing.huge,
   },
   spacerXtraLarge: {
-    height: Spacing.xtraLarge,
+    height: Spacing.large,
   },
   logosContainer: {
     flexDirection: 'row',
@@ -111,6 +120,37 @@ const styles = StyleSheet.create({
   atoaLogo: {
     width: 40,
     height: 40,
+  },
+  bankIconsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  bankIconCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: Colors.white,
+    backgroundColor: Colors.grey100,
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  bankIconImage: {
+    width: 28,
+    height: 28,
+  },
+  bankCountCircle: {
+    backgroundColor: Colors.grey100,
+  },
+  bankCountText: {
+    fontFamily: 'Figtree',
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.grey700,
+  },
+  bankIconOverlap: {
+    marginLeft: -40,
   },
   bankLogos: {
     height: 40,

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { View, Text, FlatList, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Text, FlatList, StyleSheet, useWindowDimensions, ActivityIndicator } from 'react-native';
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { useBankInstitutions } from '../../hooks/useBankInstitutions';
 import type { BankInstitution } from '../../types/bank';
@@ -32,8 +32,6 @@ export function BankSelectionScreen({
     search,
     fetchBanks,
     getPaymentDetails,
-    personalBanksEnabled,
-    businessBanksEnabled,
     popularPersonalBanks,
     popularBusinessBanks,
     allBanksEnabled,
@@ -48,9 +46,6 @@ export function BankSelectionScreen({
   const isLoading = state.isLoading || state.isLoadingDetails || state.hasLastPaymentDetails;
   const hasError = state.bankFetchingError || state.paymentDetailsError;
   const isSearching = state.searchTerm.length > 0;
-
-  // Current tab's amount-filtered banks
-  const currentBanksEnabled = tabIndex === 0 ? personalBanksEnabled : businessBanksEnabled;
 
   // Popular banks for current tab (already filtered by amount limit), first 8
   const popularBanks = (tabIndex === 0 ? popularPersonalBanks : popularBusinessBanks).slice(0, 8);
@@ -242,8 +237,8 @@ export function BankSelectionScreen({
               return (
                 <View>
                   <View style={styles.allBanksContainer}>
-                    <Text style={styles.allBanksLabel}>ALL BANKS</Text>
-                    {currentBanksEnabled.map((bank) => (
+                    <Text style={styles.allBanksLabel}>ALL BANKS (+{allBanksEnabled.length})</Text>
+                    {allBanksEnabled.map((bank) => (
                       <BankListItem
                         key={bank.id}
                         bank={bank}
@@ -269,6 +264,12 @@ export function BankSelectionScreen({
         bank={bankDownBank}
         onClose={() => setBankDownBank(null)}
       />
+
+      {state.isLoadingAuth && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color={Colors.brandPrimary} />
+        </View>
+      )}
     </View>
   );
 }
@@ -308,7 +309,6 @@ const styles = StyleSheet.create({
   },
   allBanksContainer: {
     paddingHorizontal: Spacing.large,
-    borderTopWidth: 1,
     borderTopColor: Colors.grey200,
     marginTop: Spacing.large,
     paddingTop: Spacing.large,
@@ -355,5 +355,11 @@ const styles = StyleSheet.create({
     color: Colors.grey500,
     textAlign: 'center',
     lineHeight: 20,
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

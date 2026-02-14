@@ -1,6 +1,5 @@
 import React, {useState, useRef, useEffect, useCallback} from 'react';
 import {
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -19,6 +18,7 @@ import {
 } from '@atoapayments/atoa-react-native-sdk';
 import NetInfo from '@react-native-community/netinfo';
 import Svg, {Path, G, ClipPath, Rect, Defs} from 'react-native-svg';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 const ATOA_TOKEN = 'YOUR_ATOA_TOKEN_HERE'; // Replace with your actual Atoa API token
 
@@ -433,11 +433,8 @@ function App(): React.JSX.Element {
     <SafeAreaView style={styles.container}>
       {/* AppBar */}
       <View style={styles.appBar}>
-        <Pressable hitSlop={8}>
-          <Text style={styles.backArrow}>‹</Text>
-        </Pressable>
+
         <Text style={styles.appBarTitle}>Demo E-commerce App</Text>
-        <View style={styles.appBarSpacer} />
       </View>
 
       {/* Body */}
@@ -547,15 +544,18 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
   },
   backArrow: {
-    fontSize: 28,
+    fontSize: 36,
+    lineHeight: 36,
     color: '#494F57',
     fontWeight: '300',
     marginRight: 8,
   },
   appBarTitle: {
-    fontSize: 16,
+    flex: 1,
+    fontSize: 20,
     fontWeight: '600',
     color: '#000000',
+    textAlign: 'center',
   },
   appBarSpacer: {
     flex: 1,

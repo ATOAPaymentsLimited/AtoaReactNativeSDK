@@ -11,29 +11,18 @@ interface InfoWidgetProps {
   variant?: InfoVariant;
 }
 
-export const InfoWidget = React.memo(function InfoWidget({ message, variant = 'info' }: InfoWidgetProps) {
-  const variantColors = getVariantColors(variant);
+export const InfoWidget = React.memo(function InfoWidget({ message }: InfoWidgetProps) {
 
   return (
-    <View style={[styles.container, { backgroundColor: variantColors.bg }]}>
-      <SvgIcon name="info" size={Spacing.large} color={variantColors.text} />
-      <Text style={[styles.text, { color: variantColors.text }]}>
+    <View style={[styles.container, { backgroundColor: Colors.infoSubtle }]}>
+      <SvgIcon name="info" size={Spacing.large} color={Colors.infoDarker} />
+      <Text style={[styles.text, { color: Colors.infoDarker }]}>
         {message}
       </Text>
     </View>
   );
 });
 
-function getVariantColors(variant: InfoVariant) {
-  switch (variant) {
-    case 'info':
-      return { bg: Colors.infoSubtle, text: Colors.infoDarker };
-    case 'error':
-      return { bg: Colors.errorSubtle, text: Colors.errorDarker };
-    case 'warning':
-      return { bg: Colors.warningSubtle, text: Colors.warningDarker };
-  }
-}
 
 const styles = StyleSheet.create({
   container: {

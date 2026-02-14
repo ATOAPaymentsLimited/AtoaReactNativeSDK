@@ -242,7 +242,7 @@ function AtoaPaymentModalInner({
         ref={bottomSheetRef}
         snapPoints={snapPoints}
         enablePanDownToClose={false}
-        handleIndicatorStyle={styles.handle}
+        handleComponent={null}
         backgroundStyle={styles.background}
       >
         <View style={styles.sheetContent}>
@@ -263,10 +263,6 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
-  handle: {
-    backgroundColor: Colors.grey300,
-    width: 40,
-  },
   background: {
     backgroundColor: Colors.white,
     borderTopLeftRadius: Spacing.xtraLarge,
@@ -274,5 +270,6 @@ const styles = StyleSheet.create({
   },
   sheetContent: {
     flex: 1,
+    paddingTop: Spacing.large,
   },
 });
