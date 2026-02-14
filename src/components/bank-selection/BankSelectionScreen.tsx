@@ -95,6 +95,7 @@ export function BankSelectionScreen({
   }
 
   if (hasError) {
+    const isBankFetchError = !!state.bankFetchingError;
     return (
       <View style={styles.container}>
         <BottomSheetHeader
@@ -104,13 +105,18 @@ export function BankSelectionScreen({
           onHelp={onHelp}
         />
         <View style={{ height: height * 0.6 }}>
-          <ErrorWidget
-            message={
-              state.bankFetchingError?.message ||
-              state.paymentDetailsError?.message
-            }
-            onRetry={handleRetry}
-          />
+          {isBankFetchError ? (
+            <ErrorWidget
+              title="We couldn&#x2019;t fetch banks!"
+              message="Something went wrong while fetching bank list. Please check your internet connection and try again."
+              onRetry={handleRetry}
+            />
+          ) : (
+            <ErrorWidget
+              title="Oops! Something went wrong"
+              message="An unknown error occurred. We track these errors automatically, Please try again."
+            />
+          )}
         </View>
       </View>
     );
@@ -179,20 +185,22 @@ export function BankSelectionScreen({
             <BankTabBar selectedIndex={tabIndex} onTabChange={setTabIndex} />
           </View>
           <View style={styles.spacer} />
-          <View style={styles.infoBannerContainer}>
-            <InfoWidget
-              message="Ensure the selected bank's app is installed on your phone"
-              variant="warning"
-            />
-          </View>
-          <View style={styles.spacer} />
         </>
       )}
+
+      <View style={styles.infoBannerContainer}>
+        <InfoWidget
+          message="Ensure the selected bank's app is installed on your phone."
+          variant="info"
+        />
+      </View>
+
+      {!isSearching && <View style={styles.spacerLarge} />}
 
       {isSearching ? (
         <>
           <View style={styles.resultsHeaderContainer}>
-            <Text style={styles.resultsLabel}>RESULTS</Text>
+            <Text style={styles.sectionLabel}>RESULTS</Text>
           </View>
           <BottomSheetFlatList
             data={allBanksEnabled}
@@ -235,18 +243,16 @@ export function BankSelectionScreen({
             }
             if (item.type === 'list') {
               return (
-                <View>
-                  <View style={styles.allBanksContainer}>
-                    <Text style={styles.allBanksLabel}>ALL BANKS (+{allBanksEnabled.length})</Text>
-                    {allBanksEnabled.map((bank) => (
-                      <BankListItem
-                        key={bank.id}
-                        bank={bank}
-                        isSelected={state.selectedBank?.id === bank.id}
-                        onPress={handleBankPress}
-                      />
-                    ))}
-                  </View>
+                <View style={styles.allBanksContainer}>
+                  <Text style={styles.sectionLabel}>ALL BANKS</Text>
+                  {allBanksEnabled.map((bank) => (
+                    <BankListItem
+                      key={bank.id}
+                      bank={bank}
+                      isSelected={state.selectedBank?.id === bank.id}
+                      onPress={handleBankPress}
+                    />
+                  ))}
                   {renderAmountLimitedSection(allBanksDisabledByAmount)}
                 </View>
               );
@@ -288,6 +294,9 @@ const styles = StyleSheet.create({
   spacerMedium: {
     height: Spacing.medium,
   },
+  spacerLarge: {
+    height: Spacing.xtraLarge,
+  },
   tabBarContainer: {
     paddingHorizontal: Spacing.large,
   },
@@ -308,45 +317,35 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.large,
   },
   allBanksContainer: {
-    paddingHorizontal: Spacing.large,
-    borderTopColor: Colors.grey200,
     marginTop: Spacing.large,
-    paddingTop: Spacing.large,
+    paddingTop: Spacing.medium,
   },
-  allBanksLabel: {
+  sectionLabel: {
     fontFamily: 'Figtree',
     fontSize: 12,
     fontWeight: '700',
     color: Colors.grey500,
-    letterSpacing: 1,
+    letterSpacing: 1.2,
     marginBottom: Spacing.small,
   },
-  amountLimitedContainer: {
-    paddingHorizontal: Spacing.large,
-  },
+  amountLimitedContainer: {},
   resultsHeaderContainer: {
     paddingHorizontal: Spacing.large,
-    marginBottom: Spacing.small,
-  },
-  resultsLabel: {
-    fontFamily: 'Figtree',
-    fontSize: 12,
-    fontWeight: '700',
-    color: Colors.grey500,
-    letterSpacing: 1,
+    paddingVertical: Spacing.medium,
   },
   emptyContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: Spacing.large,
+    gap: Spacing.medium,
   },
   emptyTitle: {
     fontFamily: 'Figtree',
     fontSize: 16,
     fontWeight: '700',
     color: Colors.black,
-    marginBottom: Spacing.small,
+    lineHeight: 23.2,
   },
   emptySubtitle: {
     fontFamily: 'Figtree',
@@ -354,7 +353,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     color: Colors.grey500,
     textAlign: 'center',
-    lineHeight: 20,
+    lineHeight: 21,
   },
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,

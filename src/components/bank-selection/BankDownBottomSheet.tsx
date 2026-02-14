@@ -37,23 +37,23 @@ export function BankDownBottomSheet({
             <View style={styles.badge}>
               <SvgIcon
                 name="iconError"
-                size={16}
-                color={Colors.errorDarker}
+                size={24}
+                color={Colors.errorDefault}
               />
               <Text style={styles.badgeText}>Downtime</Text>
             </View>
 
-            <View style={styles.spacerHuge} />
+            <View style={styles.spacerBadgeMessage} />
 
             <Text style={styles.message}>
               <Text style={styles.bankName}>{bank.name}</Text>
               {' bank is currently down for maintenance. Please select a different bank and try again.'}
             </Text>
 
-            <View style={styles.spacerHuge} />
+            <View style={styles.spacerMessageButton} />
 
             <LedgerButton
-              title="Select Another Bank"
+              title="Select another bank"
               onPress={onClose}
               variant="secondary"
               size="xtraLarge"
@@ -78,10 +78,10 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderTopLeftRadius: Spacing.xtraLarge,
     borderTopRightRadius: Spacing.xtraLarge,
-    paddingBottom: Spacing.huge + Spacing.large,
+    paddingBottom: 32,
   },
   handle: {
-    width: 40,
+    width: 50,
     height: 4,
     borderRadius: 2,
     backgroundColor: Colors.grey300,
@@ -90,36 +90,38 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.large,
   },
   content: {
-    paddingHorizontal: Spacing.large,
+    paddingHorizontal: Spacing.xtraLarge,
   },
   badge: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.errorSubtle,
     borderRadius: Spacing.large,
-    paddingVertical: Spacing.small,
+    height: 32,
     paddingHorizontal: Spacing.medium,
+    gap: 6,
     alignSelf: 'flex-start',
   },
   badgeText: {
     fontFamily: 'Figtree',
-    fontSize: 14,
+    fontSize: 11,
     fontWeight: '700',
-    color: Colors.errorDarker,
-    marginLeft: Spacing.small,
+    color: Colors.errorDefault,
   },
-  spacerHuge: {
-    height: Spacing.large,
+  spacerBadgeMessage: {
+    height: Spacing.xtraLarge,
+  },
+  spacerMessageButton: {
+    height: Spacing.huge,
   },
   message: {
     fontFamily: 'Figtree',
     fontSize: 16,
     fontWeight: '400',
-    color: Colors.grey700,
-    lineHeight: 24,
+    color: Colors.black,
+    lineHeight: 23.2,
   },
   bankName: {
     fontWeight: '700',
-    color: Colors.black,
   },
 });

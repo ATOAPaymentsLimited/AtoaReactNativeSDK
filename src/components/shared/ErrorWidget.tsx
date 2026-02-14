@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
-import { SvgIcon } from './SvgIcon';
 
 interface ErrorWidgetProps {
   title?: string;
@@ -17,22 +16,12 @@ export function ErrorWidget({
 }: ErrorWidgetProps) {
   return (
     <View style={styles.container}>
-      <SvgIcon name="iconError" size={48} />
-      <View style={styles.spacerLarge} />
       <Text style={styles.title}>{title}</Text>
-      {message && (
-        <>
-          <View style={styles.spacerSmall} />
-          <Text style={styles.message}>{message}</Text>
-        </>
-      )}
+      {message && <Text style={styles.message}>{message}</Text>}
       {onRetry && (
-        <>
-          <View style={styles.spacerLarge} />
-          <TouchableOpacity onPress={onRetry}>
-            <Text style={styles.retryText}>Retry</Text>
-          </TouchableOpacity>
-        </>
+        <TouchableOpacity onPress={onRetry}>
+          <Text style={styles.retryText}>Retry</Text>
+        </TouchableOpacity>
       )}
     </View>
   );
@@ -44,12 +33,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: Spacing.huge,
-  },
-  spacerLarge: {
-    height: Spacing.huge,
-  },
-  spacerSmall: {
-    height: Spacing.small,
+    gap: Spacing.medium,
   },
   title: {
     fontFamily: 'Figtree',
@@ -57,6 +41,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: Colors.black,
     textAlign: 'center',
+    lineHeight: 23.2,
   },
   message: {
     fontFamily: 'Figtree',
@@ -64,13 +49,15 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     color: Colors.grey500,
     textAlign: 'center',
+    lineHeight: 21,
   },
   retryText: {
     fontFamily: 'Figtree',
     fontSize: 14,
-    fontWeight: '600',
-    color: Colors.brandPrimary,
+    fontWeight: '700',
+    color: '#E42646',
     textDecorationLine: 'underline',
     textDecorationStyle: 'dotted',
+    lineHeight: 22.4,
   },
 });

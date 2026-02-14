@@ -15,7 +15,7 @@ interface AnimatedSearchFieldProps {
   onChangeText: (text: string) => void;
 }
 
-const PLACEHOLDER_TEXTS = ['Search your Personal Banks', 'Search your Business Banks'];
+const PLACEHOLDER_TEXTS = ['Search your personal bank', 'Search your business bank'];
 
 export function AnimatedSearchField({
   value,
@@ -49,7 +49,7 @@ export function AnimatedSearchField({
   return (
     <View style={styles.container}>
       <View style={styles.searchIconContainer}>
-        <SvgIcon name="search" size={16} color={Colors.black} />
+        <SvgIcon name="search" size={20} color={Colors.black} />
       </View>
       <View style={styles.inputContainer}>
         <BottomSheetTextInput
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
   },
   input: {
     fontFamily: 'Figtree',
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
     color: Colors.black,
     padding: 0,
@@ -117,9 +117,9 @@ const styles = StyleSheet.create({
   },
   placeholderText: {
     fontFamily: 'Figtree',
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '500',
-    color: Colors.grey500,
+    color: Colors.grey400,
   },
   clearButton: {
     marginLeft: Spacing.small,

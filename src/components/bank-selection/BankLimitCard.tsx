@@ -10,7 +10,7 @@ interface BankLimitCardProps {
 
 function formatAmount(amount: number): string {
   return amount.toLocaleString('en-GB', {
-    minimumFractionDigits: 2,
+    minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   });
 }
@@ -37,6 +37,7 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.small,
     paddingVertical: Spacing.small,
     paddingHorizontal: Spacing.medium,
+    gap: Spacing.small,
   },
   text: {
     fontFamily: 'Figtree',
@@ -45,7 +46,6 @@ const styles = StyleSheet.create({
     color: Colors.errorDarker,
     lineHeight: 18,
     flex: 1,
-    marginLeft: Spacing.small,
   },
   amountText: {
     fontWeight: '700',

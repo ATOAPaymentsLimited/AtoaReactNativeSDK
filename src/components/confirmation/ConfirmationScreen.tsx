@@ -8,6 +8,7 @@ import { Spacing } from '../../constants/spacing';
 import { BottomSheetHeader } from '../shared/BottomSheetHeader';
 import { LedgerButton } from '../shared/LedgerButton';
 import { InfoWidget } from '../shared/InfoWidget';
+import { SvgIcon } from '../shared/SvgIcon';
 import { AtoaLoader } from '../shared/AtoaLoader';
 import { ReviewDetailsTile } from './ReviewDetailsTile';
 
@@ -22,7 +23,7 @@ export function ConfirmationScreen({
   onGoToBank,
   onChangeBank,
 }: ConfirmationScreenProps) {
-  const { state, brandingColors } = useBankInstitutions();
+  const { state, dispatch, selectBank, brandingColors } = useBankInstitutions();
   const { paymentDetails, selectedBank, isAppInstalled, showLinkExpired } =
     state;
 
@@ -51,6 +52,14 @@ export function ConfirmationScreen({
     }
   }, [state.paymentAuth]);
 
+  const handleRefresh = useCallback(() => {
+    if (!selectedBank) {
+      return;
+    }
+    dispatch({ type: 'SET_SHOW_LINK_EXPIRED', payload: false });
+    selectBank(selectedBank);
+  }, [dispatch, selectBank, selectedBank]);
+
   if (state.isLoadingAuth) {
     return (
       <View style={styles.container}>
@@ -70,7 +79,7 @@ export function ConfirmationScreen({
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <InfoWidget message="We'll send you to your bank's app or website to confirm this payment" />
+        <InfoWidget message="We'll send you to your bank's app or website to confirm this payment." />
 
         <View style={styles.spacer} />
 
@@ -97,46 +106,65 @@ export function ConfirmationScreen({
         {!isAppInstalled && (
           <>
             <View style={styles.spacer} />
-            <InfoWidget
-              message={`We recommend installing the ${bankName} app for the best experience.`}
-              variant="warning"
-            />
-            <View style={styles.spacerSmall} />
-            <LedgerButton
-              title={`Install ${selectedBank?.name ?? 'Bank'} App`}
-              onPress={handleAppStorePress}
-              variant="ghost"
-            />
+            <View style={styles.appWarningBanner}>
+              <SvgIcon
+                name="warningFilled"
+                size={16}
+                color={Colors.errorDarker}
+              />
+              <Text style={styles.appWarningText}>
+                {'For a smoother payment, we recommend downloading the '}
+                <Text
+                  style={styles.appWarningLink}
+                  onPress={handleAppStorePress}
+                >
+                  {selectedBank?.name ?? 'Bank'} app
+                </Text>
+                {' Or, continue using internet banking if that works better for you.'}
+              </Text>
+            </View>
           </>
         )}
 
-        {/* Link expired */}
         {showLinkExpired && (
           <>
             <View style={styles.spacer} />
-            <InfoWidget
-              message="Payment link has expired. Please try again."
-              variant="error"
-            />
+            <Text style={styles.linkExpiredText}>
+              {'Link expired,  '}
+              <Text style={styles.linkExpiredRefresh} onPress={handleRefresh}>
+                Refresh
+              </Text>
+              {' to try again'}
+            </Text>
           </>
         )}
 
-        <View style={styles.spacerLarge} />
+        <View style={styles.spacer} />
 
         <LedgerButton
-          title={`Go to ${selectedBank?.name ?? 'Bank'} →`}
+          title={`Go to ${selectedBank?.name ?? 'Bank'}  \u2192`}
           onPress={onGoToBank}
           variant="primary2"
+          size="xtraLarge"
           backgroundColor={brandingColors?.backgroundColor}
           foregroundColor={brandingColors?.foregroundColor}
           disabled={showLinkExpired}
         />
 
-        <View style={styles.spacer} />
+        <View style={styles.spacerMedium} />
+
+        <View style={styles.poweredByContainer}>
+          <Text style={styles.poweredByText}>Powered by </Text>
+          <View style={styles.poweredByLogo}>
+            <SvgIcon name="atoaLogo" size={30} color="#E42646" />
+          </View>
+        </View>
+
+        <View style={styles.spacerXl} />
 
         {/* Terms */}
         <Text style={styles.termsText}>
-          By continuing, you trust this merchant and accept Atoa&apos;s{' '}
+           By continuing, you trust this merchant and accept Atoa&apos;s{' '}
           <Text
             style={styles.termsLink}
             onPress={() =>
@@ -162,24 +190,82 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: Spacing.large,
-    paddingBottom: 80,
+    paddingBottom: Spacing.large,
   },
   spacer: {
     height: Spacing.large,
   },
-  spacerSmall: {
-    height: Spacing.small,
+  spacerMedium: {
+    height: Spacing.medium,
   },
-  spacerLarge: {
-    height: Spacing.xtraLarge,
+  spacerXl: {
+    height: Spacing.huge,
+  },
+  linkExpiredText: {
+    fontFamily: 'Figtree',
+    fontSize: 14,
+    fontWeight: '500',
+    color: Colors.errorDefault,
+    textAlign: 'center',
+    lineHeight: 21,
+  },
+  linkExpiredRefresh: {
+    fontWeight: '700',
+    textDecorationLine: 'underline',
+    textDecorationStyle: 'dotted',
+  },
+  appWarningBanner: {
+    flexDirection: 'row',
+    backgroundColor: Colors.errorSubtle,
+    borderRadius: 12,
+    paddingVertical: Spacing.medium,
+    paddingHorizontal: Spacing.large,
+    gap: Spacing.small,
+    alignItems: 'flex-start',
+  },
+  appWarningText: {
+    fontFamily: 'Figtree',
+    fontSize: 12,
+    fontWeight: '400',
+    color: Colors.errorDarker,
+    lineHeight: 18,
+    flex: 1,
+  },
+  appWarningLink: {
+    fontWeight: '700',
+    textDecorationLine: 'underline',
+    textDecorationStyle: 'dotted',
+  },
+  poweredByContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  poweredByText: {
+    fontFamily: 'Figtree',
+    fontSize: 13,
+    fontWeight: '500',
+    color: Colors.grey500,
+  },
+  poweredByLogo: {
+    width: 30,
+    height: 12,
+    overflow: 'hidden',
+    justifyContent: 'center',
   },
   termsText: {
     fontFamily: 'Figtree',
     fontSize: 11,
+    fontWeight: '400',
     color: Colors.grey500,
     textAlign: 'center',
+    lineHeight: 17.6,
+    paddingBottom: Spacing.huge * 3,
   },
-  termsLink: {
+  termsBold: {
+    fontWeight: '600',
+  },
+   termsLink: {
     color: Colors.grey500,
     fontWeight: '700',
   },

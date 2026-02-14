@@ -1,5 +1,5 @@
 import React from 'react';
-import Svg, { Path, G, Mask, Rect, Defs, LinearGradient, Stop } from 'react-native-svg';
+import Svg, { Path, Circle, G, Mask, Rect, Defs, LinearGradient, Stop } from 'react-native-svg';
 
 interface SvgIconProps {
   name: keyof typeof icons;
@@ -316,6 +316,21 @@ function IconRefunded({ size, color = '#fff' }: IconProps) {
   );
 }
 
+function IconHighImportance({ size, color = '#97A6B2' }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Circle cx={12} cy={12} r={10} stroke={color} strokeWidth={1.5} />
+      <Path
+        d="M12 8V13"
+        stroke={color}
+        strokeWidth={1.5}
+        strokeLinecap="round"
+      />
+      <Circle cx={12} cy={16.5} r={1} fill={color} />
+    </Svg>
+  );
+}
+
 const icons = {
   back: IconBack,
   close: IconClose,
@@ -340,4 +355,5 @@ const icons = {
   locationOn: IconLocationOn,
   refund: IconRefund,
   refunded: IconRefunded,
+  highImportance: IconHighImportance,
 };

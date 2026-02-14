@@ -45,7 +45,7 @@ export const BankGridItem = React.memo(function BankGridItem({ bank, isSelected,
         )}
         {isDisabled && (
           <View style={styles.downBadge}>
-            <SvgIcon name="iconError" size={12} color={Colors.white} />
+            <SvgIcon name="highImportance" size={16} color={Colors.errorDefault} />
           </View>
         )}
       </View>
@@ -64,9 +64,6 @@ export const BankGridItem = React.memo(function BankGridItem({ bank, isSelected,
   );
 });
 
-const ICON_CONTAINER_SIZE = Spacing.xtraLarge * 3 + Spacing.medium + Spacing.tiny;
-const ICON_SIZE = Spacing.mediumLarge * 2 + Spacing.tiny;
-
 const styles = StyleSheet.create({
   container: {
     width: '100%',
@@ -76,46 +73,43 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
   iconContainer: {
-    width: ICON_CONTAINER_SIZE,
-    height: Spacing.xtraLarge * 3,
-    borderRadius: Spacing.medium,
+    width: '100%',
+    height: 60,
+    borderRadius: 12,
     borderWidth: 1.5,
     borderColor: Colors.grey100,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: Colors.white,
     overflow: 'visible',
-    padding: Spacing.small,
   },
   iconContainerSelected: {
     borderWidth: 2,
     borderColor: Colors.black,
   },
   icon: {
-    width: ICON_SIZE,
-    height: ICON_SIZE,
+    width: 32,
+    height: 32,
   },
   checkmark: {
     position: 'absolute',
-    top: Spacing.mini,
-    right: Spacing.mini,
-    width: Spacing.small * 2,
-    height: Spacing.small * 2,
-    borderRadius: Spacing.small,
+    top: 6,
+    right: 6,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
     backgroundColor: Colors.black,
     justifyContent: 'center',
     alignItems: 'center',
   },
   downBadge: {
     position: 'absolute',
-    top: Spacing.mini,
-    right: Spacing.mini,
-    width: Spacing.small * 2,
-    height: Spacing.small * 2,
-    borderRadius: Spacing.small,
-    backgroundColor: Colors.errorDarker,
-    justifyContent: 'center',
-    alignItems: 'center',
+    top: -6,
+    right: -6,
+    backgroundColor: Colors.errorSubtle,
+    borderRadius: 16,
+    paddingHorizontal: Spacing.mini,
+    paddingVertical: Spacing.tiny,
   },
   name: {
     fontFamily: 'Figtree',

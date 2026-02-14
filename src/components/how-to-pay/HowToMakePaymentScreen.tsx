@@ -8,17 +8,30 @@ import { LedgerButton } from '../shared/LedgerButton';
 import { SvgIcon } from '../shared/SvgIcon';
 import { DotLoadingAnimation } from '../shared/DotLoadingAnimation';
 import { useBankInstitutions } from '../../hooks/useBankInstitutions';
+import type { BankInstitution } from '../../types/bank';
+import { getBankIcon } from '../../types/bank';
 
 interface HowToMakePaymentScreenProps {
   onContinue: () => void;
   onClose: () => void;
 }
 
-const STEPS = [
-  'Select your bank from the list below',
-  'You will be redirected to your bank app to authorise the payment',
-  'Once the payment is complete, you will be redirected back',
-];
+const VISIBLE_BANK_COUNT = 3;
+
+function BankIconCircle({ bank }: { bank: BankInstitution }) {
+  const iconUrl = getBankIcon(bank);
+  return (
+    <View style={styles.bankIconCircle}>
+      {iconUrl && (
+        <Image
+          source={{ uri: iconUrl }}
+          style={styles.bankIconImage}
+          resizeMode="contain"
+        />
+      )}
+    </View>
+  );
+}
 
 export function HowToMakePaymentScreen({
   onContinue,
@@ -26,8 +39,8 @@ export function HowToMakePaymentScreen({
 }: HowToMakePaymentScreenProps) {
   const { brandingColors, state } = useBankInstitutions();
 
-  const VISIBLE_BANK_COUNT = 3;
-  const remainingCount = state.bankList.length - VISIBLE_BANK_COUNT;
+  const visibleBanks = state.bankList.slice(0, VISIBLE_BANK_COUNT);
+  const remainingCount = Math.max(0, state.bankList.length - VISIBLE_BANK_COUNT);
 
   return (
     <View style={styles.container}>
@@ -48,37 +61,58 @@ export function HowToMakePaymentScreen({
           />
           <DotLoadingAnimation />
           <View style={styles.bankIconsRow}>
-                    <Image
-                        source={require('../../assets/images/bank-logos.png')}
-                        style={styles.bankLogos}
-                        resizeMode="contain"
-                    />
+            {visibleBanks.map((bank) => (
+              <BankIconCircle key={bank.id} bank={bank} />
+            ))}
             {remainingCount > 0 && (
-              <View style={[styles.bankIconCircle, styles.bankCountCircle, styles.bankIconOverlap]}>
+              <View style={[styles.bankIconCircle, styles.bankCountCircle]}>
                 <Text style={styles.bankCountText}>+{remainingCount}</Text>
               </View>
             )}
           </View>
         </View>
 
-        <View style={styles.spacerXtraLarge} />
-        <View style={styles.spacerXtraLarge} />
+        <View style={styles.spacerXl} />
 
         {/* Steps */}
-        {STEPS.map((step, index) => (
-          <View key={index} style={styles.stepContainer}>
+        <View style={styles.stepsContainer}>
+          <View style={styles.stepContainer}>
             <View style={styles.stepCircle}>
-              <Text style={styles.stepNumber}>{index + 1}</Text>
+              <Text style={styles.stepNumber}>1</Text>
             </View>
-            <Text style={styles.stepText}>{step}</Text>
+            <Text style={styles.stepText}>
+              {'Your '}
+              <Text style={styles.stepTextBold}>Bank app</Text>
+              {' will open on selection automatically if it\u2019s installed.'}
+            </Text>
           </View>
-        ))}
 
+          <View style={styles.stepContainer}>
+            <View style={styles.stepCircle}>
+              <Text style={styles.stepNumber}>2</Text>
+            </View>
+            <Text style={styles.stepText}>
+              {'You can '}
+              <Text style={styles.stepTextBold}>login securely</Text>
+              {' and approve your payment. Your details stay confidential.'}
+            </Text>
+          </View>
+
+          <View style={styles.stepContainer}>
+            <View style={styles.stepCircle}>
+              <Text style={styles.stepNumber}>3</Text>
+            </View>
+            <Text style={styles.stepText}>
+              {'Once the payment\u2019s '}
+              <Text style={styles.stepTextBold}>confirmed</Text>
+              {', we\u2019ll redirect you to the success page.'}
+            </Text>
+          </View>
+        </View>
 
         {/* Trust badge */}
         <View style={styles.trustContainer}>
-          <SvgIcon name="shield" size={Spacing.xtraLarge} />
-          <View style={{ width: Spacing.small }} />
+          <SvgIcon name="shield" size={20} />
           <Text style={styles.trustText}>
             Trusted by thousands of businesses in the UK
           </Text>
@@ -87,12 +121,20 @@ export function HowToMakePaymentScreen({
         <View style={styles.spacerHuge} />
 
         <LedgerButton
-          title="I understand, continue →"
+          title="I understand, continue  →"
           onPress={onContinue}
           variant="primary2"
+          size="xtraLarge"
           backgroundColor={brandingColors?.backgroundColor}
           foregroundColor={brandingColors?.foregroundColor}
         />
+
+        <View style={styles.poweredByContainer}>
+          <Text style={styles.poweredByText}>Powered by </Text>
+          <View style={styles.poweredByLogo}>
+            <SvgIcon name="atoaLogo" size={30} color="#E42646" />
+          </View>
+        </View>
       </BottomSheetScrollView>
     </View>
   );
@@ -104,13 +146,13 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: Spacing.large,
-    paddingBottom: 100,
+    paddingBottom: Spacing.large,
   },
   spacerHuge: {
     height: Spacing.huge,
   },
-  spacerXtraLarge: {
-    height: Spacing.large,
+  spacerXl: {
+    height: 40,
   },
   logosContainer: {
     flexDirection: 'row',
@@ -120,46 +162,47 @@ const styles = StyleSheet.create({
   atoaLogo: {
     width: 40,
     height: 40,
+    borderRadius: 8,
   },
   bankIconsRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingRight: 10,
   },
   bankIconCircle: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: Colors.white,
-    backgroundColor: Colors.grey100,
+    borderRadius: 10,
+    borderWidth: 1.25,
+    borderColor: Colors.grey100,
+    backgroundColor: Colors.white,
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
+    marginRight: -10,
   },
   bankIconImage: {
-    width: 28,
-    height: 28,
+    width: 22,
+    height: 22,
   },
   bankCountCircle: {
     backgroundColor: Colors.grey100,
+    borderColor: Colors.white,
+    borderRadius: 20,
   },
   bankCountText: {
     fontFamily: 'Figtree',
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: 13,
+    fontWeight: '500',
     color: Colors.grey700,
   },
-  bankIconOverlap: {
-    marginLeft: -40,
-  },
-  bankLogos: {
-    height: 40,
-    width: 120,
+  stepsContainer: {
+    gap: 32,
   },
   stepContainer: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: Spacing.large * 2,
+    alignItems: 'center',
+    gap: Spacing.large,
   },
   stepCircle: {
     width: 40,
@@ -168,7 +211,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.infoSubtle,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: Spacing.large,
   },
   stepNumber: {
     fontFamily: 'Figtree',
@@ -180,23 +222,46 @@ const styles = StyleSheet.create({
     fontFamily: 'Figtree',
     fontSize: 14,
     fontWeight: '400',
-    color: Colors.black,
+    color: Colors.grey700,
     flex: 1,
     lineHeight: 21,
-    paddingTop: 5,
+  },
+  stepTextBold: {
+    fontWeight: '700',
   },
   trustContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.positiveLighter,
-    borderRadius: Spacing.small + Spacing.tiny,
-    paddingVertical: Spacing.small,
-    paddingHorizontal: Spacing.medium,
+    backgroundColor: Colors.positiveSubtle,
+    borderRadius: 10,
+    paddingVertical: Spacing.medium,
+    paddingHorizontal: Spacing.large,
+    gap: Spacing.small,
+    marginTop: Spacing.huge,
   },
   trustText: {
     fontFamily: 'Figtree',
     fontSize: 12,
     fontWeight: '600',
     color: Colors.positiveDarker,
+  },
+  poweredByContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: Spacing.medium,
+    paddingBottom: Spacing.huge * 3 + Spacing.medium,
+  },
+  poweredByText: {
+    fontFamily: 'Figtree',
+    fontSize: 13,
+    fontWeight: '500',
+    color: Colors.grey500,
+  },
+  poweredByLogo: {
+    width: 30,
+    height: 12,
+    overflow: 'hidden',
+    justifyContent: 'center',
   },
 });

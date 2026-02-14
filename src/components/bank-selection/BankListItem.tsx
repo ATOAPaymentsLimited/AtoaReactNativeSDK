@@ -38,8 +38,8 @@ export const BankListItem = React.memo(function BankListItem({ bank, isSelected,
           {bank.fullName}
         </Text>
         {isDisabled && (
-          <View style={styles.downIndicator}>
-            <SvgIcon name="iconError" size={12} color={Colors.errorDarker} />
+          <View style={styles.downBadge}>
+            <SvgIcon name="highImportance" size={16} color={Colors.errorDefault} />
           </View>
         )}
       </View>
@@ -56,49 +56,53 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: Spacing.large,
+    paddingVertical: Spacing.medium,
   },
   disabled: {
     opacity: 0.4,
   },
   iconContainer: {
-    width: Spacing.xtraLarge + Spacing.large + Spacing.small,
-    height: Spacing.xtraLarge + Spacing.large + Spacing.small,
-    borderRadius: Spacing.mini + Spacing.tiny,
+    width: 32,
+    height: 32,
+    borderRadius: 6,
     borderWidth: 1,
     borderColor: Colors.grey100,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: Spacing.mini,
     overflow: 'hidden',
+    backgroundColor: Colors.white,
   },
   icon: {
-    width: Spacing.xtraLarge,
-    height: Spacing.xtraLarge,
+    width: 20,
+    height: 20,
   },
   nameContainer: {
     flex: 1,
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     marginLeft: Spacing.medium,
+    gap: Spacing.small,
   },
   name: {
     fontFamily: 'Figtree',
     fontSize: 14,
     fontWeight: '500',
     color: Colors.grey700,
-    flex: 1,
+    flexShrink: 1,
   },
   nameDisabled: {
-    color: Colors.grey400,
+    color: Colors.grey600,
   },
-  downIndicator: {
-    marginLeft: Spacing.small,
+  downBadge: {
+    backgroundColor: Colors.errorSubtle,
+    borderRadius: 16,
+    paddingHorizontal: Spacing.mini,
+    paddingVertical: Spacing.tiny,
   },
   radioOuter: {
-    width: Spacing.xtraLarge + Spacing.mini,
-    height: Spacing.xtraLarge + Spacing.mini,
-    borderRadius: (Spacing.xtraLarge + Spacing.mini) / 2,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
     borderWidth: 1.5,
     borderColor: Colors.grey300,
     justifyContent: 'center',

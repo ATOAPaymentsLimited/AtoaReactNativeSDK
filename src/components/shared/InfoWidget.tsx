@@ -11,12 +11,25 @@ interface InfoWidgetProps {
   variant?: InfoVariant;
 }
 
-export const InfoWidget = React.memo(function InfoWidget({ message }: InfoWidgetProps) {
+const VARIANT_CONFIG: Record<
+  InfoVariant,
+  { bg: string; color: string; icon: 'info' | 'warningFilled' }
+> = {
+  info: { bg: Colors.infoSubtle, color: Colors.infoDarker, icon: 'info' },
+  error: { bg: Colors.errorSubtle, color: Colors.errorDarker, icon: 'warningFilled' },
+  warning: { bg: Colors.warningSubtle, color: Colors.warningDarker, icon: 'warningFilled' },
+};
+
+export const InfoWidget = React.memo(function InfoWidget({
+  message,
+  variant = 'info',
+}: InfoWidgetProps) {
+  const config = VARIANT_CONFIG[variant];
 
   return (
-    <View style={[styles.container, { backgroundColor: Colors.infoSubtle }]}>
-      <SvgIcon name="info" size={Spacing.large} color={Colors.infoDarker} />
-      <Text style={[styles.text, { color: Colors.infoDarker }]}>
+    <View style={[styles.container, { backgroundColor: config.bg }]}>
+      <SvgIcon name={config.icon} size={Spacing.large} color={config.color} />
+      <Text style={[styles.text, { color: config.color }]}>
         {message}
       </Text>
     </View>
@@ -27,17 +40,17 @@ export const InfoWidget = React.memo(function InfoWidget({ message }: InfoWidget
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     borderRadius: Spacing.small,
     paddingVertical: Spacing.small,
     paddingHorizontal: Spacing.medium,
+    gap: Spacing.small,
   },
   text: {
     fontFamily: 'Figtree',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '500',
-    lineHeight: 18,
+    lineHeight: 17.6,
     flex: 1,
-    marginLeft: Spacing.small,
   },
 });

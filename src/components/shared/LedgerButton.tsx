@@ -106,7 +106,7 @@ function getVariantStyles(
       };
     case 'secondary':
       return {
-        container: { backgroundColor: Colors.grey100 },
+        container: { backgroundColor: Colors.grey50 },
         text: { color: Colors.black },
       };
     case 'tertiary':

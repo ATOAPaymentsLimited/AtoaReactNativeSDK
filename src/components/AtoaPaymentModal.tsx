@@ -16,8 +16,10 @@ import { PaymentPaidWidget } from './confirmation/PaymentPaidWidget';
 import { VerifyingPaymentScreen } from './verifying-payment/VerifyingPaymentScreen';
 import { AtoaException } from '../types/error';
 import { ConnectivityWrapper } from './shared/ConnectivityWrapper';
+import { SvgIcon } from './shared/SvgIcon';
 
 type Screen =
+  | 'loading'
   | 'howToPay'
   | 'bankSelection'
   | 'confirmation'
@@ -48,7 +50,7 @@ function AtoaPaymentModalInner({
   options,
   onComplete,
 }: AtoaPaymentModalProps) {
-  const [currentScreen, setCurrentScreen] = useState<Screen>('bankSelection');
+  const [currentScreen, setCurrentScreen] = useState<Screen>('loading');
   const bottomSheetRef = useRef<BottomSheet>(null);
   const { state, dispatch } = usePaymentContext();
   const {
@@ -85,6 +87,8 @@ function AtoaPaymentModalInner({
     dispatch({ type: 'SET_SHOW_HOW_PAYMENT_WORKS', payload: shouldShow });
     if (shouldShow) {
       setCurrentScreen('howToPay');
+    } else if (!state.hasLastPaymentDetails) {
+      setCurrentScreen('bankSelection');
     }
   }, [
     state.isLoading,
@@ -123,7 +127,7 @@ function AtoaPaymentModalInner({
       state.paymentAuth &&
       state.selectedBank &&
       !state.isLoadingAuth &&
-      currentScreen === 'bankSelection'
+      (currentScreen === 'bankSelection' || currentScreen === 'loading')
     ) {
       setCurrentScreen('confirmation');
     }
@@ -194,6 +198,12 @@ function AtoaPaymentModalInner({
 
   const renderScreen = () => {
     switch (currentScreen) {
+      case 'loading':
+        return (
+          <View style={styles.loadingSplash}>
+            <SvgIcon name="atoaLogo" size={72} color="#E42646" />
+          </View>
+        );
       case 'howToPay':
         return (
           <HowToMakePaymentScreen
@@ -242,6 +252,11 @@ function AtoaPaymentModalInner({
         ref={bottomSheetRef}
         snapPoints={snapPoints}
         enablePanDownToClose={false}
+        enableContentPanningGesture={
+          currentScreen !== 'loading' &&
+          currentScreen !== 'howToPay' &&
+          currentScreen !== 'confirmation'
+        }
         handleComponent={null}
         backgroundStyle={styles.background}
       >
@@ -271,5 +286,11 @@ const styles = StyleSheet.create({
   sheetContent: {
     flex: 1,
     paddingTop: Spacing.large,
+    paddingBottom: Spacing.huge,
+  },
+  loadingSplash: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

@@ -375,7 +375,7 @@ export function useBankInstitutions() {
   const allBanksDisabledByAmount = useMemo(() => {
     if (paymentAmount == null) { return []; }
     return state.bankList
-      .filter((b) => b.transactionAmountLimit < paymentAmount)
+      .filter((b) => b.transactionAmountLimit != null && b.transactionAmountLimit < paymentAmount)
       .sort(sortByFullName);
   }, [state.bankList, paymentAmount]);
 

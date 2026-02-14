@@ -70,9 +70,9 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: 'Figtree',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
-    lineHeight: 25.2,
+    lineHeight: 23.2,
     color: Colors.black,
     textAlign: 'center',
     flex: 1,

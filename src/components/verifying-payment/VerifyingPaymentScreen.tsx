@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useCallback } from 'react';
-import { View, Text, Image, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Text, Image, StyleSheet } from 'react-native';
 import { usePaymentStatus } from '../../hooks/usePaymentStatus';
 import { useBankInstitutions } from '../../hooks/useBankInstitutions';
 import { getBankIcon } from '../../types/bank';
@@ -25,7 +25,6 @@ export function VerifyingPaymentScreen({
   const hasCompletedRef = useRef(false);
   const stopRef = useRef(stop);
   stopRef.current = stop;
-  const { height } = useWindowDimensions();
 
   const paymentAuth = state.paymentAuth;
   const selectedBank = state.selectedBank;
@@ -113,8 +112,8 @@ export function VerifyingPaymentScreen({
     <View style={styles.container}>
       <BottomSheetHeader title="Payment in progress" onClose={handleClose} />
 
-      <View style={[styles.centerContent, { height: height * 0.4 }]}>
-        {/* Atoa Logo → Dot Loading → Bank Icon */}
+      <View style={styles.contentArea}>
+        {/* Atoa Logo + Dot Loading + Bank Icon */}
         <View style={styles.animationRow}>
           <Image
             source={require('../../assets/images/red-back-atoa-logo.png')}
@@ -137,17 +136,17 @@ export function VerifyingPaymentScreen({
           )}
         </View>
 
-        <View style={styles.spacerLarge} />
+        <View style={styles.spacerLogos} />
 
         <Text style={styles.verifyingText}>
-          Verifying payment status with your bank.
+          {'Verifying payment status\nwith your bank.'}
         </Text>
 
-        <View style={styles.spacerSmall} />
+        <View style={styles.spacerText} />
 
-        <Text style={styles.warningText}>
-          Do not press back or close this screen until the transaction is
-          complete
+        <Text style={styles.noteText}>
+          <Text style={styles.noteBold}>Note:</Text>
+          {' Do not press back or close this screen until the transaction is complete.'}
         </Text>
       </View>
     </View>
@@ -157,56 +156,69 @@ export function VerifyingPaymentScreen({
 const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.white,
+    paddingBottom: 40,
   },
-  centerContent: {
-    justifyContent: 'center',
+  contentArea: {
     alignItems: 'center',
+    paddingTop: 96,
+    paddingHorizontal: Spacing.large,
   },
   animationRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: Spacing.medium,
   },
   atoaLogo: {
-    width: Spacing.xtraLarge * 2,
-    height: Spacing.xtraLarge * 2,
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.grey200,
   },
   bankIconContainer: {
-    width: Spacing.xtraLarge * 2,
-    height: Spacing.xtraLarge * 2,
-    borderRadius: Spacing.small,
+    width: 40,
+    height: 40,
+    borderRadius: 10,
     borderWidth: 1.25,
     borderColor: Colors.grey100,
+    backgroundColor: Colors.white,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: Spacing.small,
+    overflow: 'hidden',
   },
   bankIcon: {
     width: 25,
     height: 25,
   },
   bankIconPlaceholder: {
-    width: Spacing.xtraLarge * 2,
-    height: Spacing.xtraLarge * 2,
+    width: 40,
+    height: 40,
   },
-  spacerLarge: {
-    height: Spacing.large * 2,
+  spacerLogos: {
+    height: 48,
   },
-  spacerSmall: {
-    height: Spacing.small,
+  spacerText: {
+    height: Spacing.large,
   },
   verifyingText: {
     fontFamily: 'Figtree',
     fontSize: 16,
     fontWeight: '700',
     color: Colors.black,
+    textAlign: 'center',
+    lineHeight: 23.2,
   },
-  warningText: {
+  noteText: {
     fontFamily: 'Figtree',
     fontSize: 12,
     fontWeight: '500',
     color: Colors.grey500,
     textAlign: 'center',
+    lineHeight: 18,
     paddingHorizontal: Spacing.large,
+  },
+  noteBold: {
+    fontWeight: '700',
   },
 });
