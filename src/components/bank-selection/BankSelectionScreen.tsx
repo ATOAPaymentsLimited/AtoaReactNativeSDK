@@ -13,6 +13,8 @@ import { AnimatedSearchField } from './AnimatedSearchField';
 import { BankTabBar } from './BankTabBar';
 import { BankGridItem } from './BankGridItem';
 import { BankListItem } from './BankListItem';
+import { BankDownBottomSheet } from './BankDownBottomSheet';
+import { BankLimitCard } from './BankLimitCard';
 
 interface BankSelectionScreenProps {
   onBack?: () => void;
@@ -26,37 +28,44 @@ export function BankSelectionScreen({
   const {
     state,
     dispatch,
-    personalBanks,
-    businessBanks,
     selectBank,
     search,
     fetchBanks,
     getPaymentDetails,
+    personalBanksEnabled,
+    businessBanksEnabled,
+    popularPersonalBanks,
+    popularBusinessBanks,
+    allBanksEnabled,
+    allBanksDisabledByAmount,
+    paymentAmount,
   } = useBankInstitutions();
 
   const [tabIndex, setTabIndex] = useState(0);
+  const [bankDownBank, setBankDownBank] = useState<BankInstitution | null>(null);
   const { width, height } = useWindowDimensions();
 
   const isLoading = state.isLoading || state.isLoadingDetails || state.hasLastPaymentDetails;
   const hasError = state.bankFetchingError || state.paymentDetailsError;
-  const currentBanks = tabIndex === 0 ? personalBanks : businessBanks;
   const isSearching = state.searchTerm.length > 0;
-  const searchResults = isSearching
-    ? state.bankList
-    : currentBanks;
 
-  // Top banks (popular, first 8 for grid)
-  const popularBanks = currentBanks
-    .filter((b) => b.popularBank)
-    .slice(0, 8);
+  // Current tab's amount-filtered banks
+  const currentBanksEnabled = tabIndex === 0 ? personalBanksEnabled : businessBanksEnabled;
+
+  // Popular banks for current tab (already filtered by amount limit), first 8
+  const popularBanks = (tabIndex === 0 ? popularPersonalBanks : popularBusinessBanks).slice(0, 8);
 
   const handleBankPress = useCallback(
-    (bank: BankInstitution) => {
+    async (bank: BankInstitution) => {
       if (!bank.enabled) {
+        setBankDownBank(bank);
         return;
       }
       dispatch({ type: 'SET_SELECTED_BANK', payload: bank });
-      selectBank(bank);
+      const result = await selectBank(bank);
+      if (result === 'bank_down') {
+        setBankDownBank(bank);
+      }
     },
     [dispatch, selectBank]
   );
@@ -130,6 +139,29 @@ export function BankSelectionScreen({
     />
   );
 
+  // Amount-limited section (shared between search and normal views)
+  const renderAmountLimitedSection = (disabledBanks: BankInstitution[]) => {
+    if (disabledBanks.length === 0 || paymentAmount == null) {
+      return null;
+    }
+    return (
+      <View style={styles.amountLimitedContainer}>
+        <View style={styles.spacerSmall} />
+        <BankLimitCard amount={paymentAmount} />
+        <View style={styles.spacerMedium} />
+        {disabledBanks.map((bank) => (
+          <BankListItem
+            key={bank.id}
+            bank={bank}
+            isSelected={false}
+            onPress={handleBankPress}
+            forceDisabled
+          />
+        ))}
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
       <BottomSheetHeader
@@ -168,20 +200,23 @@ export function BankSelectionScreen({
             <Text style={styles.resultsLabel}>RESULTS</Text>
           </View>
           <BottomSheetFlatList
-            data={searchResults}
+            data={allBanksEnabled}
             keyExtractor={(item: BankInstitution) => item.id}
             renderItem={renderListItem}
             contentContainerStyle={[styles.listContent, styles.searchListContent]}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
+            ListFooterComponent={renderAmountLimitedSection(allBanksDisabledByAmount)}
             ListEmptyComponent={
-              <View style={styles.emptyContainer}>
-                <Text style={styles.emptyTitle}>No results</Text>
-                <Text style={styles.emptySubtitle}>
-                  No results for "{state.searchTerm}" in banks. Try using
-                  different keywords.
-                </Text>
-              </View>
+              allBanksDisabledByAmount.length === 0 ? (
+                <View style={styles.emptyContainer}>
+                  <Text style={styles.emptyTitle}>No results</Text>
+                  <Text style={styles.emptySubtitle}>
+                    No results for "{state.searchTerm}" in banks. Try using
+                    different keywords.
+                  </Text>
+                </View>
+              ) : null
             }
           />
         </>
@@ -205,16 +240,19 @@ export function BankSelectionScreen({
             }
             if (item.type === 'list') {
               return (
-                <View style={styles.allBanksContainer}>
-                  <Text style={styles.allBanksLabel}>ALL BANKS</Text>
-                  {state.bankList.map((bank) => (
-                    <BankListItem
-                      key={bank.id}
-                      bank={bank}
-                      isSelected={state.selectedBank?.id === bank.id}
-                      onPress={handleBankPress}
-                    />
-                  ))}
+                <View>
+                  <View style={styles.allBanksContainer}>
+                    <Text style={styles.allBanksLabel}>ALL BANKS</Text>
+                    {currentBanksEnabled.map((bank) => (
+                      <BankListItem
+                        key={bank.id}
+                        bank={bank}
+                        isSelected={state.selectedBank?.id === bank.id}
+                        onPress={handleBankPress}
+                      />
+                    ))}
+                  </View>
+                  {renderAmountLimitedSection(allBanksDisabledByAmount)}
                 </View>
               );
             }
@@ -225,6 +263,12 @@ export function BankSelectionScreen({
           keyboardShouldPersistTaps="handled"
         />
       )}
+
+      <BankDownBottomSheet
+        visible={bankDownBank != null}
+        bank={bankDownBank}
+        onClose={() => setBankDownBank(null)}
+      />
     </View>
   );
 }
@@ -237,6 +281,12 @@ const styles = StyleSheet.create({
   spacer: {
     height: Spacing.large,
   },
+  spacerSmall: {
+    height: Spacing.small,
+  },
+  spacerMedium: {
+    height: Spacing.medium,
+  },
   tabBarContainer: {
     paddingHorizontal: Spacing.large,
   },
@@ -244,7 +294,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.large,
   },
   gridRow: {
-    justifyContent: 'space-between',
+    gap: Spacing.large,
   },
   listContent: {
     paddingHorizontal: Spacing.large,
@@ -270,6 +320,9 @@ const styles = StyleSheet.create({
     color: Colors.grey500,
     letterSpacing: 1,
     marginBottom: Spacing.small,
+  },
+  amountLimitedContainer: {
+    paddingHorizontal: Spacing.large,
   },
   resultsHeaderContainer: {
     paddingHorizontal: Spacing.large,

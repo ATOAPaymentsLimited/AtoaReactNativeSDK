@@ -10,11 +10,12 @@ interface BankGridItemProps {
   bank: BankInstitution;
   isSelected: boolean;
   onPress: (bank: BankInstitution) => void;
+  forceDisabled?: boolean;
 }
 
-export const BankGridItem = React.memo(function BankGridItem({ bank, isSelected, onPress }: BankGridItemProps) {
+export const BankGridItem = React.memo(function BankGridItem({ bank, isSelected, onPress, forceDisabled }: BankGridItemProps) {
   const iconUrl = getBankIcon(bank);
-  const isDisabled = !bank.enabled;
+  const isDisabled = !bank.enabled || !!forceDisabled;
 
   return (
     <TouchableOpacity
@@ -23,7 +24,7 @@ export const BankGridItem = React.memo(function BankGridItem({ bank, isSelected,
         isDisabled && styles.disabled,
       ]}
       onPress={() => onPress(bank)}
-      disabled={isDisabled}
+      disabled={!!forceDisabled}
       activeOpacity={0.7}
     >
       <View style={[

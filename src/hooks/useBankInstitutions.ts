@@ -1,4 +1,4 @@
-import { useCallback, useRef, useEffect } from 'react';
+import { useCallback, useMemo, useRef, useEffect } from 'react';
 import { Linking, Platform } from 'react-native';
 import { usePaymentContext } from './PaymentContext';
 import type { BankInstitution } from '../types/bank';
@@ -155,9 +155,9 @@ export function useBankInstitutions() {
   );
 
   const selectBank = useCallback(
-    async (selectedBank: BankInstitution | null) => {
+    async (selectedBank: BankInstitution | null): Promise<'success' | 'bank_down' | 'error'> => {
       if (!selectedBank) {
-        return;
+        return 'error';
       }
 
       dispatch({ type: 'SET_SELECTED_BANK', payload: selectedBank });
@@ -168,7 +168,7 @@ export function useBankInstitutions() {
       const paymentDetails = state.paymentDetails;
       if (!paymentDetails) {
         dispatch({ type: 'SET_LOADING_AUTH', payload: false });
-        return;
+        return 'error';
       }
 
       try {
@@ -186,16 +186,27 @@ export function useBankInstitutions() {
         // Check bank app availability using the response directly
         // (state.paymentAuth would be stale here since dispatch is async)
         await checkBankAppAvailability(paymentAuth);
+        return 'success';
       } catch (e) {
+        dispatch({ type: 'SET_SELECTED_BANK', payload: null });
+        dispatch({ type: 'SET_PAYMENT_AUTH', payload: null });
+
+        const message = e instanceof Error ? e.message : String(e);
+        const isBankDown = message.toLowerCase().includes('bank app is down') ||
+          message.toLowerCase().includes('bank is down');
+
+        if (isBankDown) {
+          return 'bank_down';
+        }
+
         if (e instanceof AtoaException) {
           options.onError?.(e);
         }
-        dispatch({ type: 'SET_SELECTED_BANK', payload: null });
-        dispatch({ type: 'SET_PAYMENT_AUTH', payload: null });
         dispatch({
           type: 'SET_BANK_AUTH_ERROR',
-          payload: e instanceof Error ? e : new Error(String(e)),
+          payload: e instanceof Error ? e : new Error(message),
         });
+        return 'error';
       } finally {
         dispatch({ type: 'SET_LOADING_AUTH', payload: false });
       }
@@ -292,6 +303,82 @@ export function useBankInstitutions() {
     state.paymentDetails?.merchantThemeDetails
   );
 
+  const paymentAmount = state.paymentDetails?.amount?.amount ?? null;
+
+  const sortByFullName = (a: BankInstitution, b: BankInstitution) =>
+    a.fullName.toLowerCase().localeCompare(b.fullName.toLowerCase());
+
+  const sortByOrderBy = (a: BankInstitution, b: BankInstitution) =>
+    a.orderBy - b.orderBy;
+
+  // Banks whose transactionAmountLimit >= payment amount (supported)
+  const personalBanksEnabled = useMemo(() => {
+    if (paymentAmount == null) { return personalBanks; }
+    return personalBanks
+      .filter((b) => b.transactionAmountLimit >= paymentAmount)
+      .sort(sortByFullName);
+  }, [personalBanks, paymentAmount]);
+
+  const businessBanksEnabled = useMemo(() => {
+    if (paymentAmount == null) { return businessBanks; }
+    return businessBanks
+      .filter((b) => b.transactionAmountLimit >= paymentAmount)
+      .sort(sortByFullName);
+  }, [businessBanks, paymentAmount]);
+
+  // Banks whose transactionAmountLimit < payment amount (not supported)
+  const personalBanksDisabledByAmount = useMemo(() => {
+    if (paymentAmount == null) { return []; }
+    return personalBanks
+      .filter((b) => b.transactionAmountLimit < paymentAmount)
+      .sort(sortByFullName);
+  }, [personalBanks, paymentAmount]);
+
+  const businessBanksDisabledByAmount = useMemo(() => {
+    if (paymentAmount == null) { return []; }
+    return businessBanks
+      .filter((b) => b.transactionAmountLimit < paymentAmount)
+      .sort(sortByFullName);
+  }, [businessBanks, paymentAmount]);
+
+  // Popular banks filtered by amount limit, sorted by orderBy
+  const popularPersonalBanks = useMemo(() => {
+    const source = paymentAmount != null
+      ? personalBanks.filter(
+          (b) =>
+            b.popularBank &&
+            b.transactionAmountLimit >= paymentAmount
+        )
+      : personalBanks.filter((b) => b.popularBank);
+    return source.sort(sortByOrderBy);
+  }, [personalBanks, paymentAmount]);
+
+  const popularBusinessBanks = useMemo(() => {
+    const source = paymentAmount != null
+      ? businessBanks.filter(
+          (b) =>
+            b.popularBank &&
+            b.transactionAmountLimit >= paymentAmount
+        )
+      : businessBanks.filter((b) => b.popularBank);
+    return source.sort(sortByOrderBy);
+  }, [businessBanks, paymentAmount]);
+
+  // All banks (for search results) split by amount limit
+  const allBanksEnabled = useMemo(() => {
+    if (paymentAmount == null)  { return state.bankList; }
+    return state.bankList
+      .filter((b) => b.transactionAmountLimit >= paymentAmount)
+      .sort(sortByFullName);
+  }, [state.bankList, paymentAmount]);
+
+  const allBanksDisabledByAmount = useMemo(() => {
+    if (paymentAmount == null) { return []; }
+    return state.bankList
+      .filter((b) => b.transactionAmountLimit < paymentAmount)
+      .sort(sortByFullName);
+  }, [state.bankList, paymentAmount]);
+
   return {
     state,
     dispatch,
@@ -308,6 +395,15 @@ export function useBankInstitutions() {
     stopPolling,
     personalBanks,
     businessBanks,
+    personalBanksEnabled,
+    businessBanksEnabled,
+    personalBanksDisabledByAmount,
+    businessBanksDisabledByAmount,
+    popularPersonalBanks,
+    popularBusinessBanks,
+    allBanksEnabled,
+    allBanksDisabledByAmount,
+    paymentAmount,
     brandingColors,
   };
 }
