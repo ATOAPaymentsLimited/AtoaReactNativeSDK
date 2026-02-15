@@ -5,6 +5,8 @@ import { Colors } from '../../constants/colors';
 const DOT_COUNT = 5;
 const DOT_SIZE = 4;
 const DOT_GAP = 4;
+// Alternating stretch multipliers matching the Lottie: 3.5x, 6x, 3.5x, 6x, 3.5x
+//const STRETCH_FACTORS = [1, 2, 1, 2, 1];
 const BOUNCE_HEIGHT = 8;
 const ANIMATION_DURATION = 300;
 const STAGGER_DELAY = 100;
@@ -15,6 +17,7 @@ export function DotLoadingAnimation() {
   ).current;
 
   useEffect(() => {
+    const totalWave = (DOT_COUNT - 1) * STAGGER_DELAY;
     const animations = anims.map((anim, i) =>
       Animated.loop(
         Animated.sequence([
@@ -29,9 +32,7 @@ export function DotLoadingAnimation() {
             duration: ANIMATION_DURATION,
             useNativeDriver: true,
           }),
-          Animated.delay(
-            (DOT_COUNT - 1 - i) * STAGGER_DELAY + ANIMATION_DURATION
-          ),
+          Animated.delay(totalWave - i * STAGGER_DELAY + ANIMATION_DURATION),
         ])
       )
     );

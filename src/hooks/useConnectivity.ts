@@ -105,16 +105,21 @@ export function useConnectivity(baseUrl?: string) {
     } else if (!netState.isConnected) {
       newStatus = 'offline';
     } else {
-      const type = netState.type;
-      if (type === 'cellular') {
-        newStatus = 'cellular';
-      } else if (type === 'wifi') {
-        const internetFlag = await hasInternet();
-        newStatus = internetFlag ? 'wifi' : 'offline';
-      } else if (type === 'vpn' || type === 'other' || type === 'ethernet' || type === 'bluetooth') {
-        newStatus = 'other';
-      } else {
+      // Always verify actual internet when explicitly checking
+      const internetFlag = await hasInternet();
+      if (!internetFlag) {
         newStatus = 'offline';
+      } else {
+        const type = netState.type;
+        if (type === 'cellular') {
+          newStatus = 'cellular';
+        } else if (type === 'wifi') {
+          newStatus = 'wifi';
+        } else if (type === 'vpn' || type === 'other' || type === 'ethernet' || type === 'bluetooth') {
+          newStatus = 'other';
+        } else {
+          newStatus = 'offline';
+        }
       }
     }
 

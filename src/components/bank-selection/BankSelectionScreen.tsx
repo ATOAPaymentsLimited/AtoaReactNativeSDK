@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { View, Text, FlatList, StyleSheet, useWindowDimensions, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, StyleSheet, useWindowDimensions } from 'react-native';
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { useBankInstitutions } from '../../hooks/useBankInstitutions';
 import type { BankInstitution } from '../../types/bank';
@@ -41,7 +41,7 @@ export function BankSelectionScreen({
 
   const [tabIndex, setTabIndex] = useState(0);
   const [bankDownBank, setBankDownBank] = useState<BankInstitution | null>(null);
-  const { width, height } = useWindowDimensions();
+  const { width } = useWindowDimensions();
 
   const isLoading = state.isLoading || state.isLoadingDetails || state.hasLastPaymentDetails;
   const hasError = state.bankFetchingError || state.paymentDetailsError;
@@ -87,7 +87,7 @@ export function BankSelectionScreen({
           showHelp={!!onHelp}
           onHelp={onHelp}
         />
-        <View style={{ height: height * 0.6 }}>
+        <View style={styles.loaderContainer}>
           <FetchingBankLoader />
         </View>
       </View>
@@ -104,7 +104,7 @@ export function BankSelectionScreen({
           showHelp={!!onHelp}
           onHelp={onHelp}
         />
-        <View style={{ height: height * 0.6 }}>
+        <View style={styles.loaderContainer}>
           {isBankFetchError ? (
             <ErrorWidget
               title="We couldn&#x2019;t fetch banks!"
@@ -273,7 +273,7 @@ export function BankSelectionScreen({
 
       {state.isLoadingAuth && (
         <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color={Colors.brandPrimary} />
+          <FetchingBankLoader />
         </View>
       )}
     </View>
@@ -355,9 +355,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 21,
   },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+    backgroundColor: Colors.white,
     justifyContent: 'center',
     alignItems: 'center',
   },

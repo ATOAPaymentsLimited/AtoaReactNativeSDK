@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useRef, useEffect } from 'react';
 import { Linking, Platform } from 'react-native';
 import { usePaymentContext } from './PaymentContext';
+import { useConnectivityContext } from './ConnectivityContext';
 import type { BankInstitution } from '../types/bank';
 import { AtoaException } from '../types/error';
 import { buildPaymentAuthBody } from '../utils/buildPaymentAuthBody';
@@ -9,6 +10,7 @@ import { getBrandingColors } from '../utils/brandingColors';
 
 export function useBankInstitutions() {
   const { state, dispatch, client, options } = usePaymentContext();
+  const { checkConnection } = useConnectivityContext();
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pollingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const linkExpiredTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
@@ -40,6 +42,10 @@ export function useBankInstitutions() {
       if (e instanceof AtoaException) {
         options.onError?.(e);
       }
+      const message = e instanceof Error ? e.message : '';
+      if (message.includes('Server is not reachable')) {
+        checkConnection();
+      }
       dispatch({
         type: 'SET_PAYMENT_DETAILS_ERROR',
         payload: e instanceof Error ? e : new Error(String(e)),
@@ -49,7 +55,7 @@ export function useBankInstitutions() {
     } finally {
       dispatch({ type: 'SET_LOADING_DETAILS', payload: false });
     }
-  }, [client, dispatch, options]);
+  }, [client, dispatch, options, checkConnection]);
 
   const fetchBanks = useCallback(async (paymentDetails?: import('../types/payment').PaymentRequestData | null) => {
     const details = paymentDetails ?? state.paymentDetails;
@@ -80,6 +86,10 @@ export function useBankInstitutions() {
       if (e instanceof AtoaException) {
         options.onError?.(e);
       }
+      const message = e instanceof Error ? e.message : '';
+      if (message.includes('Server is not reachable')) {
+        checkConnection();
+      }
       dispatch({
         type: 'SET_BANK_FETCHING_ERROR',
         payload: e instanceof Error ? e : new Error(String(e)),
@@ -87,7 +97,7 @@ export function useBankInstitutions() {
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
     }
-  }, [client, dispatch, options, state.paymentDetails]);
+  }, [client, dispatch, options, state.paymentDetails, checkConnection]);
 
   const fetchFilteredBanks = useCallback(
     async (searchTerm: string) => {

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, LogBox } from 'react-native';
 import { useConnectivityContext } from '../../hooks/ConnectivityContext';
 import type { ReconnectionCallback } from '../../hooks/useConnectivity';
 import { Colors } from '../../constants/colors';
@@ -27,6 +27,16 @@ export function ConnectivityWrapper({
     removeReconnectionCallback,
   } = useConnectivityContext();
 
+  // Hide LogBox warnings bar when showing no-connectivity UI
+  useEffect(() => {
+    if (isDisconnected) {
+      LogBox.ignoreAllLogs(true);
+    }
+    return () => {
+      LogBox.ignoreAllLogs(false);
+    };
+  }, [isDisconnected]);
+
   // Register/unregister reconnection callbacks (matching Flutter's initState/dispose)
   useEffect(() => {
     for (const cb of onReloadCallbacks) {
@@ -44,8 +54,8 @@ export function ConnectivityWrapper({
       {children}
       {isDisconnected && (
         <>
-          <View style={[styles.overlay, height != null ? { height } : undefined]} />
-          <View style={[styles.overlayContent, height != null ? { height } : undefined]}>
+          <View style={[styles.overlay, height ? { height } : undefined]} />
+          <View style={[styles.overlayContent, height ? { height } : undefined]}>
             {showBackIcon && onBack && (
               <View style={styles.backButtonContainer}>
                 <TouchableOpacity
@@ -96,7 +106,10 @@ const styles = StyleSheet.create({
     padding: Spacing.medium,
   },
   backButtonContainer: {
-    alignSelf: 'flex-start',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    zIndex: 1,
   },
   backButton: {
     width: Spacing.large * 2,

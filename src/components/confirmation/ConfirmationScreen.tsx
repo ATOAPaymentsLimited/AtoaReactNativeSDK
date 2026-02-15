@@ -151,14 +151,6 @@ export function ConfirmationScreen({
           disabled={showLinkExpired}
         />
 
-        <View style={styles.spacerMedium} />
-
-        <View style={styles.poweredByContainer}>
-          <Text style={styles.poweredByText}>Powered by </Text>
-          <View style={styles.poweredByLogo}>
-            <SvgIcon name="atoaLogo" size={30} color="#E42646" />
-          </View>
-        </View>
 
         <View style={styles.spacerXl} />
 
@@ -260,7 +252,7 @@ const styles = StyleSheet.create({
     color: Colors.grey500,
     textAlign: 'center',
     lineHeight: 17.6,
-    paddingBottom: Spacing.huge * 3,
+    paddingBottom: Spacing.huge * 3 + Spacing.medium,
   },
   termsBold: {
     fontWeight: '600',

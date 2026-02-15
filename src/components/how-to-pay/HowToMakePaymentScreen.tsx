@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet, useWindowDimensions } from 'react-native';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
@@ -7,6 +7,7 @@ import { BottomSheetHeader } from '../shared/BottomSheetHeader';
 import { LedgerButton } from '../shared/LedgerButton';
 import { SvgIcon } from '../shared/SvgIcon';
 import { DotLoadingAnimation } from '../shared/DotLoadingAnimation';
+import { SDKLoader } from '../shared/AtoaLoader';
 import { useBankInstitutions } from '../../hooks/useBankInstitutions';
 import type { BankInstitution } from '../../types/bank';
 import { getBankIcon } from '../../types/bank';
@@ -38,9 +39,20 @@ export function HowToMakePaymentScreen({
   onClose,
 }: HowToMakePaymentScreenProps) {
   const { brandingColors, state } = useBankInstitutions();
+  const { height: screenHeight } = useWindowDimensions();
+  const contentHeight = screenHeight * 0.8 - Spacing.large - Spacing.huge * 2;
 
+  const isLoading = state.isLoading || state.isLoadingDetails;
   const visibleBanks = state.bankList.slice(0, VISIBLE_BANK_COUNT);
   const remainingCount = Math.max(0, state.bankList.length - VISIBLE_BANK_COUNT);
+
+  if (isLoading) {
+    return (
+      <View style={[styles.loadingContainer, { height: contentHeight }]}>
+        <SDKLoader />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -142,6 +154,11 @@ export function HowToMakePaymentScreen({
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: Colors.white,
+  },
+  loadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: Colors.white,
   },
   content: {

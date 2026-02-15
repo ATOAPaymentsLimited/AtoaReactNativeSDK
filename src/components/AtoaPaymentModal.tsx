@@ -16,7 +16,7 @@ import { PaymentPaidWidget } from './confirmation/PaymentPaidWidget';
 import { VerifyingPaymentScreen } from './verifying-payment/VerifyingPaymentScreen';
 import { AtoaException } from '../types/error';
 import { ConnectivityWrapper } from './shared/ConnectivityWrapper';
-import { SvgIcon } from './shared/SvgIcon';
+import { SDKLoader } from './shared/AtoaLoader';
 
 type Screen =
   | 'loading'
@@ -50,7 +50,9 @@ function AtoaPaymentModalInner({
   options,
   onComplete,
 }: AtoaPaymentModalProps) {
-  const [currentScreen, setCurrentScreen] = useState<Screen>('loading');
+  const [currentScreen, setCurrentScreen] = useState<Screen>(
+    options.showHowPaymentWorks ? 'howToPay' : 'bankSelection'
+  );
   const bottomSheetRef = useRef<BottomSheet>(null);
   const { state, dispatch } = usePaymentContext();
   const {
@@ -59,6 +61,7 @@ function AtoaPaymentModalInner({
     resetSelectBank,
     selectBank,
   } = useBankInstitutions();
+  const contentHeight = 0;
   const hasInitializedRef = useRef(false);
   const handleCloseRef = useRef<() => void>(() => {});
 
@@ -127,7 +130,7 @@ function AtoaPaymentModalInner({
       state.paymentAuth &&
       state.selectedBank &&
       !state.isLoadingAuth &&
-      (currentScreen === 'bankSelection' || currentScreen === 'loading')
+      (currentScreen === 'bankSelection' || currentScreen === 'loading' || currentScreen === 'howToPay')
     ) {
       setCurrentScreen('confirmation');
     }
@@ -194,14 +197,22 @@ function AtoaPaymentModalInner({
     [state.transactionDetails, onComplete, handleClose]
   );
 
-  const snapPoints = useMemo(() => ['90%'], []);
+  const needsFixedHeight =
+    currentScreen === 'bankSelection' ||
+    currentScreen === 'loading' ||
+    state.isLoading ||
+    state.isLoadingDetails;
+  const snapPoints = useMemo(
+    () => (needsFixedHeight ? ['95%'] : undefined),
+    [needsFixedHeight]
+  );
 
   const renderScreen = () => {
     switch (currentScreen) {
       case 'loading':
         return (
-          <View style={styles.loadingSplash}>
-            <SvgIcon name="atoaLogo" size={72} color="#E42646" />
+          <View style={[styles.loadingSplash, { height: contentHeight }]}>
+            <SDKLoader />
           </View>
         );
       case 'howToPay':
@@ -250,18 +261,24 @@ function AtoaPaymentModalInner({
     <View style={styles.overlay}>
       <BottomSheet
         ref={bottomSheetRef}
+        index={0}
         snapPoints={snapPoints}
+        enableDynamicSizing={!needsFixedHeight}
         enablePanDownToClose={false}
         enableContentPanningGesture={
           currentScreen !== 'loading' &&
           currentScreen !== 'howToPay' &&
-          currentScreen !== 'confirmation'
+          currentScreen !== 'confirmation' &&
+          currentScreen !== 'bankSelection'
         }
         handleComponent={null}
         backgroundStyle={styles.background}
+        keyboardBehavior="extend"
+        keyboardBlurBehavior="restore"
+        android_keyboardInputMode="adjustResize"
       >
         <View style={styles.sheetContent}>
-          <ConnectivityWrapper onBack={handleClose}>
+          <ConnectivityWrapper onBack={handleClose} height={contentHeight}>
             {renderScreen()}
           </ConnectivityWrapper>
         </View>

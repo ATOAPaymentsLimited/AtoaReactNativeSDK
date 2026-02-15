@@ -15,11 +15,12 @@ interface BankListItemProps {
 
 export const BankListItem = React.memo(function BankListItem({ bank, isSelected, onPress, forceDisabled }: BankListItemProps) {
   const iconUrl = getBankIcon(bank);
-  const isDisabled = !bank.enabled || !!forceDisabled;
+  const isDisabled = !bank.enabled;
+  const notSupported =  !!forceDisabled;
 
   return (
     <TouchableOpacity
-      style={[styles.container, isDisabled && styles.disabled]}
+      style={[styles.container, notSupported && styles.disabled]}
       onPress={() => onPress(bank)}
       disabled={!!forceDisabled}
       activeOpacity={0.7}
