@@ -1,5 +1,5 @@
-import React, { useCallback } from 'react';
-import { View, Text, StyleSheet, Linking, Platform } from 'react-native';
+import React, { useCallback, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Linking, Platform, AppState, type AppStateStatus } from 'react-native';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useBankInstitutions } from '../../hooks/useBankInstitutions';
 import { getBankIcon } from '../../types/bank';
@@ -23,9 +23,30 @@ export function ConfirmationScreen({
   onGoToBank,
   onChangeBank,
 }: ConfirmationScreenProps) {
-  const { state, dispatch, selectBank, brandingColors } = useBankInstitutions();
+  const { state, dispatch, selectBank, checkBankAppAvailability, brandingColors } = useBankInstitutions();
   const { paymentDetails, selectedBank, isAppInstalled, showLinkExpired } =
     state;
+  const appStateRef = useRef(AppState.currentState);
+
+  // Re-check bank app availability when app resumes (e.g. user installed app from store)
+  // Matches Flutter's didChangeAppLifecycleState in ConfirmationBottomSheet
+  useEffect(() => {
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      if (
+        appStateRef.current.match(/inactive|background/) &&
+        nextAppState === 'active'
+      ) {
+        checkBankAppAvailability();
+      }
+      appStateRef.current = nextAppState;
+    };
+
+    const subscription = AppState.addEventListener(
+      'change',
+      handleAppStateChange
+    );
+    return () => subscription.remove();
+  }, [checkBankAppAvailability]);
 
   const amount = paymentDetails?.amount;
   const amountStr = amount

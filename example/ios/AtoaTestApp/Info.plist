@@ -50,5 +50,42 @@
 		</array>
 		<key>UIViewControllerBasedStatusBarAppearance</key>
 		<false />
+		<key>CFBundleURLTypes</key>
+		<array>
+			<dict>
+				<key>CFBundleURLSchemes</key>
+				<array>
+					<string>atoa</string>
+					<string>https</string>
+				</array>
+				<key>CFBundleURLName</key>
+				<string>com.example.atoa</string>
+			</dict>
+		</array>
+		<!-- Bank app URL schemes for app installation checks -->
+		<key>LSApplicationQueriesSchemes</key>
+		<array>
+			<string>pulsesecure</string>
+			<string>launchbmb</string>
+			<string>lloyds-retail</string>
+			<string>hsbc-pwnwguti5z</string>
+			<string>uk.co.santander.santanderUK</string>
+			<string>fb894703657238109</string>
+			<string>bos-retail</string>
+			<string>halifax-retail</string>
+			<string>monzo</string>
+			<string>starlingbank</string>
+			<string>tsbmobile</string>
+			<string>comfirstdirectbankingonthego</string>
+			<string>launchFT</string>
+			<string>virginmoneyimport</string>
+			<string>ybssavings</string>
+			<string>transferwise</string>
+			<string>tg</string>
+			<string>BOIOneAPP</string>
+			<string>ie.aib.mobilebanking</string>
+			<string>bos-commercial</string>
+			<string>chase-international</string>
+		</array>
 	</dict>
 </plist>

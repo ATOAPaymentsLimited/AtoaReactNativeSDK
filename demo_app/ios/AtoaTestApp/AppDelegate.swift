@@ -40,6 +40,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   ) -> Bool {
     return RCTLinkingManager.application(app, open: url, options: options)
   }
+
+  // Handle universal links (bank app redirect back to app via https)
+  func application(
+    _ application: UIApplication,
+    continue userActivity: NSUserActivity,
+    restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void
+  ) -> Bool {
+    if userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+       let url = userActivity.webpageURL {
+      RCTLinkingManager.application(application, open: url, options: [:])
+      return true
+    }
+    return false
+  }
 }
 
 class ReactNativeDelegate: RCTDefaultReactNativeFactoryDelegate {
