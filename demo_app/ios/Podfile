@@ -1,4 +1,14 @@
 # Resolve react_native_pods.rb with node to allow for hoisting
+require_relative '../node_modules/react-native/scripts/react_native_pods'
+
+
+
+ENV['RCT_NEW_ARCH_ENABLED'] = '1'
+
+use_frameworks! :linkage => :static
+
+
+
 require Pod::Executable.execute_command('node', ['-p',
   'require.resolve(
     "react-native/scripts/react_native_pods.rb",
@@ -20,7 +30,9 @@ target 'demo_app' do
   use_react_native!(
     :path => config[:reactNativePath],
     # An absolute path to your application root.
-    :app_path => "#{Pod::Config.instance.installation_root}/.."
+    :app_path => "#{Pod::Config.instance.installation_root}/..",
+    :fabric_enabled => true,
+    :new_arch_enabled => true
   )
 
   post_install do |installer|
