@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import LottieView from 'lottie-react-native';
 import type { TransactionDetails } from '../../types/payment';
 import { isCompleted, isFailed, isPending } from '../../types/payment';
@@ -18,8 +18,6 @@ export function PaymentStatusView({
   transactionDetails,
   onClose,
 }: PaymentStatusViewProps) {
-  const { height } = useWindowDimensions();
-
   // Pending - show loading
   if (isPending(transactionDetails)) {
     return (
@@ -50,7 +48,7 @@ export function PaymentStatusView({
   if (isCompleted(transactionDetails)) {
     return (
       <View style={styles.container}>
-        <View style={[styles.successContent, { height: height * 0.6 }]}>
+        <View style={styles.successContent}>
           <LottieView
             source={require('../../assets/animations/tick_mark.json')}
             autoPlay
@@ -79,9 +77,11 @@ export function PaymentStatusView({
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     backgroundColor: Colors.white,
   },
   successContent: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },

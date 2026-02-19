@@ -155,12 +155,14 @@ export function VerifyingPaymentScreen({
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     backgroundColor: Colors.white,
     paddingBottom: 40,
   },
   contentArea: {
+    flex: 1,
     alignItems: 'center',
-    paddingTop: 96,
+    justifyContent: 'center',
     paddingHorizontal: Spacing.large,
   },
   animationRow: {

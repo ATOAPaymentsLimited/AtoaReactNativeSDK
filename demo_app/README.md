@@ -80,13 +80,53 @@ Then run:
 npm run ios
 ```
 
-## Build Release APK
+## Release Builds
+
+### Android
+
+**Build AAB (Android App Bundle):**
+
+```sh
+npx react-native build-android --mode=release
+```
+
+The AAB will be at: `android/app/build/outputs/bundle/release/app-release.aab`
+
+**Build APK:**
 
 ```sh
 cd android && ./gradlew app:assembleRelease
 ```
 
 The APK will be at: `android/app/build/outputs/apk/release/app-release.apk`
+
+### iOS (IPA)
+
+Make sure CocoaPods dependencies are installed first:
+
+```sh
+cd ios && bundle exec pod install && cd ..
+```
+
+**Build release:**
+
+```sh
+npx react-native build-ios --mode=Release
+```
+
+**Or archive and export manually:**
+
+```sh
+xcodebuild -workspace ios/demo_app.xcworkspace -scheme demo_app -configuration Release -sdk iphoneos -archivePath build/demo_app.xcarchive archive
+```
+
+```sh
+xcodebuild -exportArchive -archivePath build/demo_app.xcarchive -exportOptionsPlist ios/ExportOptions.plist -exportPath build/
+```
+
+The IPA will be at: `build/demo_app.ipa`
+
+> **Note:** The manual export requires a valid `ios/ExportOptions.plist` with your signing and provisioning profile configuration. Alternatively, open `ios/demo_app.xcworkspace` in Xcode and use **Product > Archive** to build and export via the Xcode Organizer.
 
 ## Modifying the App
 
