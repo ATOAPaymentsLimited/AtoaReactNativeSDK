@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
 import {
-  SafeAreaView,
   StyleSheet,
   Text,
   TextInput,
@@ -8,6 +7,7 @@ import {
   Switch,
   Pressable,
 } from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import {
   AtoaSdk,
   type AtoaEnv,
@@ -30,6 +30,23 @@ function App(): React.JSX.Element {
       paymentId: trimmed,
       env,
       showHowPaymentWorks: false,
+      environment: 'development',
+      customerDetails: {
+        phoneCountryCode: '44',
+        phoneNumber: '8788899999',
+        email: 'aaa@gmail.com',
+      },
+      onUserClose: ({paymentRequestId}) => {
+        console.log(
+          `User closed payment for paymentRequestId: ${paymentRequestId}`,
+        );
+      },
+      onPaymentStatusChange: ({status}) => {
+        console.log(`Payment Status Changed to ${status}`);
+      },
+      onError: error => {
+        console.error(`Error in Atoa SDK: ${error.message}`);
+      },
     };
 
     await AtoaSdk.pay(options);
