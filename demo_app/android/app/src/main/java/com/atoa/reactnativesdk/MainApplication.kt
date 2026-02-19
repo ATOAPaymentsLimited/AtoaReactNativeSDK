@@ -1,4 +1,4 @@
-package com.demo_app
+package com.atoa.reactnativesdk
 
 import android.app.Application
 import com.facebook.react.PackageList

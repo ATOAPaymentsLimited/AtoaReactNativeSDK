@@ -1,4 +1,4 @@
-package com.demo_app
+package com.atoa.reactnativesdk
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
