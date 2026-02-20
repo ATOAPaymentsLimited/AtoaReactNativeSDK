@@ -4,10 +4,10 @@ import {
   StyleSheet,
   Text,
   View,
-  Alert,
   Pressable,
   ActivityIndicator,
   Image,
+  Animated,
 } from 'react-native';
 import {
   AtoaSdk,
@@ -61,11 +61,14 @@ function getRequestData(amount: number) {
 
 async function getPaymentRequestId(amount: number): Promise<string> {
   const response = await fetch(
-    'https://api.atoa.me/api/payments/process-payment',
+    'https://devapi.atoa.me/api/payments/process-payment',
     {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${ATOA_TOKEN}`,
+       
+      // Authorization: `Bearer ZDVhMDkzMDAtZjg5Mi00YjI4LTk2OTItOGU2ODU2MTQyNGY5OmpvRnpud1UwZjI5RE84WDg`,
+      //  Authorization: `Bearer MTlmMjFhYjQtNDhlOS00MzdiLTg3MmQtZThmMmUyNmQ0OThmOmlsVlFrRDdOTDlZNXNLd2I=`,
+        Authorization: `Bearer ZmUzYzQ3OGItODhlZi00ZjZjLThkNjQtYmI5MzY2OWFlYjhkOkx6bUN3S0ZQZkJpQ01zOXo=`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(getRequestData(amount)),
@@ -327,8 +330,30 @@ function App(): React.JSX.Element {
   const [isLoading, setIsLoading] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isRetrying, setIsRetrying] = useState(false);
+  const [snackbar, setSnackbar] = useState<{message: string; color: string} | null>(null);
+  const snackbarOpacity = useRef(new Animated.Value(0)).current;
+  const snackbarTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const showHowPaymentWorksRef = useRef(true);
   const {isOffline, checkConnection} = useConnectivity();
+
+  const showSnackbar = useCallback((message: string, color = '#323232') => {
+    if (snackbarTimer.current) {
+      clearTimeout(snackbarTimer.current);
+    }
+    setSnackbar({message, color});
+    Animated.timing(snackbarOpacity, {
+      toValue: 1,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+    snackbarTimer.current = setTimeout(() => {
+      Animated.timing(snackbarOpacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }).start(() => setSnackbar(null));
+    }, 3000);
+  }, [snackbarOpacity]);
 
   const totalAmount = products.reduce(
     (sum, p) => sum + p.price * p.quantity,
@@ -387,14 +412,12 @@ function App(): React.JSX.Element {
 
     if (result) {
       if (isCompleted(result)) {
-        Alert.alert('Payment Successful', 'Your payment has been completed.');
+        showSnackbar('Payment Successful', '#00802B');
       } else if (isPending(result)) {
-        Alert.alert('Payment Pending', 'Your payment is being processed.');
+        showSnackbar('Payment Processing', '#CC8800');
       } else if (isFailed(result)) {
-        Alert.alert('Payment Failed', 'Your payment could not be processed.');
-      } else {
-        Alert.alert('Payment Status', `Status: ${result.status}`);
-      }
+        showSnackbar('Payment Failed', '#BC5A34');
+      } 
     }
   };
 
@@ -420,12 +443,12 @@ function App(): React.JSX.Element {
         await showPaymentSheet(paymentRequestId);
       } else {
         setIsLoading(false);
-        Alert.alert('Error', 'Oops, An Error Occurred');
+        showSnackbar('Oops, An Error Occurred');
       }
     } catch (error) {
       setIsLoading(false);
       console.error('Payment error:', error);
-      Alert.alert('Error', 'Oops, An Error Occurred');
+      showSnackbar('Oops, An Error Occurred');
     }
   };
 
@@ -523,6 +546,12 @@ function App(): React.JSX.Element {
             )}
           </Pressable>
         </View>
+      )}
+      {/* Snackbar */}
+      {snackbar && (
+        <Animated.View style={[styles.snackbar, {opacity: snackbarOpacity, backgroundColor: snackbar.color}]}>
+          <Text style={styles.snackbarText}>{snackbar.message}</Text>
+        </Animated.View>
       )}
     </SafeAreaView>
   );
@@ -781,6 +810,23 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+
+  // Snackbar
+  snackbar: {
+    position: 'absolute',
+    bottom: 100,
+    left: 24,
+    right: 24,
+    backgroundColor: '#323232',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  },
+  snackbarText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '500',
   },
 });
 
