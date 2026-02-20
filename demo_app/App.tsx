@@ -61,14 +61,11 @@ function getRequestData(amount: number) {
 
 async function getPaymentRequestId(amount: number): Promise<string> {
   const response = await fetch(
-    'https://devapi.atoa.me/api/payments/process-payment',
+    'https://api.atoa.me/api/payments/process-payment',
     {
       method: 'POST',
       headers: {
-       
-      // Authorization: `Bearer ZDVhMDkzMDAtZjg5Mi00YjI4LTk2OTItOGU2ODU2MTQyNGY5OmpvRnpud1UwZjI5RE84WDg`,
-      //  Authorization: `Bearer MTlmMjFhYjQtNDhlOS00MzdiLTg3MmQtZThmMmUyNmQ0OThmOmlsVlFrRDdOTDlZNXNLd2I=`,
-        Authorization: `Bearer ZmUzYzQ3OGItODhlZi00ZjZjLThkNjQtYmI5MzY2OWFlYjhkOkx6bUN3S0ZQZkJpQ01zOXo=`,
+        Authorization: `Bearer ${ATOA_TOKEN}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(getRequestData(amount)),
@@ -392,13 +389,14 @@ function App(): React.JSX.Element {
         phoneNumber: '8788899999',
         email: 'aaa@gmail.com',
       },
-      onUserClose: ({paymentRequestId}) => {
+      onUserClose: ({paymentRequestId, redirectUrlParams, signature, signatureHash}) => {
         console.log(
           `User closed payment for paymentRequestId: ${paymentRequestId}`,
+          {redirectUrlParams, signature, signatureHash},
         );
       },
-      onPaymentStatusChange: ({status}) => {
-        console.log(`Payment Status Changed to ${status}`);
+      onPaymentStatusChange: ({status, redirectUrlParams, signature, signatureHash}) => {
+        console.log(`Payment Status Changed to ${status}`, {redirectUrlParams, signature, signatureHash});
       },
       onError: error => {
         console.error(`Error in Atoa SDK: ${error.message}`);

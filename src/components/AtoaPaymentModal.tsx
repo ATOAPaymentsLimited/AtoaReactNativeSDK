@@ -120,7 +120,13 @@ function AtoaPaymentModalInner({
       !state.isLoadingDetails
     ) {
       hasAutoSelectedRef.current = true;
-      selectBank(state.lastBankDetails);
+      selectBank(state.lastBankDetails).then((result) => {
+        if (result !== 'success') {
+          // Auto-select failed — fall back to manual bank selection
+          dispatch({ type: 'SET_HAS_LAST_PAYMENT_DETAILS', payload: false });
+          dispatch({ type: 'SET_LAST_BANK_DETAILS', payload: null });
+        }
+      });
     }
   }, [
     state.hasLastPaymentDetails,
@@ -128,6 +134,7 @@ function AtoaPaymentModalInner({
     state.isLoading,
     state.isLoadingDetails,
     selectBank,
+    dispatch,
   ]);
 
   // Navigate to confirmation when bank is selected and auth is ready
@@ -191,14 +198,10 @@ function AtoaPaymentModalInner({
   }, [resetSelectBank]);
 
   const handleVerifyingClose = useCallback(
-    (result: 'completed' | 'closed') => {
-      if (result === 'completed' && state.transactionDetails) {
-        onComplete(state.transactionDetails);
-      } else {
-        handleClose();
-      }
+    (_result: 'completed' | 'closed') => {
+      handleClose();
     },
-    [state.transactionDetails, onComplete, handleClose]
+    [handleClose]
   );
 
   const needsFixedHeight =

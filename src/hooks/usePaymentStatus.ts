@@ -35,14 +35,10 @@ export function usePaymentStatus() {
           signatureHash: details.signatureHash,
         });
       } catch (e) {
-        if (e instanceof AtoaException) {
-          options.onError?.(e);
-        }
+        const err = e instanceof AtoaException ? e : new AtoaException('custom', e instanceof Error ? e.message : String(e));
+        options.onError?.(err);
         dispatch({ type: 'SET_TRANSACTION_DETAILS', payload: null });
-        dispatch({
-          type: 'SET_PAYMENT_STATUS_ERROR',
-          payload: e instanceof Error ? e : new Error(String(e)),
-        });
+        dispatch({ type: 'SET_PAYMENT_STATUS_ERROR', payload: err });
       }
     },
     [client, dispatch, options]

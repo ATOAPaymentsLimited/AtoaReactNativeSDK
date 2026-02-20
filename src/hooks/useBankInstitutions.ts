@@ -8,6 +8,11 @@ import { buildPaymentAuthBody } from '../utils/buildPaymentAuthBody';
 import { isAppInstalled } from '../utils/appInstalled';
 import { getBrandingColors } from '../utils/brandingColors';
 
+function toAtoaException(e: unknown): AtoaException {
+  if (e instanceof AtoaException) { return e; }
+  return new AtoaException('custom', e instanceof Error ? e.message : String(e));
+}
+
 export function useBankInstitutions() {
   const { state, dispatch, client, options } = usePaymentContext();
   const { checkConnection } = useConnectivityContext();
@@ -39,17 +44,12 @@ export function useBankInstitutions() {
       dispatch({ type: 'SET_PAYMENT_DETAILS', payload: paymentRes });
       return paymentRes;
     } catch (e) {
-      if (e instanceof AtoaException) {
-        options.onError?.(e);
-      }
-      const message = e instanceof Error ? e.message : '';
-      if (message.includes('Server is not reachable')) {
+      const err = toAtoaException(e);
+      options.onError?.(err);
+      if (err.message.includes('Server is not reachable')) {
         checkConnection();
       }
-      dispatch({
-        type: 'SET_PAYMENT_DETAILS_ERROR',
-        payload: e instanceof Error ? e : new Error(String(e)),
-      });
+      dispatch({ type: 'SET_PAYMENT_DETAILS_ERROR', payload: err });
       dispatch({ type: 'SET_PAYMENT_DETAILS', payload: null });
       return null;
     } finally {
@@ -83,17 +83,12 @@ export function useBankInstitutions() {
 
       dispatch({ type: 'SET_BANK_LIST', payload: res });
     } catch (e) {
-      if (e instanceof AtoaException) {
-        options.onError?.(e);
-      }
-      const message = e instanceof Error ? e.message : '';
-      if (message.includes('Server is not reachable')) {
+      const err = toAtoaException(e);
+      options.onError?.(err);
+      if (err.message.includes('Server is not reachable')) {
         checkConnection();
       }
-      dispatch({
-        type: 'SET_BANK_FETCHING_ERROR',
-        payload: e instanceof Error ? e : new Error(String(e)),
-      });
+      dispatch({ type: 'SET_BANK_FETCHING_ERROR', payload: err });
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
     }
@@ -106,13 +101,9 @@ export function useBankInstitutions() {
         const res = await client.fetchInstitutions(searchTerm);
         dispatch({ type: 'SET_BANK_LIST', payload: res });
       } catch (e) {
-        if (e instanceof AtoaException) {
-          options.onError?.(e);
-        }
-        dispatch({
-          type: 'SET_BANK_FETCHING_ERROR',
-          payload: e instanceof Error ? e : new Error(String(e)),
-        });
+        const err = toAtoaException(e);
+        options.onError?.(err);
+        dispatch({ type: 'SET_BANK_FETCHING_ERROR', payload: err });
       } finally {
         dispatch({ type: 'SET_LOADING_FILTER_BANKS', payload: false });
       }
@@ -198,24 +189,19 @@ export function useBankInstitutions() {
         await checkBankAppAvailability(paymentAuth);
         return 'success';
       } catch (e) {
+        const err = toAtoaException(e);
+        options.onError?.(err);
         dispatch({ type: 'SET_SELECTED_BANK', payload: null });
         dispatch({ type: 'SET_PAYMENT_AUTH', payload: null });
 
-        const message = e instanceof Error ? e.message : String(e);
-        const isBankDown = message.toLowerCase().includes('bank app is down') ||
-          message.toLowerCase().includes('bank is down');
+        const isBankDown = err.message.toLowerCase().includes('bank app is down') ||
+          err.message.toLowerCase().includes('bank is down');
 
         if (isBankDown) {
           return 'bank_down';
         }
 
-        if (e instanceof AtoaException) {
-          options.onError?.(e);
-        }
-        dispatch({
-          type: 'SET_BANK_AUTH_ERROR',
-          payload: e instanceof Error ? e : new Error(message),
-        });
+        dispatch({ type: 'SET_BANK_AUTH_ERROR', payload: err });
         return 'error';
       } finally {
         dispatch({ type: 'SET_LOADING_AUTH', payload: false });
@@ -252,13 +238,12 @@ export function useBankInstitutions() {
       await Linking.openURL(paymentAuth.authorisationUrl);
       return true;
     } catch (e) {
-      dispatch({
-        type: 'SET_ERROR',
-        payload: e instanceof Error ? e : new Error(String(e)),
-      });
+      const err = toAtoaException(e);
+      options.onError?.(err);
+      dispatch({ type: 'SET_ERROR', payload: err });
       return false;
     }
-  }, [state.paymentAuth, dispatch]);
+  }, [state.paymentAuth, dispatch, options]);
 
   const getPaymentDetailsAndBanks = useCallback(
     async () => {
