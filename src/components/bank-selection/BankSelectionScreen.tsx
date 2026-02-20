@@ -3,12 +3,15 @@ import { View, Text, FlatList, StyleSheet, useWindowDimensions } from 'react-nat
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { useBankInstitutions } from '../../hooks/useBankInstitutions';
 import type { BankInstitution } from '../../types/bank';
+import { AtoaException, LINK_PAID_MESSAGE, REQUEST_EXPIRED_MESSAGE } from '../../types/error';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { BottomSheetHeader } from '../shared/BottomSheetHeader';
 import { FetchingBankLoader } from '../shared/FetchingBankLoader';
 import { ErrorWidget } from '../shared/ErrorWidget';
+import { RequestExpiredView } from '../shared/RequestExpiredView';
 import { InfoWidget } from '../shared/InfoWidget';
+import { PaymentPaidWidget } from '../confirmation/PaymentPaidWidget';
 import { AnimatedSearchField } from './AnimatedSearchField';
 import { BankTabBar } from './BankTabBar';
 import { BankGridItem } from './BankGridItem';
@@ -96,6 +99,49 @@ export function BankSelectionScreen({
 
   if (hasError) {
     const isBankFetchError = !!state.bankFetchingError;
+    const paymentDetailsErr = state.paymentDetailsError;
+    const isAlreadyPaid =
+      paymentDetailsErr instanceof AtoaException &&
+      paymentDetailsErr.message?.trim() === LINK_PAID_MESSAGE;
+    const isRequestExpired =
+      paymentDetailsErr instanceof AtoaException &&
+      paymentDetailsErr.message?.trim() === REQUEST_EXPIRED_MESSAGE;
+
+    if (isAlreadyPaid) {
+      const err = paymentDetailsErr as AtoaException;
+      return (
+        <View style={styles.container}>
+          <BottomSheetHeader
+            title="Select your bank"
+            onBack={onBack}
+            showHelp={!!onHelp}
+            onHelp={onHelp}
+          />
+          <View style={styles.loaderContainer}>
+            <PaymentPaidWidget
+              amount={err.amount}
+              time={err.time}
+              referenceId={err.referenceId}
+            />
+          </View>
+        </View>
+      );
+    }
+
+    if (isRequestExpired) {
+      return (
+        <View style={styles.container}>
+          <BottomSheetHeader
+            title="Select your bank"
+            onBack={onBack}
+            showHelp={!!onHelp}
+            onHelp={onHelp}
+          />
+          <RequestExpiredView />
+        </View>
+      );
+    }
+
     return (
       <View style={styles.container}>
         <BottomSheetHeader

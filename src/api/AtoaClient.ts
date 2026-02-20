@@ -104,7 +104,6 @@ export class AtoaClient {
       body.customerDetails = customerDetails;
     }
 
-    console.log('Requesting payment details with body:', body);
     return this.request<PaymentRequestData>(
       'POST',
       Endpoints.getPaymentDetails,

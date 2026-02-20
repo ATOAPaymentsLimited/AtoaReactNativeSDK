@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Text, Image, StyleSheet } from 'react-native';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
@@ -39,16 +39,13 @@ export function HowToMakePaymentScreen({
   onClose,
 }: HowToMakePaymentScreenProps) {
   const { brandingColors, state } = useBankInstitutions();
-  const { height: screenHeight } = useWindowDimensions();
-  const contentHeight = screenHeight * 0.8 - Spacing.large - Spacing.huge * 2;
-
   const isLoading = state.isLoading || state.isLoadingDetails;
   const visibleBanks = state.bankList.slice(0, VISIBLE_BANK_COUNT);
   const remainingCount = Math.max(0, state.bankList.length - VISIBLE_BANK_COUNT);
 
   if (isLoading) {
     return (
-      <View style={[styles.loadingContainer, { height: contentHeight }]}>
+      <View style={styles.loadingContainer}>
         <SDKLoader />
       </View>
     );
@@ -157,6 +154,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
   },
   loadingContainer: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: Colors.white,

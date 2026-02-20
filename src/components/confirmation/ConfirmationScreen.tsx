@@ -197,9 +197,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
   },
   loaderContainer: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 32,
   },
   content: {
     paddingHorizontal: Spacing.large,

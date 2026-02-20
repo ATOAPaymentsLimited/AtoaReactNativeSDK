@@ -30,7 +30,7 @@ export function PaymentPaidWidget({
         </>
       )}
 
-      <Text style={styles.title}>Payment Already Paid</Text>
+      <Text style={styles.title}>This payment is already paid</Text>
 
       <View style={styles.spacerLarge} />
 

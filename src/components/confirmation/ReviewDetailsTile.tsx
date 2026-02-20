@@ -110,7 +110,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#E42646',
     textDecorationLine: 'underline',
-    textDecorationStyle: 'dotted',
     marginLeft: Spacing.small,
   },
 });

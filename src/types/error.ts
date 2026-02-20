@@ -11,6 +11,12 @@ const EXCEPTION_MESSAGES: Record<AtoaExceptionType, string> = {
   environmentNotSet: 'AtoaEnv is not set',
 };
 
+/** API error message when a payment link has already been paid */
+export const LINK_PAID_MESSAGE = "You've already paid this bill, so there's no need to pay it again!";
+/** API error message when a payment request has expired */
+export const REQUEST_EXPIRED_MESSAGE =
+  'Please reach out to the business for a new link and attempt to pay again';
+
 export class AtoaException extends Error {
   type: AtoaExceptionType;
   amount?: number;

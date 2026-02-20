@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View, StyleSheet, BackHandler } from 'react-native';
+import { View, StyleSheet, BackHandler, LogBox } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { PaymentProvider, usePaymentContext } from '../hooks/PaymentContext';
@@ -12,9 +12,7 @@ import { Spacing } from '../constants/spacing';
 import { BankSelectionScreen } from './bank-selection/BankSelectionScreen';
 import { HowToMakePaymentScreen } from './how-to-pay/HowToMakePaymentScreen';
 import { ConfirmationScreen } from './confirmation/ConfirmationScreen';
-import { PaymentPaidWidget } from './confirmation/PaymentPaidWidget';
 import { VerifyingPaymentScreen } from './verifying-payment/VerifyingPaymentScreen';
-import { AtoaException } from '../types/error';
 import { ConnectivityWrapper } from './shared/ConnectivityWrapper';
 import { SDKLoader } from './shared/AtoaLoader';
 
@@ -24,7 +22,6 @@ type Screen =
   | 'bankSelection'
   | 'confirmation'
   | 'verifying'
-  | 'paymentPaid';
 
 interface AtoaPaymentModalProps {
   options: AtoaPayOptions;
@@ -35,6 +32,14 @@ export function AtoaPaymentModal({
   options,
   onComplete,
 }: AtoaPaymentModalProps) {
+  // Suppress LogBox warnings/errors while the SDK modal is active
+  useEffect(() => {
+    LogBox.ignoreAllLogs(true);
+    return () => {
+      LogBox.ignoreAllLogs(false);
+    };
+  }, []);
+
   return (
     <GestureHandlerRootView style={styles.root}>
       <ConnectivityProvider>
@@ -136,16 +141,6 @@ function AtoaPaymentModalInner({
     }
   }, [state.paymentAuth, state.selectedBank, state.isLoadingAuth, currentScreen]);
 
-  // Handle bankAuthError for "already paid"
-  useEffect(() => {
-    if (state.bankAuthError instanceof AtoaException) {
-      const err = state.bankAuthError as AtoaException;
-      if (err.amount != null && err.referenceId != null) {
-        setCurrentScreen('paymentPaid');
-      }
-    }
-  }, [state.bankAuthError]);
-
   const handleClose = useCallback(() => {
     stopPolling();
     options.onUserClose?.({
@@ -244,16 +239,6 @@ function AtoaPaymentModalInner({
         );
       case 'verifying':
         return <VerifyingPaymentScreen onClose={handleVerifyingClose} />;
-      case 'paymentPaid': {
-        const err = state.bankAuthError as AtoaException | null;
-        return (
-          <PaymentPaidWidget
-            amount={err?.amount}
-            time={err?.time}
-            referenceId={err?.referenceId}
-          />
-        );
-      }
     }
   };
 
