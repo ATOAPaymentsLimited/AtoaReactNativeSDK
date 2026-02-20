@@ -62,6 +62,7 @@ function AtoaPaymentModalInner({
   const { state, dispatch } = usePaymentContext();
   const {
     getPaymentDetailsAndBanks,
+    startPolling,
     stopPolling,
     resetSelectBank,
     selectBank,
@@ -138,8 +139,16 @@ function AtoaPaymentModalInner({
       (currentScreen === 'bankSelection' || currentScreen === 'loading' || currentScreen === 'howToPay')
     ) {
       setCurrentScreen('confirmation');
+      startPolling();
     }
-  }, [state.paymentAuth, state.selectedBank, state.isLoadingAuth, currentScreen]);
+  }, [state.paymentAuth, state.selectedBank, state.isLoadingAuth, currentScreen, startPolling]);
+
+  // Navigate back to confirmation when link expires during verifying
+  useEffect(() => {
+    if (state.showLinkExpired && currentScreen === 'verifying') {
+      setCurrentScreen('confirmation');
+    }
+  }, [state.showLinkExpired, currentScreen]);
 
   const handleClose = useCallback(() => {
     stopPolling();

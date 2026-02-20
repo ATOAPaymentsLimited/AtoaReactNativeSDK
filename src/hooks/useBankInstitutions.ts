@@ -297,10 +297,10 @@ export function useBankInstitutions() {
       linkRefreshCountRef.current++;
       if (linkRefreshCountRef.current > 5) {
         // After 30 min (6 refreshes), set link expired after 5 more min
+        stopPolling();
         linkExpiredTimerRef.current = setTimeout(() => {
           dispatch({ type: 'SET_SHOW_LINK_EXPIRED', payload: true });
         }, 5 * 60 * 1000);
-        stopPolling();
       } else {
         selectBank(state.selectedBank);
       }
