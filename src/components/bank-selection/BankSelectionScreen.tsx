@@ -33,8 +33,7 @@ export function BankSelectionScreen({
     dispatch,
     selectBank,
     search,
-    fetchBanks,
-    getPaymentDetails,
+    getPaymentDetailsAndBanks,
     popularPersonalBanks,
     popularBusinessBanks,
     allBanksEnabled,
@@ -71,9 +70,8 @@ export function BankSelectionScreen({
   const handleRetry = useCallback(async () => {
     dispatch({ type: 'SET_BANK_FETCHING_ERROR', payload: null });
     dispatch({ type: 'SET_PAYMENT_DETAILS_ERROR', payload: null });
-    await getPaymentDetails();
-    await fetchBanks();
-  }, [dispatch, getPaymentDetails, fetchBanks]);
+    await getPaymentDetailsAndBanks();
+  }, [dispatch, getPaymentDetailsAndBanks]);
 
   const gridItemWidth = (width - Spacing.large * 2 - Spacing.large * 3) / 4;
   const gridItemStyle = useMemo(

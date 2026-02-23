@@ -2,22 +2,21 @@
 
 The official React Native SDK for integrating Atoa Payments into mobile applications.
 
-[![npm version](https://img.shields.io/npm/v/@atoapayments/atoa-react-native-sdk.svg)](https://www.npmjs.com/package/@atoapayments/atoa-react-native-sdk)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-
-![Atoa SDK Flow](src/assets/images/atoa_sdk.png)
+[![License: MIT][license_badge]][license_link]
 
 ## Overview
 
-The Atoa React Native SDK allows merchants to easily integrate Atoa Payments into their React Native applications. The SDK provides a simple imperative API for showing a payment page that handles the entire payment flow securely and efficiently.
+The Atoa React Native SDK allows merchants to easily integrate Atoa Payments into their React Native applications. The SDK provides a simple interface for showing a payment page that handles the entire payment flow securely and efficiently.
 
 - [Installation](#installation)
-- [Peer Dependencies](#peer-dependencies)
+- [Setup](#setup)
 - [Usage](#usage)
-- [Complete Demo App](example/src/App.tsx)
+- [Complete Demo App](demo_app/App.tsx)
 - [Handle Redirection](#handle-redirection-optional)
 
 ## Installation
+
+Run the following to add Atoa SDK to your React Native project
 
 ```sh
 npm install @atoapayments/atoa-react-native-sdk
@@ -29,92 +28,144 @@ or
 yarn add @atoapayments/atoa-react-native-sdk
 ```
 
-## Peer Dependencies
+### Peer Dependencies
 
-The SDK requires the following peer dependencies to be installed in your project:
-
-```sh
-npm install react-native-svg lottie-react-native react-native-reanimated react-native-gesture-handler @gorhom/bottom-sheet @react-native-community/netinfo
-```
-
-### Additional Setup
-
-#### react-native-reanimated
-
-Add the Reanimated Babel plugin to your `babel.config.js`:
-
-```js
-module.exports = {
-  presets: ['module:@react-native/babel-preset'],
-  plugins: ['react-native-reanimated/plugin'],
-};
-```
-
-#### react-native-gesture-handler
-
-Import at the top of your app entry file (e.g. `index.js`):
-
-```js
-import 'react-native-gesture-handler';
-```
-
-#### Font Linking
-
-After installing, link the FigTree font assets:
+The SDK requires the following peer dependencies. Install them if you haven't already:
 
 ```sh
-npx react-native-asset
+npm install @gorhom/bottom-sheet react-native-gesture-handler react-native-reanimated react-native-svg @react-native-community/netinfo lottie-react-native react-native-worklets
 ```
 
-### iOS
+## Setup
 
-Run pod install:
+### 1. Wrap your app with AtoaProvider
 
-```sh
-cd ios && pod install
+Wrap your app root with `<AtoaProvider>` to enable the Atoa payment modal. This is **required** for `AtoaSdk.pay()` to work.
+
+```tsx
+// index.js
+import { AppRegistry } from 'react-native';
+import { AtoaProvider } from '@atoapayments/atoa-react-native-sdk';
+import App from './App';
+import { name as appName } from './app.json';
+
+const Root = () => (
+  <AtoaProvider>
+    <App />
+  </AtoaProvider>
+);
+
+AppRegistry.registerComponent(appName, () => Root);
+```
+
+### 2. Configure bank app detection
+
+Our SDK checks if the bank (used for making payments) app is installed or not. For that, you need to add the `queries` tag for Android and `LSApplicationQueriesSchemes` key for iOS.
+
+**Android** - Add `queries` to your `android/app/src/main/AndroidManifest.xml`:
+
+```xml
+<queries>
+  <package android:name="com.barclays.android.barclaysmobilebanking" />
+  <package android:name="com.starlingbank.android" />
+  <package android:name="com.grppl.android.shell.CMBlloydsTSB73" />
+  <package android:name="uk.co.hsbc.hsbcukmobilebanking" />
+  <package android:name="com.rbs.mobile.android.natwest" />
+  <package android:name="co.uk.Nationwide.Mobile" />
+  <package android:name="com.grppl.android.shell.halifax" />
+  <package android:name="com.rbs.mobile.android.rbs" />
+  <package android:name="uk.co.santander.santanderUK" />
+  <package android:name="com.revolut.revolut" />
+  <package android:name="co.uk.getmondo" />
+  <package android:name="com.grppl.android.shell.BOS" />
+  <package android:name="ftb.ibank.android" />
+  <package android:name="uk.co.tsb.newmobilebank" />
+  <package android:name="com.firstdirect.bankingonthego" />
+  <package android:name="com.virginmoney.uk.mobile.android" />
+  <package android:name="uk.co.ybs.savings.external" />
+  <package android:name="com.transferwise.android" />
+  <package android:name="com.nearform.ptsb" />
+  <package android:name="com.bankofireland.mobilebanking" />
+  <package android:name="aib.ibank.android" />
+  <package android:name="uk.co.bankofscotland.businessbank" />
+  <package android:name="com.chase.intl" />
+</queries>
+```
+
+**iOS** - Add `LSApplicationQueriesSchemes` to your `ios/<AppName>/Info.plist`:
+
+```xml
+<key>LSApplicationQueriesSchemes</key>
+<array>
+  <string>pulsesecure</string>
+  <string>launchbmb</string>
+  <string>lloyds-retail</string>
+  <string>hsbc-pwnwguti5z</string>
+  <string>uk.co.santander.santanderUK</string>
+  <string>fb894703657238109</string>
+  <string>bos-retail</string>
+  <string>halifax-retail</string>
+  <string>monzo</string>
+  <string>starlingbank</string>
+  <string>tsbmobile</string>
+  <string>comfirstdirectbankingonthego</string>
+  <string>launchFT</string>
+  <string>virginmoneyimport</string>
+  <string>ybssavings</string>
+  <string>transferwise</string>
+  <string>tg</string>
+  <string>BOIOneAPP</string>
+  <string>ie.aib.mobilebanking</string>
+  <string>bos-commercial</string>
+  <string>chase-international</string>
+</array>
 ```
 
 ## Usage
 
-Sample code to integrate can be found in [example/src/App.tsx](example/src/App.tsx).
+Sample code to integrate can be found in [demo_app/App.tsx](demo_app/App.tsx).
 
-#### Import Package
+#### Import package
 
-```typescript
-import { AtoaSdk } from '@atoapayments/atoa-react-native-sdk';
-import type { TransactionDetails, AtoaPayOptions } from '@atoapayments/atoa-react-native-sdk';
+```tsx
+import {
+  AtoaSdk,
+  isCompleted,
+  isFailed,
+  isPending,
+  type AtoaPayOptions,
+} from '@atoapayments/atoa-react-native-sdk';
 ```
 
 #### Show Payment Sheet
 
-It's a full screen sheet which shows all the available bank list then once user selects the bank. They can confirm the bank details and get redirected to their bank app or website.
+It's a full screen sheet which shows all the available bank list then once user selects the bank. They can confirm the bank details and redirected to their bank app or website.
 
-```typescript
-const options: AtoaPayOptions = {
+```tsx
+const result = await AtoaSdk.pay({
   paymentId: 'your-payment-request-id',
-  env: 'sandbox', // or 'prod'
+  env: 'prod',
+  // or 'sandbox'
   showHowPaymentWorks: false,
+  // pass customer details for pre-select bank
   customerDetails: {
-    // pass customer details for pre-select bank
     phoneCountryCode: '44',
     phoneNumber: '8788899999',
-    email: 'customer@example.com',
+    email: 'aaa@gmail.com',
   },
   onUserClose: ({ paymentRequestId, redirectUrlParams, signature, signatureHash }) => {
     // handle payment when user closes the payment verification bottom sheet
-    console.log(`User closed payment for paymentRequestId: ${paymentRequestId}`);
+    console.log(`User closed the payment for paymentRequestId: ${paymentRequestId}`);
   },
   onPaymentStatusChange: ({ status, redirectUrlParams, signature, signatureHash }) => {
     // handle payment status
     console.log(`Payment Status Changed to ${status}`);
   },
   onError: (error) => {
-    // handle Atoa Mobile SDK error
+    // handle Atoa SDK error
     console.error(`Error in Atoa SDK: ${error.message}`);
   },
-};
-
-const paymentDetails = await AtoaSdk.pay(options);
+});
 ```
 
 ### Customer Details for Previously Used Banks
@@ -166,7 +217,7 @@ The SDK supports displaying banks the customer has previously paid with through 
 
 - Type: `boolean`
 - Required: Yes
-- Description: Shows a sheet which explains the steps for making a payment
+- Description: Shows a sheet which explains the steps for making a payment.
 
 ##### Customer Details
 
@@ -174,7 +225,7 @@ The SDK supports displaying banks the customer has previously paid with through 
 - Required: No
 - Description: Customer information for the payment. When provided, the SDK will use this information to fetch the last bank used by the customer for payment, improving the user experience by showing their preferred bank first.
 
-```typescript
+```tsx
 interface CustomerDetails {
   phoneCountryCode?: string;
   phoneNumber?: string;
@@ -191,10 +242,6 @@ interface CustomerDetails {
 - Parameters:
   - `error`: Error object containing:
     - `message`: Error message
-    - `type`: Error type (`'custom'` | `'notInitialized'` | `'noDataFound'` | `'environmentNotSet'`)
-    - `amount`: (optional) Payment amount
-    - `referenceId`: (optional) Reference identifier
-    - `time`: (optional) Error timestamp
 
 ###### onPaymentStatusChange
 
@@ -218,40 +265,25 @@ interface CustomerDetails {
 
 ## Handle Response
 
-You can handle the payment success, failure, pending and other statuses based on payment response:
+You can handle the payment success, failure, pending and other statuses based on payment response
 
-```typescript
-import { AtoaSdk, isCompleted } from '@atoapayments/atoa-react-native-sdk';
-
-const paymentDetails = await AtoaSdk.pay(options);
-
-if (paymentDetails != null) {
-  if (isCompleted(paymentDetails)) {
+```tsx
+if (result) {
+  if (isCompleted(result)) {
     // handle success
-  } else {
-    // handle failure / pending statuses
+  } else if (isPending(result)) {
+    // handle pending
+  } else if (isFailed(result)) {
+    // handle failure
   }
 } else {
   // Bottom sheet was dismissed or encountered an error
 }
 ```
 
-#### Transaction Status Values
-
-| Status | Description |
-|--------|-------------|
-| `COMPLETED` | Payment completed successfully |
-| `PENDING` | Payment is being processed |
-| `FAILED` | Payment failed |
-| `REFUNDED` | Payment was refunded |
-| `AWAITING_AUTHORIZATION` | Waiting for bank authorization |
-| `CANCELLED` | Payment was cancelled |
-| `EXPIRED` | Payment link expired |
-| `PAYMENT_NOT_INITIATED` | Payment was not initiated |
-
 Sample response can be seen [here](https://docs.atoa.me/introduction#step-3-handle-payment-status).
 
-## Handle Redirection (Optional)
+## Handle Redirection
 
 While calling [payment-process](https://docs.atoa.me/api-reference/Payment/process-payment) API to generate a payment, you can specify a `redirectUrl` in your request body. The `redirectUrl`, which should be passed as body parameters, redirects to your website and then opens your app via deep linking. This enables users to open your application after payment.
 
@@ -261,158 +293,71 @@ Both are special types of deep links that you can set as your redirect URL, but 
 
 Note: When a deep link has a custom URI scheme (not http or https) it will link to content that can only be accessed if the application is installed on the device.
 
-There are 3 cases, after redirection to a given redirect URL:
+There are 3 cases, after redirection to a given redirect URL
 
-1. If you handled the deep links and they work, then the user is redirected to the app.
-2. If deep links are not handled, the user will redirect to the web browser.
-3. If deep links are handled and fail to redirect to the app, the user will redirect to the web browser to the given redirect URL.
+1. If you handled the deep links and works, then user redirected to app,
+2. If not handled deep links, user will redirect to web browser.
+3. If deep links is handled and fails to redirect to app, user will redirect to web browser to given redirect url.
 
-Note: If deep links are handled and fail to redirect to the app, you can add a 'Return to app' UI in your redirect page, so that users can manually click and redirect to the app. If not, users can manually switch to the app after payment.
+Note: If deep links is handled and fails to redirect to app, you can add a 'Return to app' UI in your redirect page, so that you can manually click and redirect to app. If not, user can manually switch to app after payment.
 
-### Android
+- In Android, add intent-filters tag to handle deeplinks in `android/app/src/main/AndroidManifest.xml`
 
-Add intent-filter to handle deep links in `android/app/src/main/AndroidManifest.xml`.
-
-Replace `devapp.atoa.me` with your own web domain and `/sdk-redirect` with your path.
+Replace 'devapp.atoa.me' with your own web domain and '/sdk-redirect' with your path.
 
 ```xml
-<intent-filter android:autoVerify="true">
-  <action android:name="android.intent.action.VIEW" />
-  <category android:name="android.intent.category.DEFAULT" />
-  <category android:name="android.intent.category.BROWSABLE" />
-  <data android:scheme="https" />
-  <data android:host="devapp.atoa.me" />
-  <data android:path="/sdk-redirect" />
-</intent-filter>
+  <intent-filter android:autoVerify="true">
+    <action android:name="android.intent.action.VIEW" />
+    <category android:name="android.intent.category.DEFAULT" />
+    <category android:name="android.intent.category.BROWSABLE" />
+    <data android:scheme="https" />
+    <data android:host="devapp.atoa.me" />
+    <data android:path="/sdk-redirect" />
+  </intent-filter>
 ```
 
-### iOS
+- In iOS, add dict tag to handle deeplinks in `Info.plist` and update your entitlements file
 
-Add the associated domains configuration in your Xcode project:
+Info.plist: Replace 'devapp.atoa.me' with your own web domain.
 
-1. In Xcode, select your target > Signing & Capabilities > + Capability > Associated Domains
-2. Add your domain: `applinks:devapp.atoa.me` (replace with your own domain)
+    <dict>
+    	<key>CFBundleTypeRole</key>
+    	<string>Editor</string>
+    	<key>CFBundleURLSchemes</key>
+    	<array>
+    		<string>https</string>
+    	</array>
+    	<key>CFBundleURLName</key>
+    	<string>devapp.atoa.me</string>
+    </dict>
 
-Or manually update your `.entitlements` file:
+Entitlements: Add key 'com.apple.developer.associated-domains' and replace 'devapp.atoa.me' with your own web domain in array tag
 
 ```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-  <dict>
-    <key>com.apple.developer.associated-domains</key>
-    <array>
-      <string>applinks:devapp.atoa.me</string>
-    </array>
-  </dict>
-</plist>
+  <?xml version="1.0" encoding="UTF-8"?>
+  <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+  <plist version="1.0">
+    <dict>
+      <key>aps-environment</key>
+      <string>development</string>
+      <key>com.apple.developer.associated-domains</key>
+      <array>
+        <string>applinks:devapp.atoa.me</string>
+      </array>
+    </dict>
+  </plist>
 ```
 
-And add URL types to `Info.plist`. Replace `devapp.atoa.me` with your own web domain:
+#### Resources for deep-linking
 
-```xml
-<dict>
-  <key>CFBundleTypeRole</key>
-  <string>Editor</string>
-  <key>CFBundleURLSchemes</key>
-  <array>
-    <string>https</string>
-  </array>
-  <key>CFBundleURLName</key>
-  <string>devapp.atoa.me</string>
-</dict>
-```
-
-## Checking Bank App Installation
-
-The SDK checks if the user's selected bank app is installed on the device. For this feature to work, you need to declare the bank app schemes/packages in your app configuration.
-
-### Android
-
-Add the `queries` tag in `android/app/src/main/AndroidManifest.xml`:
-
-```xml
-<queries>
-  <package android:name="com.barclays.android.barclaysmobilebanking" />
-  <package android:name="com.starlingbank.android" />
-  <package android:name="com.grppl.android.shell.CMBlloydsTSB73" />
-  <package android:name="uk.co.hsbc.hsbcukmobilebanking" />
-  <package android:name="com.rbs.mobile.android.natwest" />
-  <package android:name="co.uk.Nationwide.Mobile" />
-  <package android:name="com.grppl.android.shell.halifax" />
-  <package android:name="com.rbs.mobile.android.rbs" />
-  <package android:name="uk.co.santander.santanderUK" />
-  <package android:name="com.revolut.revolut" />
-  <package android:name="co.uk.getmondo" />
-  <package android:name="com.grppl.android.shell.BOS" />
-  <package android:name="ftb.ibank.android" />
-  <package android:name="uk.co.tsb.newmobilebank" />
-  <package android:name="com.firstdirect.bankingonthego" />
-  <package android:name="com.virginmoney.uk.mobile.android" />
-  <package android:name="uk.co.ybs.savings.external" />
-  <package android:name="com.transferwise.android" />
-  <package android:name="com.nearform.ptsb" />
-  <package android:name="com.bankofireland.mobilebanking" />
-  <package android:name="aib.ibank.android" />
-  <package android:name="uk.co.bankofscotland.businessbank" />
-  <package android:name="com.chase.intl" />
-</queries>
-```
-
-### iOS
-
-Add `LSApplicationQueriesSchemes` key in `ios/<YourApp>/Info.plist`:
-
-```xml
-<key>LSApplicationQueriesSchemes</key>
-<array>
-  <string>pulsesecure</string>
-  <string>launchbmb</string>
-  <string>lloyds-retail</string>
-  <string>hsbc-pwnwguti5z</string>
-  <string>uk.co.santander.santanderUK</string>
-  <string>fb894703657238109</string>
-  <string>bos-retail</string>
-  <string>halifax-retail</string>
-  <string>monzo</string>
-  <string>starlingbank</string>
-  <string>tsbmobile</string>
-  <string>comfirstdirectbankingonthego</string>
-  <string>launchFT</string>
-  <string>virginmoneyimport</string>
-  <string>ybssavings</string>
-  <string>transferwise</string>
-  <string>tg</string>
-  <string>BOIOneAPP</string>
-  <string>ie.aib.mobilebanking</string>
-  <string>bos-commercial</string>
-  <string>chase-international</string>
-</array>
-```
-
-#### Resources for Deep Linking
-
-- [React Native Linking Documentation](https://reactnative.dev/docs/linking)
-- [Set up App Links for Android](https://developer.android.com/training/app-links)
-- [Set up Universal Links for iOS](https://developer.apple.com/documentation/xcode/supporting-universal-links-in-your-app)
-
-## Example App
-
-The [example](example/) directory contains a complete demo app showing how to integrate the SDK. To run it:
-
-```sh
-cd example
-npm install
-
-# iOS
-cd ios && pod install && cd ..
-npx react-native run-ios
-
-# Android
-npx react-native run-android
-```
+- [React Native Linking](https://reactnative.dev/docs/linking)
+- [Android App Links](https://developer.android.com/training/app-links)
+- [iOS Universal Links](https://developer.apple.com/documentation/xcode/allowing-apps-and-websites-to-link-to-your-content)
 
 For any issues or inquiries, please contact hello@paywithatoa.co.uk.
+
+[license_badge]: https://img.shields.io/badge/license-MIT-blue.svg
+[license_link]: https://opensource.org/licenses/MIT
 
 ## License
 

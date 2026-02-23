@@ -37,7 +37,7 @@ export function ConnectivityWrapper({
     };
   }, [isDisconnected]);
 
-  // Register/unregister reconnection callbacks (matching Flutter's initState/dispose)
+  // Register/unregister reconnection callbacks on mount/unmount
   useEffect(() => {
     for (const cb of onReloadCallbacks) {
       addReconnectionCallback(cb);

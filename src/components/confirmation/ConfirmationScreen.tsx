@@ -29,7 +29,7 @@ export function ConfirmationScreen({
   const appStateRef = useRef(AppState.currentState);
 
   // Re-check bank app availability when app resumes (e.g. user installed app from store)
-  // Matches Flutter's didChangeAppLifecycleState in ConfirmationBottomSheet
+  // Re-check when app returns from background (e.g. user installed bank app from store)
   useEffect(() => {
     const handleAppStateChange = (nextAppState: AppStateStatus) => {
       if (
