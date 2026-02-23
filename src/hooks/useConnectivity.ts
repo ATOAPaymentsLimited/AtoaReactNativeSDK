@@ -10,9 +10,9 @@ export interface ReconnectionCallback {
 }
 
 /**
- * Mirrors Flutter's ConnectivityController.
+ * Connectivity hook.
  * - Tracks connectivity status (wifi / cellular / offline / waiting / other)
- * - Verifies actual internet via HTTP request (like Flutter's hasInternet with Dio)
+ * - Verifies actual internet via HTTP request
  * - Manages reconnection callbacks that fire on offline→online transitions
  * - Removes non-persistent callbacks after first reconnection
  */
@@ -50,7 +50,7 @@ export function useConnectivity(baseUrl?: string) {
           try {
             cb.callback();
           } catch {
-            // continue on error, matching Flutter's catch-continue
+            // continue on error
           }
         }
 
@@ -76,7 +76,7 @@ export function useConnectivity(baseUrl?: string) {
         if (type === 'cellular') {
           newStatus = 'cellular';
         } else if (type === 'wifi') {
-          // For wifi, verify actual internet (matching Flutter's hasInternet check)
+          // For wifi, verify actual internet via HTTP check
           const internetFlag = await hasInternet();
           newStatus = internetFlag ? 'wifi' : 'offline';
         } else if (type === 'vpn' || type === 'other' || type === 'ethernet' || type === 'bluetooth') {

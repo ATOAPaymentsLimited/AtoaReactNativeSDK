@@ -24,7 +24,6 @@ interface ConnectivityProviderProps {
 }
 
 /**
- * Mirrors Flutter's StreamProvider<ConnectivityStatus> pattern.
  * Wraps useConnectivity so all descendants share a single connectivity instance.
  */
 export function ConnectivityProvider({ baseUrl, children }: ConnectivityProviderProps) {

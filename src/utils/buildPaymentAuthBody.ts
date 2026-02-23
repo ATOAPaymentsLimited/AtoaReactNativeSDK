@@ -7,7 +7,7 @@ import { generateUUID } from './uuid';
 
 /**
  * Builds the PaymentAuthRequestBody from PaymentRequestData,
- * matching the Flutter `PaymentRequestDataX.toBody()` extension.
+ * matching the Atoa API's expected request body format.
  */
 export function buildPaymentAuthBody(params: {
   paymentDetails: PaymentRequestData;

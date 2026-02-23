@@ -38,7 +38,7 @@ export function VerifyingPaymentScreen({
     hasStartedRef.current = true;
 
     const start = async () => {
-      // Delay 1 second before opening bank app (matching Flutter)
+      // Delay 1 second before opening bank app
       await new Promise<void>((resolve) => setTimeout(resolve, 1000));
       await authorizeBank();
       startPolling();

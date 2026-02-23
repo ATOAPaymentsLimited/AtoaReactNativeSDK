@@ -18,7 +18,7 @@ export const Endpoints = {
 } as const;
 
 /**
- * Appends sandbox env query params matching Flutter's RequestInterceptor logic.
+ * Appends sandbox env query params when running in sandbox mode.
  */
 export function applyEnvParam(path: string, env: AtoaEnv): string {
   if (env !== 'sandbox') {

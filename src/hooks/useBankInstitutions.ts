@@ -57,31 +57,12 @@ export function useBankInstitutions() {
     }
   }, [client, dispatch, options, checkConnection]);
 
-  const fetchBanks = useCallback(async (paymentDetails?: import('../types/payment').PaymentRequestData | null) => {
-    const details = paymentDetails ?? state.paymentDetails;
+  const fetchBanks = useCallback(async (): Promise<BankInstitution[]> => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
       const res = await client.fetchInstitutions();
-
-      // Check for saved bank (last payment bank)
-      const lastPaymentBank = details?.lastPaymentBankDetails;
-      if (lastPaymentBank?.institutionId) {
-        const lastBank = res.find(
-          (b: BankInstitution) => b.id === lastPaymentBank.institutionId
-        );
-        if (lastBank && details?.amount?.amount != null) {
-          dispatch({
-            type: 'SET_HAS_LAST_PAYMENT_DETAILS',
-            payload:
-              lastBank.enabled &&
-              lastBank.transactionAmountLimit >=
-                details.amount.amount,
-          });
-          dispatch({ type: 'SET_LAST_BANK_DETAILS', payload: lastBank });
-        }
-      }
-
       dispatch({ type: 'SET_BANK_LIST', payload: res });
+      return res;
     } catch (e) {
       const err = toAtoaException(e);
       options.onError?.(err);
@@ -89,10 +70,31 @@ export function useBankInstitutions() {
         checkConnection();
       }
       dispatch({ type: 'SET_BANK_FETCHING_ERROR', payload: err });
+      return [];
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
     }
-  }, [client, dispatch, options, state.paymentDetails, checkConnection]);
+  }, [client, dispatch, options, checkConnection]);
+
+  const matchLastBank = useCallback((
+    banks: BankInstitution[],
+    paymentDetails: import('../types/payment').PaymentRequestData | null,
+  ) => {
+    const lastPaymentBank = paymentDetails?.lastPaymentBankDetails;
+    if (!lastPaymentBank?.institutionId) { return; }
+    const lastBank = banks.find(
+      (b: BankInstitution) => b.id === lastPaymentBank.institutionId
+    );
+    if (lastBank && paymentDetails?.amount?.amount != null) {
+      dispatch({
+        type: 'SET_HAS_LAST_PAYMENT_DETAILS',
+        payload:
+          lastBank.enabled &&
+          lastBank.transactionAmountLimit >= paymentDetails.amount.amount,
+      });
+      dispatch({ type: 'SET_LAST_BANK_DETAILS', payload: lastBank });
+    }
+  }, [dispatch]);
 
   const fetchFilteredBanks = useCallback(
     async (searchTerm: string) => {
@@ -247,15 +249,15 @@ export function useBankInstitutions() {
 
   const getPaymentDetailsAndBanks = useCallback(
     async () => {
-      let paymentDetails: import('../types/payment').PaymentRequestData | null = null;
-      try {
-        paymentDetails = await getPaymentDetails();
-      } catch (_e) {
-        // continue — fetchBanks must run regardless
-      }
-      await fetchBanks(paymentDetails);
+      // Run both API calls in parallel — fetchInstitutions doesn't depend on payment details
+      const [paymentDetails, banks] = await Promise.all([
+        getPaymentDetails().catch(() => null),
+        fetchBanks(),
+      ]);
+      // Now that both are done, check last-used bank against the fetched bank list
+      matchLastBank(banks, paymentDetails);
     },
-    [getPaymentDetails, fetchBanks]
+    [getPaymentDetails, fetchBanks, matchLastBank]
   );
 
   const resetSelectBank = useCallback(() => {
