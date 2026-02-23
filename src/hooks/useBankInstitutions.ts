@@ -247,11 +247,13 @@ export function useBankInstitutions() {
 
   const getPaymentDetailsAndBanks = useCallback(
     async () => {
-      const paymentDetails = await getPaymentDetails();
+      let paymentDetails: import('../types/payment').PaymentRequestData | null = null;
+      try {
+        paymentDetails = await getPaymentDetails();
+      } catch (_e) {
+        // continue — fetchBanks must run regardless
+      }
       await fetchBanks(paymentDetails);
-
-      // Set showHowPaymentWorks based on conditions
-      // (will be evaluated after state updates via effect in the modal)
     },
     [getPaymentDetails, fetchBanks]
   );

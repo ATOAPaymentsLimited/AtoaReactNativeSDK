@@ -30,7 +30,6 @@ function App(): React.JSX.Element {
       paymentId: trimmed,
       env,
       showHowPaymentWorks: false,
-      environment: 'development',
       customerDetails: {
         phoneCountryCode: '44',
         phoneNumber: '8788899999',

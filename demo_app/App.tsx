@@ -61,12 +61,14 @@ function getRequestData(amount: number) {
 
 async function getPaymentRequestId(amount: number): Promise<string> {
   const response = await fetch(
-    'https://api.atoa.me/api/payments/process-payment',
+      'https://devapi.atoa.me/api/payments/process-payment',
     {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${ATOA_TOKEN}`,
-        'Content-Type': 'application/json',
+      // Authorization: `Bearer ZDVhMDkzMDAtZjg5Mi00YjI4LTk2OTItOGU2ODU2MTQyNGY5OmpvRnpud1UwZjI5RE84WDg`,
+      //  Authorization: `Bearer MTlmMjFhYjQtNDhlOS00MzdiLTg3MmQtZThmMmUyNmQ0OThmOmlsVlFrRDdOTDlZNXNLd2I=`,
+      Authorization: `Bearer ZmUzYzQ3OGItODhlZi00ZjZjLThkNjQtYmI5MzY2OWFlYjhkOkx6bUN3S0ZQZkJpQ01zOXo=`,
+      'Content-Type': 'application/json',
       },
       body: JSON.stringify(getRequestData(amount)),
     },
@@ -382,7 +384,6 @@ function App(): React.JSX.Element {
     const options: AtoaPayOptions = {
       paymentId,
       env: 'prod',
-      environment: 'development',
       showHowPaymentWorks: showHowPaymentWorksRef.current,
       customerDetails: {
         phoneCountryCode: '44',
@@ -412,7 +413,7 @@ function App(): React.JSX.Element {
       if (isCompleted(result)) {
         showSnackbar('Payment Successful', '#00802B');
       } else if (isPending(result)) {
-        showSnackbar('Payment Processing', '#CC8800');
+        showSnackbar('Payment Pending', '#CC8800');
       } else if (isFailed(result)) {
         showSnackbar('Payment Failed', '#BC5A34');
       } 
