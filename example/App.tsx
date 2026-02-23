@@ -72,7 +72,7 @@ function App(): React.JSX.Element {
         {/* Sandbox Toggle */}
         <View style={styles.switchRow}>
           <Text style={styles.switchLabel}>is Sandbox?</Text>
-          <Switch value={isSandbox} onValueChange={setIsSandbox} />
+          <Switch value={isSandbox} onValueChange={setIsSandbox} testID="Sandbox Toggle" />
         </View>
       </View>
 
@@ -84,7 +84,8 @@ function App(): React.JSX.Element {
             isButtonDisabled && styles.payButtonDisabled,
           ]}
           onPress={handleInitiatePayment}
-          disabled={isButtonDisabled}>
+          disabled={isButtonDisabled}
+          testID="Initiate Payment Button">
           <Text style={styles.payButtonText}>Initiate Payment</Text>
         </Pressable>
       </View>

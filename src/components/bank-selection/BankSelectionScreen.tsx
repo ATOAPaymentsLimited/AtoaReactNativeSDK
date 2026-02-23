@@ -157,8 +157,8 @@ export function BankSelectionScreen({
             />
           ) : (
             <ErrorWidget
-              title="Oops! Something went wrong"
-              message="An unknown error occurred. We track these errors automatically, Please try again."
+              title="Error processing payment"
+              message={ paymentDetailsErr?.message }
             />
           )}
         </View>

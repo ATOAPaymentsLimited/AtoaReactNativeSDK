@@ -535,7 +535,8 @@ function App(): React.JSX.Element {
                 styles.payButtonDisabled,
             ]}
             onPress={handlePayNow}
-            disabled={isLoading || products.length === 0 || isOffline}>
+            disabled={isLoading || products.length === 0 || isOffline}
+            testID="Pay Now Button">
             {isLoading ? (
               <ActivityIndicator color="#FFF" size="small" />
             ) : (
