@@ -70,10 +70,10 @@ function App(): React.JSX.Element {
         <View style={styles.spacer} />
 
         {/* Sandbox Toggle */}
-        <View style={styles.switchRow}>
+        <Pressable style={styles.switchRow} onPress={() => setIsSandbox(prev => !prev)} testID="is Sandbox?">
           <Text style={styles.switchLabel}>is Sandbox?</Text>
           <Switch value={isSandbox} onValueChange={setIsSandbox} testID="Sandbox Toggle" />
-        </View>
+        </Pressable>
       </View>
 
       {/* Initiate Payment Button */}
