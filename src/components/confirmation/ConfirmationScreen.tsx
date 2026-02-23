@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Linking, Platform, AppState, type AppStateStatus } from 'react-native';
-import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
 import { useBankInstitutions } from '../../hooks/useBankInstitutions';
 import { getBankIcon } from '../../types/bank';
 import { Colors } from '../../constants/colors';
@@ -10,6 +10,7 @@ import { LedgerButton } from '../shared/LedgerButton';
 import { InfoWidget } from '../shared/InfoWidget';
 import { SvgIcon } from '../shared/SvgIcon';
 import { AtoaLoader } from '../shared/AtoaLoader';
+import { ErrorWidget } from '../shared/ErrorWidget';
 import { ReviewDetailsTile } from './ReviewDetailsTile';
 
 interface ConfirmationScreenProps {
@@ -24,7 +25,7 @@ export function ConfirmationScreen({
   onChangeBank,
 }: ConfirmationScreenProps) {
   const { state, dispatch, selectBank, checkBankAppAvailability, brandingColors } = useBankInstitutions();
-  const { paymentDetails, selectedBank, isAppInstalled, showLinkExpired } =
+  const { paymentDetails, selectedBank, isAppInstalled, showLinkExpired, bankAuthError } =
     state;
   const appStateRef = useRef(AppState.currentState);
 
@@ -89,6 +90,46 @@ export function ConfirmationScreen({
           <AtoaLoader />
         </View>
       </View>
+    );
+  }
+
+  if (bankAuthError) {
+    const errMsg = bankAuthError.message?.trim();
+    const isBankDown =
+      errMsg?.toLowerCase().includes('bank app is down') ||
+      errMsg?.toLowerCase().includes('bank is down');
+    if (isBankDown && selectedBank) {
+      return (
+        <BottomSheetView>
+          <View style={styles.bankDownContent}>
+            <View style={styles.bankDownBadge}>
+              <SvgIcon name="iconError" size={24} color={Colors.errorDefault} />
+              <Text style={styles.bankDownBadgeText}>Downtime</Text>
+            </View>
+            <View style={styles.spacerXl} />
+            <Text style={styles.bankDownMessage}>
+              <Text style={styles.bankDownBankName}>{selectedBank.name}</Text>
+              {' bank is currently down for maintenance. Please select a different bank and try again.'}
+            </Text>
+            <View style={styles.spacerXl} />
+            <LedgerButton
+              title="Select another bank"
+              onPress={onChangeBank}
+              variant="secondary"
+              size="xtraLarge"
+            />
+          </View>
+        </BottomSheetView>
+      );
+    }
+
+    return (
+      <BottomSheetView>
+        <BottomSheetHeader title="Review" onClose={onClose} />
+        <View style={styles.errorContent}>
+          <ErrorWidget message={bankAuthError.message} />
+        </View>
+      </BottomSheetView>
     );
   }
 
@@ -181,7 +222,7 @@ export function ConfirmationScreen({
           <Text
             style={styles.termsLink}
             onPress={() =>
-              Linking.openURL('https://paywithatoa.co.uk/terms-of-service')
+              Linking.openURL('https://paywithatoa.co.uk/terms/')
             }
           >
             terms
@@ -282,5 +323,43 @@ const styles = StyleSheet.create({
    termsLink: {
     color: Colors.grey500,
     fontWeight: '700',
+  },
+  bankDownContent: {
+    paddingHorizontal: Spacing.xtraLarge,
+    paddingTop: Spacing.large,
+    minHeight: 260,
+  },
+  bankDownBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.errorSubtle,
+    borderRadius: Spacing.large,
+    height: 32,
+    paddingHorizontal: Spacing.medium,
+    gap: 6,
+    alignSelf: 'flex-start',
+  },
+  bankDownBadgeText: {
+    fontFamily: 'Figtree',
+    fontSize: 11,
+    fontWeight: '700',
+    color: Colors.errorDefault,
+  },
+  bankDownMessage: {
+    fontFamily: 'Figtree',
+    fontSize: 16,
+    fontWeight: '400',
+    color: Colors.black,
+    lineHeight: 23.2,
+  },
+  bankDownBankName: {
+    fontWeight: '700',
+  },
+  errorContent: {
+    paddingHorizontal: Spacing.large,
+    paddingVertical: Spacing.huge,
+    minHeight: 300,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

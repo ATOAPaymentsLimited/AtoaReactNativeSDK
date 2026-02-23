@@ -55,9 +55,7 @@ function AtoaPaymentModalInner({
   options,
   onComplete,
 }: AtoaPaymentModalProps) {
-  const [currentScreen, setCurrentScreen] = useState<Screen>(
-    options.showHowPaymentWorks ? 'howToPay' : 'bankSelection'
-  );
+  const [currentScreen, setCurrentScreen] = useState<Screen>('loading');
   const bottomSheetRef = useRef<BottomSheet>(null);
   const { state, dispatch } = usePaymentContext();
   const {
@@ -69,6 +67,7 @@ function AtoaPaymentModalInner({
   } = useBankInstitutions();
   const contentHeight = 0;
   const hasInitializedRef = useRef(false);
+  const [isDataReady, setIsDataReady] = useState(false);
   const handleCloseRef = useRef<() => void>(() => {});
 
   // Initialize: fetch payment details and banks
@@ -77,16 +76,12 @@ function AtoaPaymentModalInner({
       return;
     }
     hasInitializedRef.current = true;
-    getPaymentDetailsAndBanks();
-  }, [getPaymentDetailsAndBanks, options.showHowPaymentWorks]);
+    getPaymentDetailsAndBanks().then(() => setIsDataReady(true));
+  }, [getPaymentDetailsAndBanks]);
 
-  // Determine showHowPaymentWorks after data is loaded
+  // Determine showHowPaymentWorks after data is fully loaded (including matchLastBank)
   useEffect(() => {
-    if (
-      state.isLoading ||
-      state.isLoadingDetails ||
-      state.showHowPaymentWorks !== null
-    ) {
+    if (!isDataReady || state.showHowPaymentWorks !== null) {
       return;
     }
     const shouldShow =
@@ -100,8 +95,7 @@ function AtoaPaymentModalInner({
       setCurrentScreen('bankSelection');
     }
   }, [
-    state.isLoading,
-    state.isLoadingDetails,
+    isDataReady,
     state.showHowPaymentWorks,
     state.hasLastPaymentDetails,
     state.lastBankDetails,
@@ -149,6 +143,17 @@ function AtoaPaymentModalInner({
       startPolling();
     }
   }, [state.paymentAuth, state.selectedBank, state.isLoadingAuth, currentScreen, startPolling]);
+
+  // Navigate to confirmation when secure payment auth fails
+  useEffect(() => {
+    if (
+      state.bankAuthError &&
+      state.selectedBank &&
+      (currentScreen === 'bankSelection' || currentScreen === 'loading')
+    ) {
+      setCurrentScreen('confirmation');
+    }
+  }, [state.bankAuthError, state.selectedBank, currentScreen]);
 
   // Navigate back to confirmation when link expires during verifying
   useEffect(() => {

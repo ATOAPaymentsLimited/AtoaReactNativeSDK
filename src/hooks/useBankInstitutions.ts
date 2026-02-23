@@ -193,16 +193,7 @@ export function useBankInstitutions() {
       } catch (e) {
         const err = toAtoaException(e);
         options.onError?.(err);
-        dispatch({ type: 'SET_SELECTED_BANK', payload: null });
         dispatch({ type: 'SET_PAYMENT_AUTH', payload: null });
-
-        const isBankDown = err.message.toLowerCase().includes('bank app is down') ||
-          err.message.toLowerCase().includes('bank is down');
-
-        if (isBankDown) {
-          return 'bank_down';
-        }
-
         dispatch({ type: 'SET_BANK_AUTH_ERROR', payload: err });
         return 'error';
       } finally {
@@ -230,15 +221,16 @@ export function useBankInstitutions() {
           paymentAuth.authorisationUrl;
       }
 
-      const canOpen = await Linking.canOpenURL(url);
-      if (canOpen) {
+      // Try deep link first — canOpenURL is unreliable on Android 11+
+      // due to package visibility restrictions, so attempt openURL directly
+      // and fall back to the web authorisation URL on failure.
+      try {
         await Linking.openURL(url);
         return true;
+      } catch {
+        await Linking.openURL(paymentAuth.authorisationUrl);
+        return true;
       }
-
-      // Fallback to authorisation URL
-      await Linking.openURL(paymentAuth.authorisationUrl);
-      return true;
     } catch (e) {
       const err = toAtoaException(e);
       options.onError?.(err);
