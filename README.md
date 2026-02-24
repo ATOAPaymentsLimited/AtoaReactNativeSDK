@@ -3,6 +3,7 @@
 The official React Native SDK for integrating Atoa Payments into mobile applications.
 
 [![License: MIT][license_badge]][license_link]
+![Atoa SDK Flow][atoa_banner]
 
 ## Overview
 
@@ -13,6 +14,8 @@ The Atoa React Native SDK allows merchants to easily integrate Atoa Payments int
 - [Usage](#usage)
 - [Complete Demo App](demo_app/App.tsx)
 - [Handle Redirection](#handle-redirection-optional)
+
+| Please refer our official flutter documentation [here](https://docs.atoa.me/react-native-sdk).
 
 ## Installation
 
@@ -38,7 +41,7 @@ npm install @gorhom/bottom-sheet react-native-gesture-handler react-native-reani
 
 ## Setup
 
-### 1. Wrap your app with AtoaProvider
+#### Wrap your app with AtoaProvider
 
 Wrap your app root with `<AtoaProvider>` to enable the Atoa payment modal. This is **required** for `AtoaSdk.pay()` to work.
 
@@ -56,69 +59,6 @@ const Root = () => (
 );
 
 AppRegistry.registerComponent(appName, () => Root);
-```
-
-### 2. Configure bank app detection
-
-Our SDK checks if the bank (used for making payments) app is installed or not. For that, you need to add the `queries` tag for Android and `LSApplicationQueriesSchemes` key for iOS.
-
-**Android** - Add `queries` to your `android/app/src/main/AndroidManifest.xml`:
-
-```xml
-<queries>
-  <package android:name="com.barclays.android.barclaysmobilebanking" />
-  <package android:name="com.starlingbank.android" />
-  <package android:name="com.grppl.android.shell.CMBlloydsTSB73" />
-  <package android:name="uk.co.hsbc.hsbcukmobilebanking" />
-  <package android:name="com.rbs.mobile.android.natwest" />
-  <package android:name="co.uk.Nationwide.Mobile" />
-  <package android:name="com.grppl.android.shell.halifax" />
-  <package android:name="com.rbs.mobile.android.rbs" />
-  <package android:name="uk.co.santander.santanderUK" />
-  <package android:name="com.revolut.revolut" />
-  <package android:name="co.uk.getmondo" />
-  <package android:name="com.grppl.android.shell.BOS" />
-  <package android:name="ftb.ibank.android" />
-  <package android:name="uk.co.tsb.newmobilebank" />
-  <package android:name="com.firstdirect.bankingonthego" />
-  <package android:name="com.virginmoney.uk.mobile.android" />
-  <package android:name="uk.co.ybs.savings.external" />
-  <package android:name="com.transferwise.android" />
-  <package android:name="com.nearform.ptsb" />
-  <package android:name="com.bankofireland.mobilebanking" />
-  <package android:name="aib.ibank.android" />
-  <package android:name="uk.co.bankofscotland.businessbank" />
-  <package android:name="com.chase.intl" />
-</queries>
-```
-
-**iOS** - Add `LSApplicationQueriesSchemes` to your `ios/<AppName>/Info.plist`:
-
-```xml
-<key>LSApplicationQueriesSchemes</key>
-<array>
-  <string>pulsesecure</string>
-  <string>launchbmb</string>
-  <string>lloyds-retail</string>
-  <string>hsbc-pwnwguti5z</string>
-  <string>uk.co.santander.santanderUK</string>
-  <string>fb894703657238109</string>
-  <string>bos-retail</string>
-  <string>halifax-retail</string>
-  <string>monzo</string>
-  <string>starlingbank</string>
-  <string>tsbmobile</string>
-  <string>comfirstdirectbankingonthego</string>
-  <string>launchFT</string>
-  <string>virginmoneyimport</string>
-  <string>ybssavings</string>
-  <string>transferwise</string>
-  <string>tg</string>
-  <string>BOIOneAPP</string>
-  <string>ie.aib.mobilebanking</string>
-  <string>bos-commercial</string>
-  <string>chase-international</string>
-</array>
 ```
 
 ## Usage
@@ -153,11 +93,23 @@ const result = await AtoaSdk.pay({
     phoneNumber: '8788899999',
     email: 'aaa@gmail.com',
   },
-  onUserClose: ({ paymentRequestId, redirectUrlParams, signature, signatureHash }) => {
+  onUserClose: ({
+    paymentRequestId,
+    redirectUrlParams,
+    signature,
+    signatureHash,
+  }) => {
     // handle payment when user closes the payment verification bottom sheet
-    console.log(`User closed the payment for paymentRequestId: ${paymentRequestId}`);
+    console.log(
+      `User closed the payment for paymentRequestId: ${paymentRequestId}`
+    );
   },
-  onPaymentStatusChange: ({ status, redirectUrlParams, signature, signatureHash }) => {
+  onPaymentStatusChange: ({
+    status,
+    redirectUrlParams,
+    signature,
+    signatureHash,
+  }) => {
     // handle payment status
     console.log(`Payment Status Changed to ${status}`);
   },
@@ -347,6 +299,67 @@ Entitlements: Add key 'com.apple.developer.associated-domains' and replace 'deva
     </dict>
   </plist>
 ```
+
+### Checking bank app is installed or not
+
+Our mobile SDK checks if the bank(using for making payments) app is installed or not. For that, you need to add 'queries' tag for android and 'LSApplicationQueriesSchemes' key for iOS
+
+- In Android, you need to add 'queries' tag in `AndroidManifest.xml`
+
+```xml
+ <queries>
+    <package android:name="com.barclays.android.barclaysmobilebanking" />
+    <package android:name="com.starlingbank.android" />
+    <package android:name="com.grppl.android.shell.CMBlloydsTSB73" />
+    <package android:name="uk.co.hsbc.hsbcukmobilebanking" />
+    <package android:name="com.rbs.mobile.android.natwest" />
+    <package android:name="co.uk.Nationwide.Mobile" />
+    <package android:name="com.grppl.android.shell.halifax" />
+    <package android:name="com.rbs.mobile.android.rbs" />
+    <package android:name="uk.co.santander.santanderUK" />
+    <package android:name="com.revolut.revolut" />
+    <package android:name="co.uk.getmondo" />
+    <package android:name="com.grppl.android.shell.BOS" />
+    <package android:name="ftb.ibank.android" />
+    <package android:name="uk.co.tsb.newmobilebank" />
+    <package android:name="com.firstdirect.bankingonthego" />
+    <package android:name="com.virginmoney.uk.mobile.android" />
+    <package android:name="uk.co.ybs.savings.external" />
+    <package android:name="com.transferwise.android" />
+    <package android:name="com.nearform.ptsb" />
+    <package android:name="com.bankofireland.mobilebanking" />
+    <package android:name="aib.ibank.android" />
+    <package android:name="uk.co.bankofscotland.businessbank" />
+    <package android:name="com.chase.intl" />
+  </queries>
+```
+
+- In iOS, you need to add 'LSApplicationQueriesSchemes' key in `Info.plist`
+
+        <key>LSApplicationQueriesSchemes</key>
+        <array>
+        <string>pulsesecure</string>
+        <string>launchbmb</string>
+        <string>lloyds-retail</string>
+        <string>hsbc-pwnwguti5z</string>
+        <string>uk.co.santander.santanderUK</string>
+        <string>fb894703657238109</string>
+        <string>bos-retail</string>
+        <string>halifax-retail</string>
+        <string>monzo</string>
+        <string>starlingbank</string>
+        <string>tsbmobile</string>
+        <string>comfirstdirectbankingonthego</string>
+        <string>launchFT</string>
+        <string>virginmoneyimport</string>
+        <string>ybssavings</string>
+        <string>transferwise</string>
+        <string>tg</string>
+        <string>BOIOneAPP</string>
+        <string>ie.aib.mobilebanking</string>
+        <string>bos-commercial</string>
+        <string>chase-international</string>
+        </array>
 
 #### Resources for deep-linking
 
