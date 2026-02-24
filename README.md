@@ -371,6 +371,7 @@ For any issues or inquiries, please contact hello@paywithatoa.co.uk.
 
 [license_badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [license_link]: https://opensource.org/licenses/MIT
+[atoa_banner]: src/assets/images/atoa-sdk-flow.png
 
 ## License
 
