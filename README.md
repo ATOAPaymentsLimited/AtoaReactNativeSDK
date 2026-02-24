@@ -61,6 +61,18 @@ const Root = () => (
 AppRegistry.registerComponent(appName, () => Root);
 ```
 
+Alternatively, if you already use `react-native-root-siblings` in your project, you can wrap with `<RootSiblingParent>` directly:
+
+```tsx
+import { RootSiblingParent } from 'react-native-root-siblings';
+
+const Root = () => (
+  <RootSiblingParent>
+    <App />
+  </RootSiblingParent>
+);
+```
+
 ## Usage
 
 Sample code to integrate can be found in [demo_app/App.tsx](demo_app/App.tsx).
