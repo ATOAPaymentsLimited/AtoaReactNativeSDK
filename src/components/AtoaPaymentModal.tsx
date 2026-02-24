@@ -7,6 +7,7 @@ import { ConnectivityProvider } from '../hooks/ConnectivityContext';
 import { useBankInstitutions } from '../hooks/useBankInstitutions';
 import type { AtoaPayOptions } from '../types/sdk';
 import type { TransactionDetails } from '../types/payment';
+import { isCompleted } from '../types/payment';
 import { Colors } from '../constants/colors';
 import { Spacing } from '../constants/spacing';
 import { BankSelectionScreen } from './bank-selection/BankSelectionScreen';
@@ -209,6 +210,11 @@ function AtoaPaymentModalInner({
     [handleClose]
   );
 
+  const isPaymentCompleted =
+    currentScreen === 'verifying' &&
+    state.transactionDetails != null &&
+    isCompleted(state.transactionDetails);
+
   const needsFixedHeight =
     currentScreen === 'bankSelection' ||
     currentScreen === 'loading' ||
@@ -266,7 +272,8 @@ function AtoaPaymentModalInner({
         index={0}
         snapPoints={snapPoints}
         enableDynamicSizing={!needsFixedHeight}
-        enablePanDownToClose={false}
+        enablePanDownToClose={isPaymentCompleted}
+        onClose={handleClose}
         enableContentPanningGesture={
           currentScreen !== 'loading' &&
           currentScreen !== 'howToPay' &&

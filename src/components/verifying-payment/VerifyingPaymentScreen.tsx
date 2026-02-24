@@ -25,6 +25,8 @@ export function VerifyingPaymentScreen({
   const hasCompletedRef = useRef(false);
   const stopRef = useRef(stop);
   stopRef.current = stop;
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   const paymentAuth = state.paymentAuth;
   const selectedBank = state.selectedBank;
@@ -62,20 +64,22 @@ export function VerifyingPaymentScreen({
   }, [stop, transactionDetails, onClose]);
 
   // Auto-dismiss on completed status
+  // Use refs for stop/onClose to avoid stale closures and prevent
+  // the cleanup from clearing the timer when callback identity changes.
   useEffect(() => {
     if (hasCompletedRef.current) {
       return;
     }
     if (transactionDetails && isCompleted(transactionDetails)) {
       hasCompletedRef.current = true;
-      stop();
+      stopRef.current();
       const timer = setTimeout(() => {
-        onClose('completed');
-      }, 5000);
+        onCloseRef.current('completed');
+      }, 2000);
       return () => clearTimeout(timer);
     }
     return undefined;
-  }, [transactionDetails, stop, onClose]);
+  }, [transactionDetails]);
 
   // Show payment status view when we have a terminal status
   if (
