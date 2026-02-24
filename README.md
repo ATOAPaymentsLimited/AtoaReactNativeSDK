@@ -15,7 +15,7 @@ The Atoa React Native SDK allows merchants to easily integrate Atoa Payments int
 - [Complete Demo App](demo_app/App.tsx)
 - [Handle Redirection](#handle-redirection-optional)
 
-| Please refer our official flutter documentation [here](https://docs.atoa.me/react-native-sdk).
+> Please refer to our official React Native documentation [here](https://docs.atoa.me/react-native-sdk).
 
 ## Installation
 
@@ -371,7 +371,7 @@ For any issues or inquiries, please contact hello@paywithatoa.co.uk.
 
 [license_badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [license_link]: https://opensource.org/licenses/MIT
-[atoa_banner]: src/assets/images/atoa-sdk-flow.png
+[atoa_banner]: src/assets/images/atoa_sdk.png
 
 ## License
 
