@@ -10,7 +10,6 @@ try {
 export async function isAppInstalled(
   androidPackageName?: string,
   iosUrlScheme?: string,
-  iosDeepLinkUrl?: string
 ): Promise<boolean> {
   try {
     if (Platform.OS === 'android' && androidPackageName) {
@@ -27,12 +26,6 @@ export async function isAppInstalled(
     if (Platform.OS === 'ios') {
       if (AtoaAppInstalled?.isAppInstalled && iosUrlScheme) {
         return await AtoaAppInstalled.isAppInstalled(iosUrlScheme);
-      }
-      // Try the actual deep link URL first — its scheme matches
-      // what the bank app registers, so it's more reliable than
-      // iOSPackageName which may not match the URL scheme.
-      if (iosDeepLinkUrl) {
-        return await Linking.canOpenURL(iosDeepLinkUrl);
       }
       if (iosUrlScheme) {
         const scheme = iosUrlScheme.includes('://')
