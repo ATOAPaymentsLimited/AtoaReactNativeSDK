@@ -61,6 +61,12 @@
 			<string>chase-international</string>
 			<string>revolut</string>
 			<string>com.natwest.mobile-banklinelaunch</string>
+			<string>com.rbs.mobile-banklinelaunch</string>
+			<string>uk.co.hsbc.hsbcukbusinessbanking</string>
+			<string>com.lloydsbank.businessmobile</string>
+			<string>uk.co.hsbc.hsbcukmobilebanking</string>
+			<string>com.monitise.matm.Monitise-iPhone-RBS-EN-GB</string>
+			<string>om.rbs.Monitise-iPhone-UlsterBank-EN-GB</string>
 		</array>
 		<key>LSRequiresIPhoneOS</key>
 		<true />
