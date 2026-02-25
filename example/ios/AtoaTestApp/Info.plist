@@ -86,6 +86,7 @@
 			<string>ie.aib.mobilebanking</string>
 			<string>bos-commercial</string>
 			<string>chase-international</string>
+			<string>revolut</string>
 		</array>
 	</dict>
 </plist>

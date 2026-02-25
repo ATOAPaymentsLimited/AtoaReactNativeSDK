@@ -51,3 +51,9 @@ buck-out/
 
 # VS Code
 .vscode/
+
+.claude/
+
+.mcp.json
+
+fix-and-rebuild.bat

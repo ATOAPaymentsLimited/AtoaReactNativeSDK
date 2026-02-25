@@ -27,6 +27,7 @@
       <package android:name="aib.ibank.android" />
       <package android:name="uk.co.bankofscotland.businessbank" />
       <package android:name="com.chase.intl" />
+      <package android:name="com.rbs.mobile.android.ubn" />
     </queries>
 
     <application

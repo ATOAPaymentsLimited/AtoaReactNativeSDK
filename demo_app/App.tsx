@@ -270,6 +270,29 @@ function RadioSelected() {
   );
 }
 
+function PayByBankRow() {
+
+  return (
+    <View style={styles.payByBankCard}>
+      <View style={styles.payByBankLeft}>
+        <RadioSelected />
+        <View style={styles.payByBankTextContainer}>
+          <Text style={styles.payByBankTitle}>Pay by bank app</Text>
+          <Text style={styles.payByBankSubtitle}>Powered by Atoa</Text>
+        </View>
+      </View>
+      <View style={styles.bankLogosRow}>
+          {/* Atoa Logo */}
+        <Image
+          source={require('./assets/images/bank_logos.png')}
+          style={styles.bankLogosImage}
+          resizeMode="contain"
+        />
+      </View>
+    </View>
+  );
+}
+
 function ProductCard({
   product,
  
@@ -464,22 +487,7 @@ function App(): React.JSX.Element {
         <View style={styles.spacerLarge} />
 
         {/* Payment Method */}
-        <View style={styles.paymentMethodRow}>
-          <RadioSelected />
-          <View style={styles.radioGap} />
-          <Text style={styles.paymentMethodText}>
-            Atoa - Instant Bank Pay
-          </Text>
-        </View>
-
-        <View style={styles.spacerSmall} />
-
-        {/* Atoa Logo */}
-        <Image
-          source={require('./assets/images/atoa.png')}
-          style={styles.atoaLogo}
-          resizeMode="contain"
-        />
+        <PayByBankRow />
 
         {/* Extra spacing for bottom sheet */}
         <View style={styles.bottomPadding} />
@@ -666,40 +674,62 @@ const styles = StyleSheet.create({
     color: '#000000',
   },
 
-  // Payment Method
-  paymentMethodRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
+  // Radio Button
   radioOuter: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
     borderWidth: 2,
-    borderColor: '#3498DB',
+    borderColor: '#1A1A1A',
     justifyContent: 'center',
     alignItems: 'center',
   },
   radioInner: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#3498DB',
-  },
-  radioGap: {
     width: 12,
-  },
-  paymentMethodText: {
-    fontSize: 16,
-    fontWeight: '400',
-    color: '#000000',
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#1A1A1A',
   },
 
-  // Atoa Logo
-  atoaLogo: {
-    width: '100%',
-    height: 60,
-    marginTop: 4,
+  // Pay by Bank
+  payByBankCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#000000',
+    backgroundColor: '#FFFFFF',
+  },
+  payByBankLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  payByBankTextContainer: {
+    marginLeft: 12,
+  },
+  payByBankTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#1A1A1A',
+    lineHeight: 20,
+  },
+  payByBankSubtitle: {
+    fontSize: 12,
+    fontWeight: '400',
+    color: '#6B7280',
+    lineHeight: 16,
+    marginTop: 2,
+  },
+  bankLogosRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  bankLogosImage: {
+     width: 120,
+     height: 40,
   },
 
   // Bottom Padding

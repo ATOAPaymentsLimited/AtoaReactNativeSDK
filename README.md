@@ -343,6 +343,7 @@ Our mobile SDK checks if the bank(using for making payments) app is installed or
     <package android:name="aib.ibank.android" />
     <package android:name="uk.co.bankofscotland.businessbank" />
     <package android:name="com.chase.intl" />
+    <package android:name="com.rbs.mobile.android.ubn" />
   </queries>
 ```
 
@@ -371,6 +372,7 @@ Our mobile SDK checks if the bank(using for making payments) app is installed or
         <string>ie.aib.mobilebanking</string>
         <string>bos-commercial</string>
         <string>chase-international</string>
+        <string>revolut</string>
         </array>
 
 #### Resources for deep-linking
