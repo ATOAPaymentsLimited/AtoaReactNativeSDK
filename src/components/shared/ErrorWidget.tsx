@@ -57,7 +57,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#E42646',
     textDecorationLine: 'underline',
-    textDecorationStyle: 'dotted',
     lineHeight: 22.4,
   },
 });

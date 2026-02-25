@@ -267,7 +267,6 @@ const styles = StyleSheet.create({
   linkExpiredRefresh: {
     fontWeight: '700',
     textDecorationLine: 'underline',
-    textDecorationStyle: 'dotted',
   },
   appWarningBanner: {
     flexDirection: 'row',
@@ -289,7 +288,6 @@ const styles = StyleSheet.create({
   appWarningLink: {
     fontWeight: '700',
     textDecorationLine: 'underline',
-    textDecorationStyle: 'dotted',
   },
   poweredByContainer: {
     flexDirection: 'row',
