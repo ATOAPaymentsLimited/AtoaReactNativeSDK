@@ -143,7 +143,13 @@ export function useBankInstitutions() {
         urlSchemeEmptyFromApi = !(pkgName && pkgName.length > 0);
       }
 
-      if (urlSchemeEmptyFromApi) {
+      // Also suppress the warning if no store link is provided — showing
+      // "download the app" with no actionable link is misleading.
+      const hasStoreLink = Platform.OS === 'ios'
+        ? !!(auth.appStoreLink && auth.appStoreLink.length > 0)
+        : !!(auth.playStoreLink && auth.playStoreLink.length > 0);
+
+      if (urlSchemeEmptyFromApi || !hasStoreLink) {
         dispatch({ type: 'SET_IS_APP_INSTALLED', payload: true });
         return;
       }

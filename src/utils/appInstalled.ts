@@ -2,6 +2,11 @@ import { Linking, NativeModules, Platform } from 'react-native';
 
 const { AtoaAppInstalled } = NativeModules;
 
+let Share: any = null;
+try {
+  Share = require('react-native-share').default;
+} catch {}
+
 export async function isAppInstalled(
   androidPackageName?: string,
   iosUrlScheme?: string
@@ -11,8 +16,11 @@ export async function isAppInstalled(
       if (AtoaAppInstalled?.isAppInstalled) {
         return await AtoaAppInstalled.isAppInstalled(androidPackageName);
       }
-      const intentUrl = `market://details?id=${androidPackageName}`;
-      return await Linking.canOpenURL(intentUrl);
+      if (Share?.isPackageInstalled) {
+        const { isInstalled } = await Share.isPackageInstalled(androidPackageName);
+        return isInstalled;
+      }
+      return false;
     }
 
     if (Platform.OS === 'ios' && iosUrlScheme) {
