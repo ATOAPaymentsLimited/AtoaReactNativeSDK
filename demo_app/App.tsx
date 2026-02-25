@@ -61,7 +61,7 @@ function getRequestData(amount: number) {
 
 async function getPaymentRequestId(amount: number): Promise<string> {
   const response = await fetch(
-   'https://api.atoa.me/api/payments/process-payment',
+    'https://api.atoa.me/api/payments/process-payment',
     {
       method: 'POST',
       headers: {
@@ -170,7 +170,7 @@ function useConnectivity(): {
     return () => unsubscribe();
   }, [checkConnection]);
 
-  const isOffline = status === 'offline' || status === 'waiting';
+  const isOffline = status === 'offline';
 
   return {status, isOffline, checkConnection};
 }
