@@ -156,7 +156,8 @@ export function useBankInstitutions() {
 
       const result = await isAppInstalled(
         auth.androidPackageName ?? undefined,
-        auth.iOSPackageName ?? undefined
+        auth.iOSPackageName ?? undefined,
+        auth.deepLinkAuthorisationUrlIOS ?? undefined
       );
       dispatch({ type: 'SET_IS_APP_INSTALLED', payload: result });
     },
