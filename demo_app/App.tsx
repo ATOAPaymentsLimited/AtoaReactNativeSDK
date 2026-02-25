@@ -272,14 +272,9 @@ function RadioSelected() {
 
 function ProductCard({
   product,
-  onDelete,
-  onIncrement,
-  onDecrement,
+ 
 }: {
   product: Product;
-  onDelete: () => void;
-  onIncrement: () => void;
-  onDecrement: () => void;
 }) {
   return (
     <View style={styles.productCard}>
@@ -291,7 +286,7 @@ function ProductCard({
       <View style={styles.productInfo}>
         <View style={styles.productHeader}>
           <Text style={styles.productName}>{product.name}</Text>
-          <Pressable onPress={onDelete} hitSlop={8}>
+          <Pressable hitSlop={8}>
             <DeleteIcon />
           </Pressable>
         </View>
@@ -303,7 +298,6 @@ function ProductCard({
         <View style={styles.quantityContainer}>
           <Pressable
             style={styles.quantityButton}
-            onPress={onDecrement}
             hitSlop={4}>
             <Text style={styles.quantityIcon}>−</Text>
           </Pressable>
@@ -312,7 +306,6 @@ function ProductCard({
           </View>
           <Pressable
             style={styles.quantityButton}
-            onPress={onIncrement}
             hitSlop={4}>
             <Text style={styles.quantityIcon}>+</Text>
           </Pressable>
@@ -323,7 +316,7 @@ function ProductCard({
 }
 
 function App(): React.JSX.Element {
-  const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
+  const [products] = useState<Product[]>(INITIAL_PRODUCTS);
   const [isLoading, setIsLoading] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isRetrying, setIsRetrying] = useState(false);
@@ -358,25 +351,6 @@ function App(): React.JSX.Element {
   );
   const totalItems = products.reduce((sum, p) => sum + p.quantity, 0);
 
-  const handleDelete = (id: string) => {
-    setProducts(prev => prev.filter(p => p.id !== id));
-  };
-
-  const handleIncrement = (id: string) => {
-    setProducts(prev =>
-      prev.map(p => (p.id === id ? {...p, quantity: p.quantity + 1} : p)),
-    );
-  };
-
-  const handleDecrement = (id: string) => {
-    setProducts(prev =>
-      prev.map(p =>
-        p.id === id && p.quantity > 1
-          ? {...p, quantity: p.quantity - 1}
-          : p,
-      ),
-    );
-  };
 
   const showPaymentSheet = async (paymentId: string) => {
     const options: AtoaPayOptions = {
@@ -480,9 +454,6 @@ function App(): React.JSX.Element {
           <View key={product.id}>
             <ProductCard
               product={product}
-              onDelete={() => handleDelete(product.id)}
-              onIncrement={() => handleIncrement(product.id)}
-              onDecrement={() => handleDecrement(product.id)}
             />
             {index < products.length - 1 && (
               <View style={styles.spacerMedium} />
