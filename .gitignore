@@ -51,6 +51,3 @@ buck-out/
 
 # VS Code
 .vscode/
-
-# Claude
-.claude/

@@ -23,6 +23,7 @@ export function VerifyingPaymentScreen({
     usePaymentStatus();
   const hasStartedRef = useRef(false);
   const hasCompletedRef = useRef(false);
+  const autoCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const stopRef = useRef(stop);
   stopRef.current = stop;
   const onCloseRef = useRef(onClose);
@@ -63,9 +64,10 @@ export function VerifyingPaymentScreen({
     }
   }, [stop, transactionDetails, onClose]);
 
-  // Auto-dismiss on completed status
-  // Use refs for stop/onClose to avoid stale closures and prevent
-  // the cleanup from clearing the timer when callback identity changes.
+  // Auto-dismiss on completed status.
+  // Store the timer in a ref so that late-arriving poll responses
+  // (which update the transactionDetails reference after stop())
+  // cannot cancel the timer via effect cleanup.
   useEffect(() => {
     if (hasCompletedRef.current) {
       return;
@@ -73,13 +75,20 @@ export function VerifyingPaymentScreen({
     if (transactionDetails && isCompleted(transactionDetails)) {
       hasCompletedRef.current = true;
       stopRef.current();
-      const timer = setTimeout(() => {
+      autoCloseTimerRef.current = setTimeout(() => {
         onCloseRef.current('completed');
       }, 2000);
-      return () => clearTimeout(timer);
     }
-    return undefined;
   }, [transactionDetails]);
+
+  // Clear auto-close timer on unmount only
+  useEffect(() => {
+    return () => {
+      if (autoCloseTimerRef.current) {
+        clearTimeout(autoCloseTimerRef.current);
+      }
+    };
+  }, []);
 
   // Show payment status view when we have a terminal status
   if (
