@@ -4,16 +4,10 @@ import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { Strings } from '../../constants/strings';
 import { SvgIcon } from '../shared/SvgIcon';
+import { formatAmount } from '../../utils/formatAmount';
 
 interface BankLimitCardProps {
   amount: number;
-}
-
-function formatAmount(amount: number): string {
-  return amount.toLocaleString('en-GB', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  });
 }
 
 export const BankLimitCard = React.memo(function BankLimitCard({
@@ -24,7 +18,7 @@ export const BankLimitCard = React.memo(function BankLimitCard({
       <SvgIcon name="info" size={Spacing.large} color={Colors.errorDarker} />
       <Text style={styles.text}>
         {Strings.bankSelection.bankLimitWarning}
-        <Text style={styles.amountText}>{'£'}{formatAmount(amount)}</Text>
+        <Text style={styles.amountText}>{formatAmount(amount)}</Text>
       </Text>
     </View>
   );

@@ -8,15 +8,15 @@ import {
 import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
-import { Strings } from '../../constants/strings';
 import { SvgIcon } from '../shared/SvgIcon';
+import { Strings } from '../../constants/strings';
+
+const PLACEHOLDER_TEXTS = Strings.bankSelection.searchPlaceholders;
 
 interface AnimatedSearchFieldProps {
   value: string;
   onChangeText: (text: string) => void;
 }
-
-const PLACEHOLDER_TEXTS = Strings.bankSelection.searchPlaceholders;
 
 export function AnimatedSearchField({
   value,

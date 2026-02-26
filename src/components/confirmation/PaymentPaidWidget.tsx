@@ -4,6 +4,7 @@ import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { Strings } from '../../constants/strings';
 import { SvgIcon } from '../shared/SvgIcon';
+import { formatAmount } from '../../utils/formatAmount';
 
 interface PaymentPaidWidgetProps {
   amount?: number;
@@ -26,7 +27,7 @@ export function PaymentPaidWidget({
 
       {amount != null && amount > 0 && (
         <>
-          <Text style={styles.amount}>£{amount.toFixed(2)}</Text>
+          <Text style={styles.amount}>{formatAmount(amount)}</Text>
           <View style={styles.spacerLarge} />
         </>
       )}

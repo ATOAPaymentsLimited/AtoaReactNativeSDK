@@ -42,7 +42,7 @@ export function BankSelectionScreen({
     paymentAmount,
   } = useBankInstitutions();
 
-  const [tabIndex, setTabIndex] = useState(0);
+  const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const [bankDownBank, setBankDownBank] = useState<BankInstitution | null>(null);
   const { width } = useWindowDimensions();
 
@@ -51,7 +51,7 @@ export function BankSelectionScreen({
   const isSearching = state.searchTerm.length > 0;
 
   // Popular banks for current tab (already filtered by amount limit), first 8
-  const popularBanks = (tabIndex === 0 ? popularPersonalBanks : popularBusinessBanks).slice(0, 8);
+  const popularBanks = (selectedTabIndex === 0 ? popularPersonalBanks : popularBusinessBanks).slice(0, 8);
 
   const handleBankPress = useCallback(
     async (bank: BankInstitution) => {
@@ -69,8 +69,7 @@ export function BankSelectionScreen({
   );
 
   const handleRetry = useCallback(async () => {
-    dispatch({ type: 'SET_BANK_FETCHING_ERROR', payload: null });
-    dispatch({ type: 'SET_PAYMENT_DETAILS_ERROR', payload: null });
+    dispatch({ type: 'CLEAR_FETCH_ERRORS' });
     await getPaymentDetailsAndBanks();
   }, [dispatch, getPaymentDetailsAndBanks]);
 
@@ -227,7 +226,7 @@ export function BankSelectionScreen({
       {!isSearching && (
         <>
           <View style={styles.tabBarContainer}>
-            <BankTabBar selectedIndex={tabIndex} onTabChange={setTabIndex} />
+            <BankTabBar selectedIndex={selectedTabIndex} onTabChange={setSelectedTabIndex} />
           </View>
           <View style={styles.spacer} />
         </>

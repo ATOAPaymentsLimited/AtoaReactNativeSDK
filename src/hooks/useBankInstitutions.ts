@@ -3,6 +3,7 @@ import { Linking, Platform } from 'react-native';
 import { usePaymentContext } from './PaymentContext';
 import { useConnectivityContext } from './ConnectivityContext';
 import type { BankInstitution } from '../types/bank';
+import type { PaymentRequestData, PaymentAuthResponse } from '../types/payment';
 import { AtoaException } from '../types/error';
 import { buildPaymentAuthBody } from '../utils/buildPaymentAuthBody';
 import { isAppInstalled } from '../utils/appInstalled';
@@ -34,7 +35,7 @@ export function useBankInstitutions() {
     };
   }, []);
 
-  const getPaymentDetails = useCallback(async (): Promise<import('../types/payment').PaymentRequestData | null> => {
+  const getPaymentDetails = useCallback(async (): Promise<PaymentRequestData | null> => {
     dispatch({ type: 'SET_LOADING_DETAILS', payload: true });
     try {
       const paymentRes = await client.getPaymentDetails(
@@ -78,7 +79,7 @@ export function useBankInstitutions() {
 
   const matchLastBank = useCallback((
     banks: BankInstitution[],
-    paymentDetails: import('../types/payment').PaymentRequestData | null,
+    paymentDetails: PaymentRequestData | null,
   ) => {
     const lastPaymentBank = paymentDetails?.lastPaymentBankDetails;
     if (!lastPaymentBank?.institutionId) { return; }
@@ -127,7 +128,7 @@ export function useBankInstitutions() {
   );
 
   const checkBankAppAvailability = useCallback(
-    async (authResponse?: import('../types/payment').PaymentAuthResponse) => {
+    async (authResponse?: PaymentAuthResponse) => {
       const auth = authResponse ?? state.paymentAuth;
       if (!auth) {
         return;
@@ -249,7 +250,7 @@ export function useBankInstitutions() {
     async () => {
       // Run both API calls in parallel — fetchInstitutions doesn't depend on payment details
       const [paymentDetails, banks] = await Promise.all([
-        getPaymentDetails().catch(() => null),
+        getPaymentDetails(),
         fetchBanks(),
       ]);
       // Now that both are done, check last-used bank against the fetched bank list

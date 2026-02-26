@@ -1,24 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { SvgIcon } from './SvgIcon';
-
-type InfoVariant = 'info' | 'error' | 'warning';
+import { type InfoVariant, VARIANT_CONFIG } from '../../constants/component-constants';
 
 interface InfoWidgetProps {
   message: string;
   variant?: InfoVariant;
 }
-
-const VARIANT_CONFIG: Record<
-  InfoVariant,
-  { bg: string; color: string; icon: 'info' | 'warningFilled' }
-> = {
-  info: { bg: Colors.infoSubtle, color: Colors.infoDarker, icon: 'info' },
-  error: { bg: Colors.errorSubtle, color: Colors.errorDarker, icon: 'warningFilled' },
-  warning: { bg: Colors.warningSubtle, color: Colors.warningDarker, icon: 'warningFilled' },
-};
 
 export const InfoWidget = React.memo(function InfoWidget({
   message,

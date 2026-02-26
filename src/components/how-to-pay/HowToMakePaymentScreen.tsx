@@ -12,13 +12,12 @@ import { SDKLoader } from '../shared/AtoaLoader';
 import { useBankInstitutions } from '../../hooks/useBankInstitutions';
 import type { BankInstitution } from '../../types/bank';
 import { getBankIcon } from '../../types/bank';
+import { VISIBLE_BANK_COUNT } from '../../constants/component-constants';
 
 interface HowToMakePaymentScreenProps {
   onContinue: () => void;
   onClose: () => void;
 }
-
-const VISIBLE_BANK_COUNT = 3;
 
 function BankIconCircle({ bank }: { bank: BankInstitution }) {
   const iconUrl = getBankIcon(bank);

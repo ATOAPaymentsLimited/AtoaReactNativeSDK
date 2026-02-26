@@ -2,8 +2,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 import { usePaymentContext } from './PaymentContext';
 import { AtoaException } from '../types/error';
-
-const POLLING_INTERVAL_MS = 1000;
+import { POLLING_INTERVAL_MS } from '../constants/component-constants';
 
 export function usePaymentStatus() {
   const { state, dispatch, client, options } = usePaymentContext();

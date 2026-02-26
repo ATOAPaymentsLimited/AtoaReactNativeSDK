@@ -1,15 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Animated, StyleSheet } from 'react-native';
 import { Colors } from '../../constants/colors';
-
-const DOT_COUNT = 5;
-const DOT_SIZE = 4;
-const DOT_GAP = 4;
-// Alternating stretch multipliers matching the Lottie: 3.5x, 6x, 3.5x, 6x, 3.5x
-//const STRETCH_FACTORS = [1, 2, 1, 2, 1];
-const BOUNCE_HEIGHT = 8;
-const ANIMATION_DURATION = 300;
-const STAGGER_DELAY = 100;
+import {
+  DOT_COUNT,
+  DOT_SIZE,
+  DOT_GAP,
+  BOUNCE_HEIGHT,
+  ANIMATION_DURATION,
+  STAGGER_DELAY,
+} from '../../constants/component-constants';
 
 export function DotLoadingAnimation() {
   const anims = useRef(

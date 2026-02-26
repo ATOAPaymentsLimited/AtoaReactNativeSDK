@@ -9,23 +9,11 @@ import {
 } from 'react-native';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
-
-type ButtonVariant =
-  | 'primary1'
-  | 'primary2'
-  | 'secondary'
-  | 'tertiary'
-  | 'ghost';
-
-type ButtonSize = 'xtraLarge' | 'large' | 'medium' | 'small' | 'xtraSmall';
-
-const BUTTON_HEIGHTS: Record<ButtonSize, number> = {
-  xtraLarge: 48,
-  large: 40,
-  medium: 32,
-  small: 28,
-  xtraSmall: 24,
-};
+import {
+  type ButtonVariant,
+  type ButtonSize,
+  BUTTON_HEIGHTS,
+} from '../../constants/component-constants';
 
 interface LedgerButtonProps {
   title: string;

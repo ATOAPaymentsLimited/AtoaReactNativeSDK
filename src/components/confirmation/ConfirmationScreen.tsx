@@ -13,6 +13,8 @@ import { SvgIcon } from '../shared/SvgIcon';
 import { AtoaLoader } from '../shared/AtoaLoader';
 import { ErrorWidget } from '../shared/ErrorWidget';
 import { ReviewDetailsTile } from './ReviewDetailsTile';
+import { formatAmount } from '../../utils/formatAmount';
+import { INACTIVE_STATE_PATTERN } from '../../constants/component-constants';
 
 interface ConfirmationScreenProps {
   onClose: () => void;
@@ -35,7 +37,7 @@ export function ConfirmationScreen({
   useEffect(() => {
     const handleAppStateChange = (nextAppState: AppStateStatus) => {
       if (
-        appStateRef.current.match(/inactive|background/) &&
+        appStateRef.current.match(INACTIVE_STATE_PATTERN) &&
         nextAppState === 'active'
       ) {
         checkBankAppAvailability();
@@ -51,9 +53,7 @@ export function ConfirmationScreen({
   }, [checkBankAppAvailability]);
 
   const amount = paymentDetails?.amount;
-  const amountStr = amount
-    ? `${!amount.currency || amount.currency === 'GBP' ? '£' : amount.currency}${amount.amount.toFixed(2)}`
-    : '';
+  const amountStr = amount ? formatAmount(amount.amount, amount.currency) : '';
   const merchantName = paymentDetails?.merchantBusinessName ?? '';
   const bankName = selectedBank?.fullName ?? '';
   const bankIconUrl = selectedBank ? getBankIcon(selectedBank) : undefined;
