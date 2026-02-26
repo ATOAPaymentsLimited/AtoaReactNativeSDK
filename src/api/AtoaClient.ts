@@ -9,7 +9,8 @@ import type {
 } from '../types/payment';
 import { parseTransactionDetails } from '../types/payment';
 import { AtoaException } from '../types/error';
-import { getBaseUrl, Endpoints, applyEnvParam } from './endpoints';
+import { getBaseUrl } from './config';
+import { Endpoints, applyEnvParam } from './endpoints';
 
 export class AtoaClient {
   private baseUrl: string;

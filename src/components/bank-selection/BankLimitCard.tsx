@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
+import { Strings } from '../../constants/strings';
 import { SvgIcon } from '../shared/SvgIcon';
 
 interface BankLimitCardProps {
@@ -22,7 +23,7 @@ export const BankLimitCard = React.memo(function BankLimitCard({
     <View style={styles.container}>
       <SvgIcon name="info" size={Spacing.large} color={Colors.errorDarker} />
       <Text style={styles.text}>
-        {'Some banks listed below might not handle the payments of '}
+        {Strings.bankSelection.bankLimitWarning}
         <Text style={styles.amountText}>{'£'}{formatAmount(amount)}</Text>
       </Text>
     </View>

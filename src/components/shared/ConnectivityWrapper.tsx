@@ -4,6 +4,7 @@ import { useConnectivityContext } from '../../hooks/ConnectivityContext';
 import type { ReconnectionCallback } from '../../hooks/useConnectivity';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
+import { Strings } from '../../constants/strings';
 import { SvgIcon } from './SvgIcon';
 
 interface ConnectivityWrapperProps {
@@ -78,11 +79,10 @@ export function ConnectivityWrapper({
                 color={Colors.grey500}
               />
               <View style={styles.spacer} />
-              <Text style={styles.title}>Oops! No internet connection</Text>
+              <Text style={styles.title}>{Strings.connectivity.title}</Text>
               <View style={styles.spacer} />
               <Text style={styles.message}>
-                Server is not reachable. Please check your internet connection
-                and try again
+                {Strings.connectivity.message}
               </Text>
               <View style={styles.spacer} />
             </View>

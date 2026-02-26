@@ -5,6 +5,7 @@ import { useBankInstitutions } from '../../hooks/useBankInstitutions';
 import { getBankIcon } from '../../types/bank';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
+import { Strings } from '../../constants/strings';
 import { BottomSheetHeader } from '../shared/BottomSheetHeader';
 import { LedgerButton } from '../shared/LedgerButton';
 import { InfoWidget } from '../shared/InfoWidget';
@@ -85,7 +86,7 @@ export function ConfirmationScreen({
   if (state.isLoadingAuth) {
     return (
       <View style={styles.container}>
-        <BottomSheetHeader title="Review" onClose={onClose} />
+        <BottomSheetHeader title={Strings.confirmation.title} onClose={onClose} />
         <View style={styles.loaderContainer}>
           <AtoaLoader />
         </View>
@@ -104,16 +105,16 @@ export function ConfirmationScreen({
           <View style={styles.bankDownContent}>
             <View style={styles.bankDownBadge}>
               <SvgIcon name="iconError" size={24} color={Colors.errorDefault} />
-              <Text style={styles.bankDownBadgeText}>Downtime</Text>
+              <Text style={styles.bankDownBadgeText}>{Strings.bankDown.badge}</Text>
             </View>
             <View style={styles.spacerXl} />
             <Text style={styles.bankDownMessage}>
               <Text style={styles.bankDownBankName}>{selectedBank.name}</Text>
-              {' bank is currently down for maintenance. Please select a different bank and try again.'}
+              {Strings.bankDown.message}
             </Text>
             <View style={styles.spacerXl} />
             <LedgerButton
-              title="Select another bank"
+              title={Strings.bankDown.selectAnother}
               onPress={onChangeBank}
               variant="secondary"
               size="xtraLarge"
@@ -125,7 +126,7 @@ export function ConfirmationScreen({
 
     return (
       <BottomSheetView>
-        <BottomSheetHeader title="Review" onClose={onClose} />
+        <BottomSheetHeader title={Strings.confirmation.title} onClose={onClose} />
         <View style={styles.errorContent}>
           <ErrorWidget message={bankAuthError.message} />
         </View>
@@ -135,20 +136,20 @@ export function ConfirmationScreen({
 
   return (
     <View style={styles.container}>
-      <BottomSheetHeader title="Review" onClose={onClose} />
+      <BottomSheetHeader title={Strings.confirmation.title} onClose={onClose} />
 
       <BottomSheetScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <InfoWidget message="We'll send you to your bank's app or website to confirm this payment." />
+        <InfoWidget message={Strings.confirmation.infoMessage} />
 
         <View style={styles.spacer} />
 
         {/* Payment details tile */}
         <ReviewDetailsTile
           iconUrl={storeImg}
-          heading="Paying to"
+          heading={Strings.confirmation.payingTo}
           content={merchantName}
           rightText={amountStr}
         />
@@ -158,9 +159,9 @@ export function ConfirmationScreen({
         {/* Bank details tile */}
         <ReviewDetailsTile
           iconUrl={bankIconUrl}
-          heading="From"
+          heading={Strings.confirmation.from}
           content={bankName}
-          actionText="Change"
+          actionText={Strings.confirmation.change}
           onAction={onChangeBank}
         />
 
@@ -175,14 +176,14 @@ export function ConfirmationScreen({
                 color={Colors.errorDarker}
               />
               <Text style={styles.appWarningText}>
-                {'For a smoother payment, we recommend downloading the '}
+                {Strings.confirmation.appWarningPrefix}
                 <Text
                   style={styles.appWarningLink}
                   onPress={handleAppStorePress}
                 >
-                  {selectedBank?.name ?? 'Bank'} app
+                  {selectedBank?.name ?? Strings.confirmation.defaultBankName}{Strings.confirmation.appWarningSuffix}
                 </Text>
-                {' Or, continue using internet banking if that works better for you.'}
+                {Strings.confirmation.appWarningAlt}
               </Text>
             </View>
           </>
@@ -192,11 +193,11 @@ export function ConfirmationScreen({
           <>
             <View style={styles.spacer} />
             <Text style={styles.linkExpiredText}>
-              {'Link expired,  '}
+              {Strings.confirmation.linkExpired}
               <Text style={styles.linkExpiredRefresh} onPress={handleRefresh}>
-                Refresh
+                {Strings.confirmation.refresh}
               </Text>
-              {' to try again'}
+              {Strings.confirmation.linkExpiredSuffix}
             </Text>
           </>
         )}
@@ -204,7 +205,7 @@ export function ConfirmationScreen({
         <View style={styles.spacer} />
 
         <LedgerButton
-          title={`Go to ${selectedBank?.name ?? 'Bank'}  \u2192`}
+          title={Strings.confirmation.goToBank(selectedBank?.name ?? Strings.confirmation.defaultBankName)}
           onPress={onGoToBank}
           variant="primary2"
           size="xtraLarge"
@@ -218,14 +219,14 @@ export function ConfirmationScreen({
 
         {/* Terms */}
         <Text style={styles.termsText}>
-           By continuing, you trust this merchant and accept Atoa&apos;s{' '}
+          {Strings.confirmation.termsPrefix}
           <Text
             style={styles.termsLink}
             onPress={() =>
               Linking.openURL('https://paywithatoa.co.uk/terms/')
             }
           >
-            terms
+            {Strings.confirmation.termsLink}
           </Text>
         </Text>
       </BottomSheetScrollView>

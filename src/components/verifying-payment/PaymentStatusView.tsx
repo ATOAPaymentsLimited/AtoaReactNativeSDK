@@ -5,6 +5,7 @@ import type { TransactionDetails } from '../../types/payment';
 import { isCompleted } from '../../types/payment';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
+import { Strings } from '../../constants/strings';
 
 interface PaymentStatusViewProps {
   transactionDetails: TransactionDetails;
@@ -34,7 +35,7 @@ export function PaymentStatusView({
             style={styles.tickAnimation}
           />
           <View style={styles.spacer} />
-          <Text style={styles.successText}>Payment Successful</Text>
+          <Text style={styles.successText}>{Strings.verifyingPayment.paymentSuccessful}</Text>
         </View>
       </View>
     );

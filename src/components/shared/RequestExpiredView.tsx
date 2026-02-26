@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
+import { Strings } from '../../constants/strings';
 import { SvgIcon } from './SvgIcon';
 
 export function RequestExpiredView() {
@@ -9,10 +10,9 @@ export function RequestExpiredView() {
     <View style={styles.container}>
       <SvgIcon name="highImportance" size={24} color={Colors.grey400} />
       <View style={styles.textGroup}>
-        <Text style={styles.title}>Request expired</Text>
+        <Text style={styles.title}>{Strings.requestExpired.title}</Text>
         <Text style={styles.message}>
-          This payment request has been expired, please go back and retry the
-          payment again.
+          {Strings.requestExpired.message}
         </Text>
       </View>
     </View>

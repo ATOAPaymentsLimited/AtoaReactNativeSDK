@@ -3,6 +3,7 @@ import { View, Text, Image, StyleSheet } from 'react-native';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
+import { Strings } from '../../constants/strings';
 import { BottomSheetHeader } from '../shared/BottomSheetHeader';
 import { LedgerButton } from '../shared/LedgerButton';
 import { SvgIcon } from '../shared/SvgIcon';
@@ -53,7 +54,7 @@ export function HowToMakePaymentScreen({
 
   return (
     <View style={styles.container}>
-      <BottomSheetHeader title="How to pay with bank app?" onClose={onClose} />
+      <BottomSheetHeader title={Strings.howToPay.title} onClose={onClose} />
 
       <BottomSheetScrollView
         contentContainerStyle={styles.content}
@@ -90,9 +91,9 @@ export function HowToMakePaymentScreen({
               <Text style={styles.stepNumber}>1</Text>
             </View>
             <Text style={styles.stepText}>
-              {'Your '}
-              <Text style={styles.stepTextBold}>Bank app</Text>
-              {' will open on selection automatically if it\u2019s installed.'}
+              {Strings.howToPay.step1Prefix}
+              <Text style={styles.stepTextBold}>{Strings.howToPay.step1Bold}</Text>
+              {Strings.howToPay.step1Suffix}
             </Text>
           </View>
 
@@ -101,9 +102,9 @@ export function HowToMakePaymentScreen({
               <Text style={styles.stepNumber}>2</Text>
             </View>
             <Text style={styles.stepText}>
-              {'You can '}
-              <Text style={styles.stepTextBold}>login securely</Text>
-              {' and approve your payment. Your details stay confidential.'}
+              {Strings.howToPay.step2Prefix}
+              <Text style={styles.stepTextBold}>{Strings.howToPay.step2Bold}</Text>
+              {Strings.howToPay.step2Suffix}
             </Text>
           </View>
 
@@ -112,9 +113,9 @@ export function HowToMakePaymentScreen({
               <Text style={styles.stepNumber}>3</Text>
             </View>
             <Text style={styles.stepText}>
-              {'Once the payment\u2019s '}
-              <Text style={styles.stepTextBold}>confirmed</Text>
-              {', we\u2019ll redirect you to the success page.'}
+              {Strings.howToPay.step3Prefix}
+              <Text style={styles.stepTextBold}>{Strings.howToPay.step3Bold}</Text>
+              {Strings.howToPay.step3Suffix}
             </Text>
           </View>
         </View>
@@ -123,14 +124,14 @@ export function HowToMakePaymentScreen({
         <View style={styles.trustContainer}>
           <SvgIcon name="shield" size={20} />
           <Text style={styles.trustText}>
-            Trusted by thousands of businesses in the UK
+            {Strings.howToPay.trustBadge}
           </Text>
         </View>
 
         <View style={styles.spacerHuge} />
 
         <LedgerButton
-          title="I understand, continue  →"
+          title={Strings.howToPay.continueButton}
           onPress={onContinue}
           variant="primary2"
           size="xtraLarge"
@@ -139,7 +140,7 @@ export function HowToMakePaymentScreen({
         />
 
         <View style={styles.poweredByContainer}>
-          <Text style={styles.poweredByText}>Powered by </Text>
+          <Text style={styles.poweredByText}>{Strings.howToPay.poweredBy}</Text>
           <View style={styles.poweredByLogo}>
             <SvgIcon name="atoaLogo" size={30} color="#E42646" />
           </View>

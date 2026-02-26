@@ -48,13 +48,13 @@ export class AtoaSdk {
    */
   static pay(options: AtoaPayOptions): Promise<TransactionDetails | null> {
     // Clean up any previous payment flow (stale from crash or active)
-    AtoaSdk._destroyCurrent(null);
+    AtoaSdk.clearCurrentPaymentFlow(null);
 
     return new Promise<TransactionDetails | null>((resolve, reject) => {
       AtoaSdk._currentResolve = resolve;
 
       const handleComplete = (result: TransactionDetails | null) => {
-        AtoaSdk._destroyCurrent(result);
+        AtoaSdk.clearCurrentPaymentFlow(result);
       };
 
       try {
@@ -77,10 +77,10 @@ export class AtoaSdk {
    * Dismiss any currently active payment flow.
    */
   static dismiss(): void {
-    AtoaSdk._destroyCurrent(null);
+    AtoaSdk.clearCurrentPaymentFlow(null);
   }
 
-  private static _destroyCurrent(result: TransactionDetails | null): void {
+  private static clearCurrentPaymentFlow(result: TransactionDetails | null): void {
     const resolveFn = AtoaSdk._currentResolve;
     const modal = AtoaSdk._currentModal;
     AtoaSdk._currentResolve = null;

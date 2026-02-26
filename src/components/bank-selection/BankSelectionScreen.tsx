@@ -6,6 +6,7 @@ import type { BankInstitution } from '../../types/bank';
 import { AtoaException, LINK_PAID_MESSAGE, REQUEST_EXPIRED_MESSAGE } from '../../types/error';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
+import { Strings } from '../../constants/strings';
 import { BottomSheetHeader } from '../shared/BottomSheetHeader';
 import { FetchingBankLoader } from '../shared/FetchingBankLoader';
 import { ErrorWidget } from '../shared/ErrorWidget';
@@ -83,7 +84,7 @@ export function BankSelectionScreen({
     return (
       <View style={styles.container}>
         <BottomSheetHeader
-          title="Select your bank"
+          title={Strings.bankSelection.title}
           onBack={onBack}
           showHelp={!!onHelp}
           onHelp={onHelp}
@@ -110,7 +111,7 @@ export function BankSelectionScreen({
       return (
         <View style={styles.container}>
           <BottomSheetHeader
-            title="Select your bank"
+            title={Strings.bankSelection.title}
             onBack={onBack}
             showHelp={!!onHelp}
             onHelp={onHelp}
@@ -130,7 +131,7 @@ export function BankSelectionScreen({
       return (
         <View style={styles.container}>
           <BottomSheetHeader
-            title="Select your bank"
+            title={Strings.bankSelection.title}
             onBack={onBack}
             showHelp={!!onHelp}
             onHelp={onHelp}
@@ -143,7 +144,7 @@ export function BankSelectionScreen({
     return (
       <View style={styles.container}>
         <BottomSheetHeader
-          title="Select your bank"
+          title={Strings.bankSelection.title}
           onBack={onBack}
           showHelp={!!onHelp}
           onHelp={onHelp}
@@ -151,13 +152,13 @@ export function BankSelectionScreen({
         <View style={styles.loaderContainer}>
           {isBankFetchError ? (
             <ErrorWidget
-              title="We couldn&#x2019;t fetch banks!"
-              message="Something went wrong while fetching bank list. Please check your internet connection and try again."
+              title={Strings.bankSelection.fetchError}
+              message={Strings.bankSelection.fetchErrorMessage}
               onRetry={handleRetry}
             />
           ) : (
             <ErrorWidget
-              title="Error processing payment"
+              title={Strings.bankSelection.paymentProcessingError}
               message={ paymentDetailsErr?.message }
             />
           )}
@@ -210,7 +211,7 @@ export function BankSelectionScreen({
   return (
     <View style={styles.container}>
       <BottomSheetHeader
-        title="Select your bank"
+        title={Strings.bankSelection.title}
         onBack={onBack}
         showHelp={!!onHelp}
         onHelp={onHelp}
@@ -234,7 +235,7 @@ export function BankSelectionScreen({
 
       <View style={styles.infoBannerContainer}>
         <InfoWidget
-          message="Ensure the selected bank's app is installed on your phone."
+          message={Strings.bankSelection.bankAppInfo}
           variant="info"
         />
       </View>
@@ -244,7 +245,7 @@ export function BankSelectionScreen({
       {isSearching ? (
         <>
           <View style={styles.resultsHeaderContainer}>
-            <Text style={styles.sectionLabel}>RESULTS</Text>
+            <Text style={styles.sectionLabel}>{Strings.bankSelection.resultsLabel}</Text>
           </View>
           <BottomSheetFlatList
             data={allBanksEnabled}
@@ -257,10 +258,9 @@ export function BankSelectionScreen({
             ListEmptyComponent={
               allBanksDisabledByAmount.length === 0 ? (
                 <View style={styles.emptyContainer}>
-                  <Text style={styles.emptyTitle}>No results</Text>
+                  <Text style={styles.emptyTitle}>{Strings.bankSelection.noResults}</Text>
                   <Text style={styles.emptySubtitle}>
-                    No results for "{state.searchTerm}" in banks. Try using
-                    different keywords.
+                    {Strings.bankSelection.noResultsMessage(state.searchTerm)}
                   </Text>
                 </View>
               ) : null
@@ -288,7 +288,7 @@ export function BankSelectionScreen({
             if (item.type === 'list') {
               return (
                 <View style={styles.allBanksContainer}>
-                  <Text style={styles.sectionLabel}>ALL BANKS</Text>
+                  <Text style={styles.sectionLabel}>{Strings.bankSelection.allBanksLabel}</Text>
                   {allBanksEnabled.map((bank) => (
                     <BankListItem
                       key={bank.id}
@@ -309,11 +309,12 @@ export function BankSelectionScreen({
         />
       )}
 
-      <BankDownBottomSheet
-        visible={bankDownBank != null}
-        bank={bankDownBank}
-        onClose={() => setBankDownBank(null)}
-      />
+      {bankDownBank != null && (
+        <BankDownBottomSheet
+          bank={bankDownBank}
+          onClose={() => setBankDownBank(null)}
+        />
+      )}
 
       {state.isLoadingAuth && (
         <View style={styles.loadingOverlay}>

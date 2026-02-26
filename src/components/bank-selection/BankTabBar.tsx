@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Colors } from '../../constants/colors';
+import { Strings } from '../../constants/strings';
 
 interface BankTabBarProps {
   selectedIndex: number;
@@ -21,7 +22,7 @@ export const BankTabBar = React.memo(function BankTabBar({ selectedIndex, onTabC
             selectedIndex === 0 && styles.tabTextSelected,
           ]}
         >
-          Personal Banks
+          {Strings.bankSelection.personalBanksTab}
         </Text>
       </TouchableOpacity>
       <TouchableOpacity
@@ -35,7 +36,7 @@ export const BankTabBar = React.memo(function BankTabBar({ selectedIndex, onTabC
             selectedIndex === 1 && styles.tabTextSelected,
           ]}
         >
-          Business Banks
+          {Strings.bankSelection.businessBanksTab}
         </Text>
       </TouchableOpacity>
     </View>

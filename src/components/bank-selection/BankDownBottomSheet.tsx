@@ -3,27 +3,22 @@ import { View, Text, Modal, StyleSheet, Pressable } from 'react-native';
 import type { BankInstitution } from '../../types/bank';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
+import { Strings } from '../../constants/strings';
 import { SvgIcon } from '../shared/SvgIcon';
 import { LedgerButton } from '../shared/LedgerButton';
 
 interface BankDownBottomSheetProps {
-  visible: boolean;
-  bank: BankInstitution | null;
+  bank: BankInstitution;
   onClose: () => void;
 }
 
 export function BankDownBottomSheet({
-  visible,
   bank,
   onClose,
 }: BankDownBottomSheetProps) {
-  if (!bank) {
-    return null;
-  }
-
   return (
     <Modal
-      visible={visible}
+      visible
       transparent
       animationType="slide"
       onRequestClose={onClose}
@@ -40,20 +35,20 @@ export function BankDownBottomSheet({
                 size={24}
                 color={Colors.errorDefault}
               />
-              <Text style={styles.badgeText}>Downtime</Text>
+              <Text style={styles.badgeText}>{Strings.bankDown.badge}</Text>
             </View>
 
             <View style={styles.spacerBadgeMessage} />
 
             <Text style={styles.message}>
               <Text style={styles.bankName}>{bank.name}</Text>
-              {' bank is currently down for maintenance. Please select a different bank and try again.'}
+              {Strings.bankDown.message}
             </Text>
 
             <View style={styles.spacerMessageButton} />
 
             <LedgerButton
-              title="Select another bank"
+              title={Strings.bankDown.selectAnother}
               onPress={onClose}
               variant="secondary"
               size="xtraLarge"

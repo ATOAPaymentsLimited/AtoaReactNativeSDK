@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
+import { Strings } from '../../constants/strings';
 
 interface ErrorWidgetProps {
   title?: string;
@@ -10,7 +11,7 @@ interface ErrorWidgetProps {
 }
 
 export function ErrorWidget({
-  title = 'Oops! Something went wrong',
+  title = Strings.error.defaultTitle,
   message,
   onRetry,
 }: ErrorWidgetProps) {
@@ -20,7 +21,7 @@ export function ErrorWidget({
       {message && <Text style={styles.message}>{message}</Text>}
       {onRetry && (
         <TouchableOpacity onPress={onRetry}>
-          <Text style={styles.retryText}>Retry</Text>
+          <Text style={styles.retryText}>{Strings.error.retry}</Text>
         </TouchableOpacity>
       )}
     </View>

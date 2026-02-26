@@ -6,6 +6,7 @@ import { getBankIcon } from '../../types/bank';
 import { isCompleted, isAwaitingAuth, isNotInitiated } from '../../types/payment';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
+import { Strings } from '../../constants/strings';
 import { BottomSheetHeader } from '../shared/BottomSheetHeader';
 import { ErrorWidget } from '../shared/ErrorWidget';
 import { DotLoadingAnimation } from '../shared/DotLoadingAnimation';
@@ -108,7 +109,7 @@ export function VerifyingPaymentScreen({
   if (paymentStatusError) {
     return (
       <View style={styles.container}>
-        <BottomSheetHeader title="Payment in progress" onClose={handleClose} />
+        <BottomSheetHeader title={Strings.verifyingPayment.title} onClose={handleClose} />
         <ErrorWidget
           message={paymentStatusError.message}
           onRetry={() => {
@@ -123,7 +124,7 @@ export function VerifyingPaymentScreen({
 
   return (
     <View style={styles.container}>
-      <BottomSheetHeader title="Payment in progress" onClose={handleClose} />
+      <BottomSheetHeader title={Strings.verifyingPayment.title} onClose={handleClose} />
 
       <View style={styles.contentArea}>
         {/* Atoa Logo + Dot Loading + Bank Icon */}
@@ -152,14 +153,14 @@ export function VerifyingPaymentScreen({
         <View style={styles.spacerLogos} />
 
         <Text style={styles.verifyingText}>
-          {'Verifying payment status\nwith your bank.'}
+          {Strings.verifyingPayment.verifyingStatus}
         </Text>
 
         <View style={styles.spacerText} />
 
         <Text style={styles.noteText}>
-          <Text style={styles.noteBold}>Note:</Text>
-          {' Do not press back or close this screen until the transaction is complete.'}
+          <Text style={styles.noteBold}>{Strings.verifyingPayment.notePrefix}</Text>
+          {Strings.verifyingPayment.noteMessage}
         </Text>
       </View>
     </View>

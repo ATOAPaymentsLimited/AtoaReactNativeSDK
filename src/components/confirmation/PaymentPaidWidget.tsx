@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
+import { Strings } from '../../constants/strings';
 import { SvgIcon } from '../shared/SvgIcon';
 
 interface PaymentPaidWidgetProps {
@@ -30,13 +31,13 @@ export function PaymentPaidWidget({
         </>
       )}
 
-      <Text style={styles.title}>This payment is already paid</Text>
+      <Text style={styles.title}>{Strings.paymentPaid.title}</Text>
 
       <View style={styles.spacerLarge} />
 
-      {time && <Text style={styles.detail}>Paid on {time}</Text>}
+      {time && <Text style={styles.detail}>{Strings.paymentPaid.paidOn(time)}</Text>}
       {referenceId && (
-        <Text style={styles.detail}>Reference No. {referenceId}</Text>
+        <Text style={styles.detail}>{Strings.paymentPaid.referenceNo(referenceId)}</Text>
       )}
     </View>
   );

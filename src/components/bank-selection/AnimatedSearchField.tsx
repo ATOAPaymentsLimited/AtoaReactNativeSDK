@@ -8,6 +8,7 @@ import {
 import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
+import { Strings } from '../../constants/strings';
 import { SvgIcon } from '../shared/SvgIcon';
 
 interface AnimatedSearchFieldProps {
@@ -15,7 +16,7 @@ interface AnimatedSearchFieldProps {
   onChangeText: (text: string) => void;
 }
 
-const PLACEHOLDER_TEXTS = ['Search your personal bank', 'Search your business bank'];
+const PLACEHOLDER_TEXTS = Strings.bankSelection.searchPlaceholders;
 
 export function AnimatedSearchField({
   value,
