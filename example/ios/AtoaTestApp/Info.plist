@@ -92,6 +92,10 @@
 			<string>bos-commercial</string>
 			<string>chase-international</string>
 			<string>revolut</string>
+			<string>lloyds-commercial</string>
+			<string>dbbukmobileapp</string>
+			<string>nationwide</string>
+			<string>ydl</string>
 		</array>
 	</dict>
 </plist>

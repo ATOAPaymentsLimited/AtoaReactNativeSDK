@@ -60,13 +60,10 @@
 			<string>bos-commercial</string>
 			<string>chase-international</string>
 			<string>revolut</string>
-			<string>com.natwest.mobile-banklinelaunch</string>
-			<string>com.rbs.mobile-banklinelaunch</string>
-			<string>uk.co.hsbc.hsbcukbusinessbanking</string>
-			<string>com.lloydsbank.businessmobile</string>
-			<string>uk.co.hsbc.hsbcukmobilebanking</string>
-			<string>com.monitise.matm.Monitise-iPhone-RBS-EN-GB</string>
-			<string>com.rbs.Monitise-iPhone-UlsterBank-EN-GB</string>
+			<string>lloyds-commercial</string>
+			<string>dbbukmobileapp</string>
+			<string>nationwide</string>
+			<string>ydl</string>
 		</array>
 		<key>LSRequiresIPhoneOS</key>
 		<true />
