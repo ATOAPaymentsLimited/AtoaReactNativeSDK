@@ -1,14 +1,21 @@
-import React, { useCallback } from 'react';
-import { View, Text, ScrollView, StyleSheet, Linking, Platform } from 'react-native';
+import React, { useCallback, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Linking, Platform, AppState, type AppStateStatus } from 'react-native';
+import { BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
 import { useBankInstitutions } from '../../hooks/useBankInstitutions';
 import { getBankIcon } from '../../types/bank';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
+import { Strings } from '../../constants/strings';
 import { BottomSheetHeader } from '../shared/BottomSheetHeader';
 import { LedgerButton } from '../shared/LedgerButton';
 import { InfoWidget } from '../shared/InfoWidget';
+import { SvgIcon } from '../shared/SvgIcon';
 import { AtoaLoader } from '../shared/AtoaLoader';
+import { ErrorWidget } from '../shared/ErrorWidget';
 import { ReviewDetailsTile } from './ReviewDetailsTile';
+import { formatAmount } from '../../utils/formatAmount';
+import { ERROR_BANK_APP_DOWN, ERROR_BANK_DOWN, INACTIVE_STATE_PATTERN } from '../../constants/component-constants';
+import { FONT_FAMILY } from '../../constants/typography';
 
 interface ConfirmationScreenProps {
   onClose: () => void;
@@ -21,14 +28,33 @@ export function ConfirmationScreen({
   onGoToBank,
   onChangeBank,
 }: ConfirmationScreenProps) {
-  const { state, brandingColors } = useBankInstitutions();
-  const { paymentDetails, selectedBank, isAppInstalled, showLinkExpired } =
+  const { state, dispatch, selectBank, checkBankAppAvailability, brandingColors } = useBankInstitutions();
+  const { paymentDetails, selectedBank, isAppInstalled, showLinkExpired, bankAuthError } =
     state;
+  const appStateRef = useRef(AppState.currentState);
+
+  // Re-check bank app availability when app resumes (e.g. user installed app from store)
+  // Re-check when app returns from background (e.g. user installed bank app from store)
+  useEffect(() => {
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      if (
+        appStateRef.current.match(INACTIVE_STATE_PATTERN) &&
+        nextAppState === 'active'
+      ) {
+        checkBankAppAvailability();
+      }
+      appStateRef.current = nextAppState;
+    };
+
+    const subscription = AppState.addEventListener(
+      'change',
+      handleAppStateChange
+    );
+    return () => subscription.remove();
+  }, [checkBankAppAvailability]);
 
   const amount = paymentDetails?.amount;
-  const amountStr = amount
-    ? `${amount.currency === 'GBP' ? '£' : amount.currency} ${amount.amount.toFixed(2)}`
-    : '';
+  const amountStr = amount ? formatAmount(amount.amount, amount.currency) : '';
   const merchantName = paymentDetails?.merchantBusinessName ?? '';
   const bankName = selectedBank?.fullName ?? '';
   const bankIconUrl = selectedBank ? getBankIcon(selectedBank) : undefined;
@@ -50,10 +76,18 @@ export function ConfirmationScreen({
     }
   }, [state.paymentAuth]);
 
+  const handleRefresh = useCallback(() => {
+    if (!selectedBank) {
+      return;
+    }
+    dispatch({ type: 'SET_SHOW_LINK_EXPIRED', payload: false });
+    selectBank(selectedBank);
+  }, [dispatch, selectBank, selectedBank]);
+
   if (state.isLoadingAuth) {
     return (
       <View style={styles.container}>
-        <BottomSheetHeader title="Review" onClose={onClose} />
+        <BottomSheetHeader title={Strings.confirmation.title} onClose={onClose} />
         <View style={styles.loaderContainer}>
           <AtoaLoader />
         </View>
@@ -61,24 +95,64 @@ export function ConfirmationScreen({
     );
   }
 
+  if (bankAuthError) {
+    const errMsg = bankAuthError.message?.trim();
+    const isBankDown =
+      errMsg?.toLowerCase().includes(ERROR_BANK_APP_DOWN) ||
+      errMsg?.toLowerCase().includes(ERROR_BANK_DOWN);
+    if (isBankDown && selectedBank) {
+      return (
+        <BottomSheetView>
+          <View style={styles.bankDownContent}>
+            <View style={styles.bankDownBadge}>
+              <SvgIcon name="iconError" size={24} color={Colors.errorDefault} />
+              <Text style={styles.bankDownBadgeText}>{Strings.bankDown.badge}</Text>
+            </View>
+            <View style={styles.spacerXl} />
+            <Text style={styles.bankDownMessage}>
+              <Text style={styles.bankDownBankName}>{selectedBank.name}</Text>
+              {Strings.bankDown.message}
+            </Text>
+            <View style={styles.spacerXl} />
+            <LedgerButton
+              title={Strings.bankDown.selectAnother}
+              onPress={onChangeBank}
+              variant="secondary"
+              size="xtraLarge"
+            />
+          </View>
+        </BottomSheetView>
+      );
+    }
+
+    return (
+      <BottomSheetView>
+        <BottomSheetHeader title={Strings.confirmation.title} onClose={onClose} />
+        <View style={styles.errorContent}>
+          <ErrorWidget message={bankAuthError.message} />
+        </View>
+      </BottomSheetView>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <BottomSheetHeader title="Review" onClose={onClose} />
-
-      <ScrollView
-        style={styles.scrollView}
+      <BottomSheetScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <InfoWidget message="Confirm the details below and go to your bank to authorise the payment." />
+        <BottomSheetHeader title={Strings.confirmation.title} onClose={onClose} />
+
+        <InfoWidget message={Strings.confirmation.infoMessage} />
 
         <View style={styles.spacer} />
 
         {/* Payment details tile */}
         <ReviewDetailsTile
           iconUrl={storeImg}
-          heading={merchantName}
-          content={amountStr}
+          heading={Strings.confirmation.payingTo}
+          content={merchantName}
+          rightText={amountStr}
         />
 
         <View style={styles.spacer} />
@@ -86,9 +160,9 @@ export function ConfirmationScreen({
         {/* Bank details tile */}
         <ReviewDetailsTile
           iconUrl={bankIconUrl}
-          heading="Paying from"
+          heading={Strings.confirmation.from}
           content={bankName}
-          actionText="Change"
+          actionText={Strings.confirmation.change}
           onAction={onChangeBank}
         />
 
@@ -96,56 +170,67 @@ export function ConfirmationScreen({
         {!isAppInstalled && (
           <>
             <View style={styles.spacer} />
-            <InfoWidget
-              message={`We recommend installing the ${bankName} app for the best experience.`}
-              variant="warning"
-            />
-            <View style={styles.spacerSmall} />
-            <LedgerButton
-              title={`Install ${selectedBank?.name ?? 'Bank'} App`}
-              onPress={handleAppStorePress}
-              variant="ghost"
-            />
+            <View style={styles.appWarningBanner}>
+              <SvgIcon
+                name="warningFilled"
+                size={16}
+                color={Colors.errorDarker}
+              />
+              <Text style={styles.appWarningText}>
+                {Strings.confirmation.appWarningPrefix}
+                <Text
+                  style={styles.appWarningLink}
+                  onPress={handleAppStorePress}
+                >
+                  {selectedBank?.name ?? Strings.confirmation.defaultBankName}{Strings.confirmation.appWarningSuffix}
+                </Text>
+                {Strings.confirmation.appWarningAlt}
+              </Text>
+            </View>
           </>
         )}
 
-        {/* Link expired */}
         {showLinkExpired && (
           <>
             <View style={styles.spacer} />
-            <InfoWidget
-              message="Payment link has expired. Please try again."
-              variant="error"
-            />
+            <Text style={styles.linkExpiredText}>
+              {Strings.confirmation.linkExpired}
+              <Text style={styles.linkExpiredRefresh} onPress={handleRefresh}>
+                {Strings.confirmation.refresh}
+              </Text>
+              {Strings.confirmation.linkExpiredSuffix}
+            </Text>
           </>
         )}
 
-        <View style={styles.spacerLarge} />
+        <View style={styles.spacer} />
 
         <LedgerButton
-          title="Go to Bank"
+          title={Strings.confirmation.goToBank(selectedBank?.name ?? Strings.confirmation.defaultBankName)}
           onPress={onGoToBank}
           variant="primary2"
-          backgroundColor={brandingColors.backgroundColor}
-          foregroundColor={brandingColors.foregroundColor}
+          size="xtraLarge"
+          backgroundColor={brandingColors?.backgroundColor}
+          foregroundColor={brandingColors?.foregroundColor}
           disabled={showLinkExpired}
         />
 
-        <View style={styles.spacer} />
+
+        <View style={styles.spacerXl} />
 
         {/* Terms */}
         <Text style={styles.termsText}>
-          By continuing you accept Atoa&apos;s{' '}
+          {Strings.confirmation.termsPrefix}
           <Text
             style={styles.termsLink}
             onPress={() =>
-              Linking.openURL('https://paywithatoa.co.uk/terms-of-service')
+              Linking.openURL('https://paywithatoa.co.uk/terms/')
             }
           >
-            Terms of Service
+            {Strings.confirmation.termsLink}
           </Text>
         </Text>
-      </ScrollView>
+      </BottomSheetScrollView>
     </View>
   );
 }
@@ -160,30 +245,121 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  scrollView: {
-    flex: 1,
-  },
   content: {
     paddingHorizontal: Spacing.large,
-    paddingBottom: Spacing.huge,
+    paddingBottom: Spacing.large,
   },
   spacer: {
     height: Spacing.large,
   },
-  spacerSmall: {
-    height: Spacing.small,
+  spacerMedium: {
+    height: Spacing.medium,
   },
-  spacerLarge: {
-    height: Spacing.xtraLarge,
+  spacerXl: {
+    height: Spacing.huge,
+  },
+  linkExpiredText: {
+    fontFamily: FONT_FAMILY,
+    fontSize: 14,
+    fontWeight: '500',
+    color: Colors.errorDefault,
+    textAlign: 'center',
+    lineHeight: 21,
+  },
+  linkExpiredRefresh: {
+    fontWeight: '700',
+    textDecorationLine: 'underline',
+  },
+  appWarningBanner: {
+    flexDirection: 'row',
+    backgroundColor: Colors.errorSubtle,
+    borderRadius: 12,
+    paddingVertical: Spacing.medium,
+    paddingHorizontal: Spacing.large,
+    gap: Spacing.small,
+    alignItems: 'flex-start',
+  },
+  appWarningText: {
+    fontFamily: FONT_FAMILY,
+    fontSize: 12,
+    fontWeight: '400',
+    color: Colors.errorDarker,
+    lineHeight: 18,
+    flex: 1,
+  },
+  appWarningLink: {
+    fontWeight: '700',
+    textDecorationLine: 'underline',
+  },
+  poweredByContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  poweredByText: {
+    fontFamily: FONT_FAMILY,
+    fontSize: 13,
+    fontWeight: '500',
+    color: Colors.grey500,
+  },
+  poweredByLogo: {
+    width: 30,
+    height: 12,
+    overflow: 'hidden',
+    justifyContent: 'center',
   },
   termsText: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 11,
+    fontWeight: '400',
     color: Colors.grey500,
     textAlign: 'center',
+    lineHeight: 17.6,
+    paddingBottom: Spacing.huge,
   },
-  termsLink: {
-    color: Colors.brandPrimary,
-    textDecorationLine: 'underline',
+  termsBold: {
+    fontWeight: '600',
+  },
+   termsLink: {
+    color: Colors.grey500,
+    fontWeight: '700',
+  },
+  bankDownContent: {
+    paddingHorizontal: Spacing.xtraLarge,
+    paddingTop: Spacing.large,
+    minHeight: 260,
+  },
+  bankDownBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.errorSubtle,
+    borderRadius: Spacing.large,
+    height: 32,
+    paddingHorizontal: Spacing.medium,
+    gap: 6,
+    alignSelf: 'flex-start',
+  },
+  bankDownBadgeText: {
+    fontFamily: FONT_FAMILY,
+    fontSize: 11,
+    fontWeight: '700',
+    color: Colors.errorDefault,
+  },
+  bankDownMessage: {
+    fontFamily: FONT_FAMILY,
+    fontSize: 16,
+    fontWeight: '400',
+    color: Colors.black,
+    lineHeight: 23.2,
+  },
+  bankDownBankName: {
+    fontWeight: '700',
+  },
+  errorContent: {
+    paddingHorizontal: Spacing.large,
+    paddingVertical: Spacing.huge,
+    minHeight: 300,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

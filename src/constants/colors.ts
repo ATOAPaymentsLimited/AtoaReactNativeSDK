@@ -1,31 +1,32 @@
 export const Colors = {
-  black: '#000000',
+  black: '#0D1011',
   white: '#FFFFFF',
   transparent: 'transparent',
 
   // Neutral / Grey scale
-  grey50: '#FAFAFA',
-  grey100: '#F5F5F5',
-  grey200: '#EEEEEE',
-  grey300: '#DCDCDC',
-  grey400: '#BDBDBD',
-  grey500: '#999999',
-  grey600: '#737373',
-  grey700: '#616161',
+  grey50: '#F6F8F9',
+  grey100: '#F2F5F6',
+  grey200: '#EAEEF0',
+  grey300: '#CED7DD',
+  grey400: '#97A6B2',
+  grey500: '#6A8090',
+  grey600: '#475664',
+  grey700: '#29333A',
 
   // Brand
   brandPrimary: '#6B4EFF',
 
   // Semantics - Info
-  infoSubtle: '#EBF5FF',
-  infoDarker: '#0066CC',
+  infoSubtle: '#F1F6FF',
+  infoDarker: '#2B53B6',
 
   // Semantics - Error
-  errorSubtle: '#FFF0F0',
-  errorDarker: '#CC0000',
+  errorSubtle: '#FFF1EB',
+  errorDefault: '#E97244',
+  errorDarker: '#BC5A34',
 
   // Semantics - Positive
-  positiveSubtle: '#E6F9ED',
+  positiveSubtle: '#EAFAF4',
   positiveLighter: '#B3EDCA',
   positiveDarker: '#00802B',
 

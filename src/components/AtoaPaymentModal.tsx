@@ -1,25 +1,28 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, BackHandler } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { View, StyleSheet, BackHandler, LogBox } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheet from '@gorhom/bottom-sheet';
 import { PaymentProvider, usePaymentContext } from '../hooks/PaymentContext';
+import { ConnectivityProvider } from '../hooks/ConnectivityContext';
 import { useBankInstitutions } from '../hooks/useBankInstitutions';
 import type { AtoaPayOptions } from '../types/sdk';
 import type { TransactionDetails } from '../types/payment';
+import { isCompleted } from '../types/payment';
 import { Colors } from '../constants/colors';
+import { Spacing } from '../constants/spacing';
 import { BankSelectionScreen } from './bank-selection/BankSelectionScreen';
 import { HowToMakePaymentScreen } from './how-to-pay/HowToMakePaymentScreen';
 import { ConfirmationScreen } from './confirmation/ConfirmationScreen';
-import { PaymentPaidWidget } from './confirmation/PaymentPaidWidget';
 import { VerifyingPaymentScreen } from './verifying-payment/VerifyingPaymentScreen';
-import { AtoaException } from '../types/error';
+import { ConnectivityWrapper } from './shared/ConnectivityWrapper';
+import { SDKLoader } from './shared/AtoaLoader';
 
 type Screen =
+  | 'loading'
   | 'howToPay'
   | 'bankSelection'
   | 'confirmation'
   | 'verifying'
-  | 'paymentPaid';
 
 interface AtoaPaymentModalProps {
   options: AtoaPayOptions;
@@ -30,11 +33,21 @@ export function AtoaPaymentModal({
   options,
   onComplete,
 }: AtoaPaymentModalProps) {
+  // Suppress LogBox warnings/errors while the SDK modal is active
+  useEffect(() => {
+    LogBox.ignoreAllLogs(true);
+    return () => {
+      LogBox.ignoreAllLogs(false);
+    };
+  }, []);
+
   return (
     <GestureHandlerRootView style={styles.root}>
-      <PaymentProvider options={options}>
-        <AtoaPaymentModalInner options={options} onComplete={onComplete} />
-      </PaymentProvider>
+      <ConnectivityProvider>
+        <PaymentProvider options={options}>
+          <AtoaPaymentModalInner options={options} onComplete={onComplete} />
+        </PaymentProvider>
+      </ConnectivityProvider>
     </GestureHandlerRootView>
   );
 }
@@ -43,17 +56,18 @@ function AtoaPaymentModalInner({
   options,
   onComplete,
 }: AtoaPaymentModalProps) {
-  const [currentScreen, setCurrentScreen] = useState<Screen>('bankSelection');
+  const [currentScreen, setCurrentScreen] = useState<Screen>('loading');
   const bottomSheetRef = useRef<BottomSheet>(null);
   const { state, dispatch } = usePaymentContext();
   const {
     getPaymentDetailsAndBanks,
-    authorizeBank,
     startPolling,
     stopPolling,
     resetSelectBank,
+    selectBank,
   } = useBankInstitutions();
   const hasInitializedRef = useRef(false);
+  const [isDataReady, setIsDataReady] = useState(false);
   const handleCloseRef = useRef<() => void>(() => {});
 
   // Initialize: fetch payment details and banks
@@ -62,16 +76,12 @@ function AtoaPaymentModalInner({
       return;
     }
     hasInitializedRef.current = true;
-    getPaymentDetailsAndBanks(options.showHowPaymentWorks);
-  }, [getPaymentDetailsAndBanks, options.showHowPaymentWorks]);
+    getPaymentDetailsAndBanks().then(() => setIsDataReady(true));
+  }, [getPaymentDetailsAndBanks]);
 
-  // Determine showHowPaymentWorks after data is loaded
+  // Determine showHowPaymentWorks after data is fully loaded (including matchLastBank)
   useEffect(() => {
-    if (
-      state.isLoading ||
-      state.isLoadingDetails ||
-      state.showHowPaymentWorks !== null
-    ) {
+    if (!isDataReady || state.showHowPaymentWorks !== null) {
       return;
     }
     const shouldShow =
@@ -81,14 +91,43 @@ function AtoaPaymentModalInner({
     dispatch({ type: 'SET_SHOW_HOW_PAYMENT_WORKS', payload: shouldShow });
     if (shouldShow) {
       setCurrentScreen('howToPay');
+    } else if (!state.hasLastPaymentDetails) {
+      setCurrentScreen('bankSelection');
     }
   }, [
-    state.isLoading,
-    state.isLoadingDetails,
+    isDataReady,
     state.showHowPaymentWorks,
     state.hasLastPaymentDetails,
     state.lastBankDetails,
     options.showHowPaymentWorks,
+    dispatch,
+  ]);
+
+  // Auto-select last bank if available, skip to confirmation
+  const hasAutoSelectedRef = useRef(false);
+  useEffect(() => {
+    if (
+      !hasAutoSelectedRef.current &&
+      state.hasLastPaymentDetails &&
+      state.lastBankDetails &&
+      !state.isLoading &&
+      !state.isLoadingDetails
+    ) {
+      hasAutoSelectedRef.current = true;
+      selectBank(state.lastBankDetails).then((result) => {
+        if (result !== 'success') {
+          // Auto-select failed — fall back to manual bank selection
+          dispatch({ type: 'SET_HAS_LAST_PAYMENT_DETAILS', payload: false });
+          dispatch({ type: 'SET_LAST_BANK_DETAILS', payload: null });
+        }
+      });
+    }
+  }, [
+    state.hasLastPaymentDetails,
+    state.lastBankDetails,
+    state.isLoading,
+    state.isLoadingDetails,
+    selectBank,
     dispatch,
   ]);
 
@@ -98,21 +137,30 @@ function AtoaPaymentModalInner({
       state.paymentAuth &&
       state.selectedBank &&
       !state.isLoadingAuth &&
-      currentScreen === 'bankSelection'
+      (currentScreen === 'bankSelection' || currentScreen === 'loading' || currentScreen === 'howToPay')
+    ) {
+      setCurrentScreen('confirmation');
+      startPolling();
+    }
+  }, [state.paymentAuth, state.selectedBank, state.isLoadingAuth, currentScreen, startPolling]);
+
+  // Navigate to confirmation when secure payment auth fails
+  useEffect(() => {
+    if (
+      state.bankAuthError &&
+      state.selectedBank &&
+      (currentScreen === 'bankSelection' || currentScreen === 'loading')
     ) {
       setCurrentScreen('confirmation');
     }
-  }, [state.paymentAuth, state.selectedBank, state.isLoadingAuth, currentScreen]);
+  }, [state.bankAuthError, state.selectedBank, currentScreen]);
 
-  // Handle bankAuthError for "already paid"
+  // Navigate back to confirmation when link expires during verifying
   useEffect(() => {
-    if (state.bankAuthError instanceof AtoaException) {
-      const err = state.bankAuthError as AtoaException;
-      if (err.amount != null && err.referenceId != null) {
-        setCurrentScreen('paymentPaid');
-      }
+    if (state.showLinkExpired && currentScreen === 'verifying') {
+      setCurrentScreen('confirmation');
     }
-  }, [state.bankAuthError]);
+  }, [state.showLinkExpired, currentScreen]);
 
   const handleClose = useCallback(() => {
     stopPolling();
@@ -155,18 +203,35 @@ function AtoaPaymentModalInner({
   }, [resetSelectBank]);
 
   const handleVerifyingClose = useCallback(
-    (result: 'completed' | 'closed') => {
-      if (result === 'completed' && state.transactionDetails) {
-        onComplete(state.transactionDetails);
-      } else {
-        handleClose();
-      }
+    (_result: 'completed' | 'closed') => {
+      handleClose();
     },
-    [state.transactionDetails, onComplete, handleClose]
+    [handleClose]
+  );
+
+  const isPaymentCompleted =
+    currentScreen === 'verifying' &&
+    state.transactionDetails != null &&
+    isCompleted(state.transactionDetails);
+
+  const needsFixedHeight =
+    currentScreen === 'bankSelection' ||
+    currentScreen === 'loading' ||
+    state.isLoading ||
+    state.isLoadingDetails;
+  const snapPoints = useMemo(
+    () => (needsFixedHeight ? ['95%'] : undefined),
+    [needsFixedHeight]
   );
 
   const renderScreen = () => {
     switch (currentScreen) {
+      case 'loading':
+        return (
+          <View style={styles.loadingSplash}>
+            <SDKLoader />
+          </View>
+        );
       case 'howToPay':
         return (
           <HowToMakePaymentScreen
@@ -181,9 +246,9 @@ function AtoaPaymentModalInner({
               state.showHowPaymentWorks === false &&
               options.showHowPaymentWorks
                 ? () => setCurrentScreen('howToPay')
-                : undefined
+                : handleClose
             }
-            onClose={handleClose}
+            onHelp={() => setCurrentScreen('howToPay')}
           />
         );
       case 'confirmation':
@@ -196,16 +261,6 @@ function AtoaPaymentModalInner({
         );
       case 'verifying':
         return <VerifyingPaymentScreen onClose={handleVerifyingClose} />;
-      case 'paymentPaid': {
-        const err = state.bankAuthError as AtoaException | null;
-        return (
-          <PaymentPaidWidget
-            amount={err?.amount}
-            time={err?.time}
-            referenceId={err?.referenceId}
-          />
-        );
-      }
     }
   };
 
@@ -213,15 +268,28 @@ function AtoaPaymentModalInner({
     <View style={styles.overlay}>
       <BottomSheet
         ref={bottomSheetRef}
-        snapPoints={['90%']}
-        enablePanDownToClose={false}
-        enableDynamicSizing={false}
-        handleIndicatorStyle={styles.handle}
+        index={0}
+        snapPoints={snapPoints}
+        enableDynamicSizing={!needsFixedHeight}
+        enablePanDownToClose={isPaymentCompleted}
+        onClose={handleClose}
+        enableContentPanningGesture={
+          currentScreen !== 'loading' &&
+          currentScreen !== 'howToPay' &&
+          currentScreen !== 'confirmation' &&
+          currentScreen !== 'bankSelection'
+        }
+        handleComponent={null}
         backgroundStyle={styles.background}
+        keyboardBehavior="extend"
+        keyboardBlurBehavior="restore"
+        android_keyboardInputMode="adjustResize"
       >
-        <BottomSheetView style={styles.sheetContent}>
-          {renderScreen()}
-        </BottomSheetView>
+        <View style={styles.sheetContent}>
+          <ConnectivityWrapper onBack={handleClose}>
+            {renderScreen()}
+          </ConnectivityWrapper>
+        </View>
       </BottomSheet>
     </View>
   );
@@ -235,16 +303,21 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
-  handle: {
-    backgroundColor: Colors.grey300,
-    width: 40,
-  },
   background: {
     backgroundColor: Colors.white,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderTopLeftRadius: Spacing.xtraLarge,
+    borderTopRightRadius: Spacing.xtraLarge,
   },
   sheetContent: {
     flex: 1,
+    paddingTop: Spacing.small,
+    borderTopLeftRadius: Spacing.xtraLarge,
+    borderTopRightRadius: Spacing.xtraLarge,
+    overflow: 'hidden',
+  },
+  loadingSplash: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

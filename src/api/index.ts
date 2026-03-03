@@ -1,2 +1,3 @@
 export { AtoaClient } from './AtoaClient';
-export { getBaseUrl, Endpoints, applyEnvParam } from './endpoints';
+export { getBaseUrl } from './config';
+export { Endpoints, applyEnvParam } from './endpoints';

@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-const FONT_FAMILY = 'Figtree';
+export const FONT_FAMILY = 'Figtree';
 
 export const Typography = StyleSheet.create({
   displayLarge: {

@@ -1,47 +1,46 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
-
-type InfoVariant = 'info' | 'error' | 'warning';
+import { SvgIcon } from './SvgIcon';
+import { type InfoVariant, VARIANT_CONFIG } from '../../constants/component-constants';
+import { FONT_FAMILY } from '../../constants/typography';
 
 interface InfoWidgetProps {
   message: string;
   variant?: InfoVariant;
 }
 
-export const InfoWidget = React.memo(function InfoWidget({ message, variant = 'info' }: InfoWidgetProps) {
-  const variantColors = getVariantColors(variant);
+export const InfoWidget = React.memo(function InfoWidget({
+  message,
+  variant = 'info',
+}: InfoWidgetProps) {
+  const config = VARIANT_CONFIG[variant];
 
   return (
-    <View style={[styles.container, { backgroundColor: variantColors.bg }]}>
-      <Text style={[styles.text, { color: variantColors.text }]}>
+    <View style={[styles.container, { backgroundColor: config.bg }]}>
+      <SvgIcon name={config.icon} size={Spacing.large} color={config.color} />
+      <Text style={[styles.text, { color: config.color }]}>
         {message}
       </Text>
     </View>
   );
 });
 
-function getVariantColors(variant: InfoVariant) {
-  switch (variant) {
-    case 'info':
-      return { bg: Colors.infoSubtle, text: Colors.infoDarker };
-    case 'error':
-      return { bg: Colors.errorSubtle, text: Colors.errorDarker };
-    case 'warning':
-      return { bg: Colors.warningSubtle, text: Colors.warningDarker };
-  }
-}
 
 const styles = StyleSheet.create({
   container: {
+    flexDirection: 'row',
+    alignItems: 'center',
     borderRadius: Spacing.small,
-    padding: Spacing.medium,
+    paddingVertical: Spacing.small,
+    paddingHorizontal: Spacing.medium,
+    gap: Spacing.small,
   },
   text: {
-    fontFamily: 'Figtree',
-    fontSize: 12,
+    fontFamily: FONT_FAMILY,
+    fontSize: 11,
     fontWeight: '500',
-    lineHeight: 18,
+    lineHeight: 17.6,
+    flex: 1,
   },
 });

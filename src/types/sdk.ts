@@ -6,7 +6,7 @@ import type { TransactionDetails } from './payment';
 export interface AtoaPayOptions {
   /** The payment request ID (required) */
   paymentId: string;
-  /** The Atoa environment to use (required) */
+  /** The Atoa environment to use (required) - controls sandbox query params */
   env: AtoaEnv;
   /** Shows a sheet explaining the steps for making a payment (required) */
   showHowPaymentWorks: boolean;

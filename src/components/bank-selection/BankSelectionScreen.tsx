@@ -1,111 +1,172 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { View, FlatList, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Text, FlatList, StyleSheet, useWindowDimensions } from 'react-native';
+import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { useBankInstitutions } from '../../hooks/useBankInstitutions';
 import type { BankInstitution } from '../../types/bank';
+import { AtoaException, LINK_PAID_MESSAGE, REQUEST_EXPIRED_MESSAGE } from '../../types/error';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
+import { Strings } from '../../constants/strings';
 import { BottomSheetHeader } from '../shared/BottomSheetHeader';
 import { FetchingBankLoader } from '../shared/FetchingBankLoader';
 import { ErrorWidget } from '../shared/ErrorWidget';
+import { RequestExpiredView } from '../shared/RequestExpiredView';
+import { InfoWidget } from '../shared/InfoWidget';
+import { PaymentPaidWidget } from '../confirmation/PaymentPaidWidget';
 import { AnimatedSearchField } from './AnimatedSearchField';
 import { BankTabBar } from './BankTabBar';
 import { BankGridItem } from './BankGridItem';
 import { BankListItem } from './BankListItem';
+import { BankDownBottomSheet } from './BankDownBottomSheet';
+import { BankLimitCard } from './BankLimitCard';
+import { FONT_FAMILY } from '../../constants/typography';
 
 interface BankSelectionScreenProps {
   onBack?: () => void;
-  onClose: () => void;
+  onHelp?: () => void;
 }
 
 export function BankSelectionScreen({
   onBack,
-  onClose,
+  onHelp,
 }: BankSelectionScreenProps) {
   const {
     state,
     dispatch,
-    personalBanks,
-    businessBanks,
     selectBank,
     search,
-    fetchBanks,
-    getPaymentDetails,
+    getPaymentDetailsAndBanks,
+    popularPersonalBanks,
+    popularBusinessBanks,
+    allBanksEnabled,
+    allBanksDisabledByAmount,
+    paymentAmount,
   } = useBankInstitutions();
 
-  const [tabIndex, setTabIndex] = useState(0);
+  const [selectedTabIndex, setSelectedTabIndex] = useState(0);
+  const [bankDownBank, setBankDownBank] = useState<BankInstitution | null>(null);
   const { width } = useWindowDimensions();
 
-  const isLoading = state.isLoading || state.isLoadingDetails;
+  const isLoading = state.isLoading || state.isLoadingDetails || state.hasLastPaymentDetails;
   const hasError = state.bankFetchingError || state.paymentDetailsError;
-  const currentBanks = tabIndex === 0 ? personalBanks : businessBanks;
   const isSearching = state.searchTerm.length > 0;
-  const searchResults = isSearching
-    ? state.bankList
-    : currentBanks;
 
-  // Top banks (popular, first 8 for grid)
-  const popularBanks = currentBanks
-    .filter((b) => b.popularBank)
-    .slice(0, 8);
-  const remainingBanks = currentBanks.filter(
-    (b) => !popularBanks.find((p) => p.id === b.id)
-  );
+  // Popular banks for current tab (already filtered by amount limit), first 8
+  const popularBanks = (selectedTabIndex === 0 ? popularPersonalBanks : popularBusinessBanks).slice(0, 8);
 
   const handleBankPress = useCallback(
-    (bank: BankInstitution) => {
+    async (bank: BankInstitution) => {
       if (!bank.enabled) {
+        setBankDownBank(bank);
         return;
       }
       dispatch({ type: 'SET_SELECTED_BANK', payload: bank });
-      selectBank(bank);
+      const result = await selectBank(bank);
+      if (result === 'bank_down') {
+        setBankDownBank(bank);
+      }
     },
     [dispatch, selectBank]
   );
 
   const handleRetry = useCallback(async () => {
-    dispatch({ type: 'SET_BANK_FETCHING_ERROR', payload: null });
-    dispatch({ type: 'SET_PAYMENT_DETAILS_ERROR', payload: null });
-    await getPaymentDetails();
-    await fetchBanks();
-  }, [dispatch, getPaymentDetails, fetchBanks]);
-
-  if (isLoading) {
-    return (
-      <View style={styles.container}>
-        <BottomSheetHeader
-          title="Select your bank"
-          onClose={onClose}
-          onBack={onBack}
-        />
-        <FetchingBankLoader />
-      </View>
-    );
-  }
-
-  if (hasError) {
-    return (
-      <View style={styles.container}>
-        <BottomSheetHeader
-          title="Select your bank"
-          onClose={onClose}
-          onBack={onBack}
-        />
-        <ErrorWidget
-          message={
-            state.bankFetchingError?.message ||
-            state.paymentDetailsError?.message
-          }
-          onRetry={handleRetry}
-        />
-      </View>
-    );
-  }
+    dispatch({ type: 'CLEAR_FETCH_ERRORS' });
+    await getPaymentDetailsAndBanks();
+  }, [dispatch, getPaymentDetailsAndBanks]);
 
   const gridItemWidth = (width - Spacing.large * 2 - Spacing.large * 3) / 4;
   const gridItemStyle = useMemo(
     () => ({ width: gridItemWidth, marginBottom: Spacing.large }),
     [gridItemWidth]
   );
+
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <BottomSheetHeader
+          title={Strings.bankSelection.title}
+          onBack={onBack}
+          showHelp={!!onHelp}
+          onHelp={onHelp}
+        />
+        <View style={styles.loaderContainer}>
+          <FetchingBankLoader />
+        </View>
+      </View>
+    );
+  }
+
+  if (hasError) {
+    const isBankFetchError = !!state.bankFetchingError;
+    const paymentDetailsErr = state.paymentDetailsError;
+    const isAlreadyPaid =
+      paymentDetailsErr instanceof AtoaException &&
+      paymentDetailsErr.message?.trim() === LINK_PAID_MESSAGE;
+    const isRequestExpired =
+      paymentDetailsErr instanceof AtoaException &&
+      paymentDetailsErr.message?.trim() === REQUEST_EXPIRED_MESSAGE;
+
+    if (isAlreadyPaid) {
+      const err = paymentDetailsErr as AtoaException;
+      return (
+        <View style={styles.container}>
+          <BottomSheetHeader
+            title={Strings.bankSelection.title}
+            onBack={onBack}
+            showHelp={!!onHelp}
+            onHelp={onHelp}
+          />
+          <View style={styles.loaderContainer}>
+            <PaymentPaidWidget
+              amount={err.amount}
+              currency={state.paymentDetails?.amount?.currency}
+              time={err.time}
+              referenceId={err.referenceId}
+            />
+          </View>
+        </View>
+      );
+    }
+
+    if (isRequestExpired) {
+      return (
+        <View style={styles.container}>
+          <BottomSheetHeader
+            title={Strings.bankSelection.title}
+            onBack={onBack}
+            showHelp={!!onHelp}
+            onHelp={onHelp}
+          />
+          <RequestExpiredView />
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.container}>
+        <BottomSheetHeader
+          title={Strings.bankSelection.title}
+          onBack={onBack}
+          showHelp={!!onHelp}
+          onHelp={onHelp}
+        />
+        <View style={styles.loaderContainer}>
+          {isBankFetchError ? (
+            <ErrorWidget
+              title={Strings.bankSelection.fetchError}
+              message={Strings.bankSelection.fetchErrorMessage}
+              onRetry={handleRetry}
+            />
+          ) : (
+            <ErrorWidget
+              title={Strings.bankSelection.paymentProcessingError}
+              message={ paymentDetailsErr?.message }
+            />
+          )}
+        </View>
+      </View>
+    );
+  }
 
   const renderGridItem = ({ item }: { item: BankInstitution }) => (
     <View style={gridItemStyle}>
@@ -125,12 +186,36 @@ export function BankSelectionScreen({
     />
   );
 
+  // Amount-limited section (shared between search and normal views)
+  const renderAmountLimitedSection = (disabledBanks: BankInstitution[]) => {
+    if (disabledBanks.length === 0 || paymentAmount == null) {
+      return null;
+    }
+    return (
+      <View style={styles.amountLimitedContainer}>
+        <View style={styles.spacerSmall} />
+        <BankLimitCard amount={paymentAmount} />
+        <View style={styles.spacerMedium} />
+        {disabledBanks.map((bank) => (
+          <BankListItem
+            key={bank.id}
+            bank={bank}
+            isSelected={false}
+            onPress={handleBankPress}
+            forceDisabled
+          />
+        ))}
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
       <BottomSheetHeader
-        title="Select your bank"
-        onClose={onClose}
+        title={Strings.bankSelection.title}
         onBack={onBack}
+        showHelp={!!onHelp}
+        onHelp={onHelp}
       />
 
       <AnimatedSearchField
@@ -143,25 +228,51 @@ export function BankSelectionScreen({
       {!isSearching && (
         <>
           <View style={styles.tabBarContainer}>
-            <BankTabBar selectedIndex={tabIndex} onTabChange={setTabIndex} />
+            <BankTabBar selectedIndex={selectedTabIndex} onTabChange={setSelectedTabIndex} />
           </View>
           <View style={styles.spacer} />
         </>
       )}
 
-      {isSearching ? (
-        <FlatList
-          data={searchResults}
-          keyExtractor={(item) => item.id}
-          renderItem={renderListItem}
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
+      <View style={styles.infoBannerContainer}>
+        <InfoWidget
+          message={Strings.bankSelection.bankAppInfo}
+          variant="info"
         />
+      </View>
+
+      {!isSearching && <View style={styles.spacerLarge} />}
+
+      {isSearching ? (
+        <>
+          <View style={styles.resultsHeaderContainer}>
+            <Text style={styles.sectionLabel}>{Strings.bankSelection.resultsLabel}</Text>
+          </View>
+          <BottomSheetFlatList
+            data={allBanksEnabled}
+            keyExtractor={(item: BankInstitution) => item.id}
+            renderItem={renderListItem}
+            contentContainerStyle={[styles.listContent, styles.searchListContent]}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            ListFooterComponent={renderAmountLimitedSection(allBanksDisabledByAmount)}
+            ListEmptyComponent={
+              allBanksDisabledByAmount.length === 0 ? (
+                <View style={styles.emptyContainer}>
+                  <Text style={styles.emptyTitle}>{Strings.bankSelection.noResults}</Text>
+                  <Text style={styles.emptySubtitle}>
+                    {Strings.bankSelection.noResultsMessage(state.searchTerm)}
+                  </Text>
+                </View>
+              ) : null
+            }
+          />
+        </>
       ) : (
-        <FlatList
+        <BottomSheetFlatList
           data={[{ type: 'grid' as const }, { type: 'list' as const }]}
-          keyExtractor={(item) => item.type}
-          renderItem={({ item }) => {
+          keyExtractor={(item: { type: string }) => item.type}
+          renderItem={({ item }: { item: { type: string } }) => {
             if (item.type === 'grid' && popularBanks.length > 0) {
               return (
                 <FlatList
@@ -178,7 +289,8 @@ export function BankSelectionScreen({
             if (item.type === 'list') {
               return (
                 <View style={styles.allBanksContainer}>
-                  {remainingBanks.map((bank) => (
+                  <Text style={styles.sectionLabel}>{Strings.bankSelection.allBanksLabel}</Text>
+                  {allBanksEnabled.map((bank) => (
                     <BankListItem
                       key={bank.id}
                       bank={bank}
@@ -186,6 +298,7 @@ export function BankSelectionScreen({
                       onPress={handleBankPress}
                     />
                   ))}
+                  {renderAmountLimitedSection(allBanksDisabledByAmount)}
                 </View>
               );
             }
@@ -193,7 +306,21 @@ export function BankSelectionScreen({
           }}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         />
+      )}
+
+      {bankDownBank != null && (
+        <BankDownBottomSheet
+          bank={bankDownBank}
+          onClose={() => setBankDownBank(null)}
+        />
+      )}
+
+      {state.isLoadingAuth && (
+        <View style={styles.loadingOverlay}>
+          <FetchingBankLoader />
+        </View>
       )}
     </View>
   );
@@ -207,6 +334,15 @@ const styles = StyleSheet.create({
   spacer: {
     height: Spacing.large,
   },
+  spacerSmall: {
+    height: Spacing.small,
+  },
+  spacerMedium: {
+    height: Spacing.medium,
+  },
+  spacerLarge: {
+    height: Spacing.xtraLarge,
+  },
   tabBarContainer: {
     paddingHorizontal: Spacing.large,
   },
@@ -214,17 +350,66 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.large,
   },
   gridRow: {
-    justifyContent: 'space-between',
+    gap: Spacing.large,
   },
   listContent: {
     paddingHorizontal: Spacing.large,
-    paddingBottom: Spacing.huge,
+    paddingBottom: 32,
+  },
+  searchListContent: {
+    flexGrow: 1,
+  },
+  infoBannerContainer: {
+    paddingHorizontal: Spacing.large,
   },
   allBanksContainer: {
-    paddingHorizontal: Spacing.large,
-    borderTopWidth: 1,
-    borderTopColor: Colors.grey200,
     marginTop: Spacing.large,
-    paddingTop: Spacing.large,
+    paddingTop: Spacing.medium,
+  },
+  sectionLabel: {
+    fontFamily: FONT_FAMILY,
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.grey500,
+    letterSpacing: 1.2,
+    marginBottom: Spacing.small,
+  },
+  amountLimitedContainer: {},
+  resultsHeaderContainer: {
+    paddingHorizontal: Spacing.large,
+    paddingVertical: Spacing.medium,
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.large,
+    gap: Spacing.medium,
+  },
+  emptyTitle: {
+    fontFamily: FONT_FAMILY,
+    fontSize: 16,
+    fontWeight: '700',
+    color: Colors.black,
+    lineHeight: 23.2,
+  },
+  emptySubtitle: {
+    fontFamily: FONT_FAMILY,
+    fontSize: 14,
+    fontWeight: '400',
+    color: Colors.grey500,
+    textAlign: 'center',
+    lineHeight: 21,
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: Colors.white,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

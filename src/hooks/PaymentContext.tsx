@@ -23,7 +23,7 @@ interface PaymentProviderProps {
 }
 
 export function PaymentProvider({ options, children }: PaymentProviderProps) {
-  const clientRef = useRef(new AtoaClient(options.env));
+  const clientRef = useRef(new AtoaClient(options.env, 'production'));
   const [state, dispatch] = useReducer(paymentReducer, initialPaymentState);
 
   const value = useMemo(

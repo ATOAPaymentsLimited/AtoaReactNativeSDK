@@ -1,16 +1,17 @@
 import React, { useEffect, useRef, useCallback } from 'react';
-import { View, Text, Image, StyleSheet, useWindowDimensions } from 'react-native';
-import LottieView from 'lottie-react-native';
+import { View, Text, Image, StyleSheet } from 'react-native';
 import { usePaymentStatus } from '../../hooks/usePaymentStatus';
 import { useBankInstitutions } from '../../hooks/useBankInstitutions';
 import { getBankIcon } from '../../types/bank';
-import { isCompleted, isFailed, isAwaitingAuth, isNotInitiated } from '../../types/payment';
+import { isCompleted, isAwaitingAuth, isNotInitiated } from '../../types/payment';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
+import { Strings } from '../../constants/strings';
 import { BottomSheetHeader } from '../shared/BottomSheetHeader';
-import { FetchingBankLoader } from '../shared/FetchingBankLoader';
 import { ErrorWidget } from '../shared/ErrorWidget';
+import { DotLoadingAnimation } from '../shared/DotLoadingAnimation';
 import { PaymentStatusView } from './PaymentStatusView';
+import { FONT_FAMILY } from '../../constants/typography';
 
 interface VerifyingPaymentScreenProps {
   onClose: (result: 'completed' | 'closed') => void;
@@ -23,9 +24,12 @@ export function VerifyingPaymentScreen({
   const { startListening, stop, transactionDetails, paymentStatusError } =
     usePaymentStatus();
   const hasStartedRef = useRef(false);
+  const hasCompletedRef = useRef(false);
+  const autoCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const stopRef = useRef(stop);
   stopRef.current = stop;
-  const { height } = useWindowDimensions();
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   const paymentAuth = state.paymentAuth;
   const selectedBank = state.selectedBank;
@@ -39,8 +43,8 @@ export function VerifyingPaymentScreen({
     hasStartedRef.current = true;
 
     const start = async () => {
-      // Delay 1 second before opening bank app (matching Flutter)
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Delay 1 second before opening bank app
+      await new Promise<void>((resolve) => setTimeout(resolve, 1000));
       await authorizeBank();
       startPolling();
       startListening(paymentAuth.paymentIdempotencyId);
@@ -62,16 +66,31 @@ export function VerifyingPaymentScreen({
     }
   }, [stop, transactionDetails, onClose]);
 
-  // Auto-dismiss on completed status
+  // Auto-dismiss on completed status.
+  // Store the timer in a ref so that late-arriving poll responses
+  // (which update the transactionDetails reference after stop())
+  // cannot cancel the timer via effect cleanup.
   useEffect(() => {
-    if (transactionDetails && isCompleted(transactionDetails)) {
-      const timer = setTimeout(() => {
-        stop();
-        onClose('completed');
-      }, 2000);
-      return () => clearTimeout(timer);
+    if (hasCompletedRef.current) {
+      return;
     }
-  }, [transactionDetails, stop, onClose]);
+    if (transactionDetails && isCompleted(transactionDetails)) {
+      hasCompletedRef.current = true;
+      stopRef.current();
+      autoCloseTimerRef.current = setTimeout(() => {
+        onCloseRef.current('completed');
+      }, 2000);
+    }
+  }, [transactionDetails]);
+
+  // Clear auto-close timer on unmount only
+  useEffect(() => {
+    return () => {
+      if (autoCloseTimerRef.current) {
+        clearTimeout(autoCloseTimerRef.current);
+      }
+    };
+  }, []);
 
   // Show payment status view when we have a terminal status
   if (
@@ -91,7 +110,7 @@ export function VerifyingPaymentScreen({
   if (paymentStatusError) {
     return (
       <View style={styles.container}>
-        <BottomSheetHeader title="Payment In Progress" onClose={handleClose} />
+        <BottomSheetHeader title={Strings.verifyingPayment.title} onClose={handleClose} />
         <ErrorWidget
           message={paymentStatusError.message}
           onRetry={() => {
@@ -106,10 +125,10 @@ export function VerifyingPaymentScreen({
 
   return (
     <View style={styles.container}>
-      <BottomSheetHeader title="Payment In Progress" onClose={handleClose} />
+      <BottomSheetHeader title={Strings.verifyingPayment.title} onClose={handleClose} />
 
-      <View style={[styles.centerContent, { height: height * 0.4 }]}>
-        {/* Atoa Logo → Dot Loading → Bank Icon */}
+      <View style={styles.contentArea}>
+        {/* Atoa Logo + Dot Loading + Bank Icon */}
         <View style={styles.animationRow}>
           <Image
             source={require('../../assets/images/red-back-atoa-logo.png')}
@@ -117,14 +136,7 @@ export function VerifyingPaymentScreen({
             resizeMode="contain"
           />
 
-          <View style={styles.dotContainer}>
-            <LottieView
-              source={require('../../assets/animations/dot-loading.json')}
-              autoPlay
-              loop
-              style={styles.dotAnimation}
-            />
-          </View>
+          <DotLoadingAnimation />
 
           {bankIconUrl ? (
             <View style={styles.bankIconContainer}>
@@ -139,14 +151,17 @@ export function VerifyingPaymentScreen({
           )}
         </View>
 
-        <View style={styles.spacerLarge} />
+        <View style={styles.spacerLogos} />
 
-        <Text style={styles.verifyingText}>Verifying your payment</Text>
+        <Text style={styles.verifyingText}>
+          {Strings.verifyingPayment.verifyingStatus}
+        </Text>
 
-        <View style={styles.spacerSmall} />
+        <View style={styles.spacerText} />
 
-        <Text style={styles.warningText}>
-          Do not close this window
+        <Text style={styles.noteText}>
+          <Text style={styles.noteBold}>{Strings.verifyingPayment.notePrefix}</Text>
+          {Strings.verifyingPayment.noteMessage}
         </Text>
       </View>
     </View>
@@ -157,64 +172,70 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.white,
+    paddingBottom: 40,
   },
-  centerContent: {
-    justifyContent: 'center',
+  contentArea: {
+    flex: 1,
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.large,
   },
   animationRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: Spacing.medium,
   },
   atoaLogo: {
-    width: 72,
-    height: 72,
-  },
-  dotContainer: {
-    width: 72,
+    width: 40,
     height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  dotAnimation: {
-    width: 72,
-    height: 40,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.grey200,
   },
   bankIconContainer: {
-    width: 72,
-    height: 72,
-    borderRadius: Spacing.medium,
+    width: 40,
+    height: 40,
+    borderRadius: 10,
     borderWidth: 1.25,
     borderColor: Colors.grey100,
+    backgroundColor: Colors.white,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: Spacing.small,
+    overflow: 'hidden',
   },
   bankIcon: {
-    width: 56,
-    height: 56,
+    width: 25,
+    height: 25,
   },
   bankIconPlaceholder: {
-    width: 72,
-    height: 72,
+    width: 40,
+    height: 40,
   },
-  spacerLarge: {
-    height: Spacing.large * 2,
+  spacerLogos: {
+    height: 48,
   },
-  spacerSmall: {
-    height: Spacing.small,
+  spacerText: {
+    height: Spacing.large,
   },
   verifyingText: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 16,
     fontWeight: '700',
     color: Colors.black,
+    textAlign: 'center',
+    lineHeight: 23.2,
   },
-  warningText: {
-    fontFamily: 'Figtree',
+  noteText: {
+    fontFamily: FONT_FAMILY,
     fontSize: 12,
-    fontWeight: '400',
+    fontWeight: '500',
     color: Colors.grey500,
+    textAlign: 'center',
+    lineHeight: 18,
+    paddingHorizontal: Spacing.large,
+  },
+  noteBold: {
+    fontWeight: '700',
   },
 });

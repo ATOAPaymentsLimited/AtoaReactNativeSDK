@@ -1,11 +1,20 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, Easing, StyleSheet, View } from 'react-native';
-import { SvgXml } from 'react-native-svg';
-
-// Inline the spinner SVG to avoid import issues with metro bundler
-const SPINNER_SVG = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10" stroke="#000" stroke-width="2" stroke-linecap="round"/>
-</svg>`;
+import Svg, {
+  Path,
+  Defs,
+  LinearGradient,
+  Stop,
+  ClipPath,
+  Rect,
+} from 'react-native-svg';
+import { SvgIcon } from './SvgIcon';
+import {
+  ATOA_LOGO_PATH,
+  LOGO_VB_WIDTH,
+  LOGO_VB_HEIGHT,
+  SHIMMER_BAND_WIDTH,
+} from '../../constants/component-constants';
 
 interface AtoaLoaderProps {
   size?: number;
@@ -35,7 +44,7 @@ export function AtoaLoader({ size = 48 }: AtoaLoaderProps) {
   return (
     <View style={styles.container}>
       <Animated.View style={{ transform: [{ rotate }] }}>
-        <SvgXml xml={SPINNER_SVG} width={size} height={size} />
+        <SvgIcon name="spinner" size={size} />
       </Animated.View>
     </View>
   );
@@ -47,3 +56,75 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
+// --- SDKLoader: Atoa logo with shimmer effect ---
+
+const AnimatedRect = Animated.createAnimatedComponent(Rect);
+
+interface SDKLoaderProps {
+  width?: number;
+  baseColor?: string;
+}
+
+export function SDKLoader({
+  width = 72,
+  baseColor = '#E42646',
+}: SDKLoaderProps) {
+  const height = (width * LOGO_VB_HEIGHT) / LOGO_VB_WIDTH;
+  const shimmerX = useRef(new Animated.Value(-SHIMMER_BAND_WIDTH)).current;
+
+  useEffect(() => {
+    const animation = Animated.loop(
+      Animated.timing(shimmerX, {
+        toValue: LOGO_VB_WIDTH,
+        duration: 1500,
+        easing: Easing.linear,
+        useNativeDriver: false,
+      })
+    );
+    animation.start();
+    return () => animation.stop();
+  }, [shimmerX]);
+
+  return (
+    <Svg
+      width={width}
+      height={height}
+      viewBox={`0 0 ${LOGO_VB_WIDTH} ${LOGO_VB_HEIGHT}`}
+    >
+      <Defs>
+        <ClipPath id="logoClip">
+          <Path fillRule="evenodd" clipRule="evenodd" d={ATOA_LOGO_PATH} />
+        </ClipPath>
+        <LinearGradient
+          id="shimmerGrad"
+          x1="0"
+          y1="0"
+          x2="1"
+          y2="0"
+          gradientUnits="objectBoundingBox"
+        >
+          <Stop offset="0" stopColor="white" stopOpacity={0} />
+          <Stop offset="0.5" stopColor="white" stopOpacity={0.5} />
+          <Stop offset="1" stopColor="white" stopOpacity={0} />
+        </LinearGradient>
+      </Defs>
+      <Rect
+        x="0"
+        y="0"
+        width={LOGO_VB_WIDTH}
+        height={LOGO_VB_HEIGHT}
+        fill={baseColor}
+        clipPath="url(#logoClip)"
+      />
+      <AnimatedRect
+        x={shimmerX}
+        y="0"
+        width={SHIMMER_BAND_WIDTH}
+        height={LOGO_VB_HEIGHT}
+        fill="url(#shimmerGrad)"
+        clipPath="url(#logoClip)"
+      />
+    </Svg>
+  );
+}

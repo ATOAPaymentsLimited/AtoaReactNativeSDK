@@ -1,14 +1,5 @@
 import type { AtoaEnv } from '../types';
 
-const BASE_URLS: Record<AtoaEnv, string> = {
-  sandbox: 'https://devapi.atoa.me/api/',
-  prod: 'https://api.atoa.me/api/',
-};
-
-export function getBaseUrl(env: AtoaEnv): string {
-  return BASE_URLS[env];
-}
-
 export const Endpoints = {
   institutions: 'institutions/customer?sendDisabledBanks=true',
   getPaymentDetails: 'payments/get-payment-details',
@@ -17,7 +8,7 @@ export const Endpoints = {
 } as const;
 
 /**
- * Appends sandbox env query params matching Flutter's RequestInterceptor logic.
+ * Appends sandbox env query params when running in sandbox mode.
  */
 export function applyEnvParam(path: string, env: AtoaEnv): string {
   if (env !== 'sandbox') {

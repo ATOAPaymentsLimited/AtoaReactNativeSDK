@@ -87,7 +87,8 @@ export type PaymentAction =
   | { type: 'SET_SEARCH_TERM'; payload: string }
   | { type: 'SET_SHOW_VERIFYING'; payload: boolean }
   | { type: 'RESET_SELECT_BANK' }
-  | { type: 'RESET_APP_INSTALLED' };
+  | { type: 'RESET_APP_INSTALLED' }
+  | { type: 'CLEAR_FETCH_ERRORS' };
 
 export function paymentReducer(
   state: PaymentState,
@@ -148,9 +149,12 @@ export function paymentReducer(
         showLinkExpired: false,
         isAppInstalled: true,
         lastBankDetails: null,
+        hasLastPaymentDetails: false,
       };
     case 'RESET_APP_INSTALLED':
       return { ...state, isAppInstalled: true };
+    case 'CLEAR_FETCH_ERRORS':
+      return { ...state, bankFetchingError: null, paymentDetailsError: null };
     default:
       return state;
   }

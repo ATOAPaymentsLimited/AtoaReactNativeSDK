@@ -2,6 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
+import { Strings } from '../../constants/strings';
+import { FONT_FAMILY } from '../../constants/typography';
 
 interface ErrorWidgetProps {
   title?: string;
@@ -10,28 +12,18 @@ interface ErrorWidgetProps {
 }
 
 export function ErrorWidget({
-  title = 'Oops! Something went wrong',
+  title = Strings.error.defaultTitle,
   message,
   onRetry,
 }: ErrorWidgetProps) {
   return (
     <View style={styles.container}>
-      <Text style={styles.errorIcon}>⚠</Text>
-      <View style={styles.spacerLarge} />
       <Text style={styles.title}>{title}</Text>
-      {message && (
-        <>
-          <View style={styles.spacerSmall} />
-          <Text style={styles.message}>{message}</Text>
-        </>
-      )}
+      {message && <Text style={styles.message}>{message}</Text>}
       {onRetry && (
-        <>
-          <View style={styles.spacerLarge} />
-          <TouchableOpacity onPress={onRetry}>
-            <Text style={styles.retryText}>Retry</Text>
-          </TouchableOpacity>
-        </>
+        <TouchableOpacity onPress={onRetry}>
+          <Text style={styles.retryText}>{Strings.error.retry}</Text>
+        </TouchableOpacity>
       )}
     </View>
   );
@@ -43,37 +35,30 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: Spacing.huge,
-  },
-  errorIcon: {
-    fontSize: 64,
-    color: Colors.grey600,
-  },
-  spacerLarge: {
-    height: Spacing.huge,
-  },
-  spacerSmall: {
-    height: Spacing.small,
+    gap: Spacing.medium,
   },
   title: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 16,
     fontWeight: '700',
     color: Colors.black,
     textAlign: 'center',
+    lineHeight: 23.2,
   },
   message: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 14,
     fontWeight: '400',
     color: Colors.grey500,
     textAlign: 'center',
+    lineHeight: 21,
   },
   retryText: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 14,
-    fontWeight: '600',
-    color: Colors.brandPrimary,
+    fontWeight: '700',
+    color: '#E42646',
     textDecorationLine: 'underline',
-    textDecorationStyle: 'dotted',
+    lineHeight: 22.4,
   },
 });

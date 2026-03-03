@@ -1,4 +1,4 @@
-import type { AtoaEnv } from '../types/environment';
+import type { AtoaEnv, AtoaEnvironment } from '../types/environment';
 import type { BankInstitution } from '../types/bank';
 import type { CustomerDetails } from '../types/customer';
 import type {
@@ -9,15 +9,16 @@ import type {
 } from '../types/payment';
 import { parseTransactionDetails } from '../types/payment';
 import { AtoaException } from '../types/error';
-import { getBaseUrl, Endpoints, applyEnvParam } from './endpoints';
+import { getBaseUrl } from './config';
+import { Endpoints, applyEnvParam } from './endpoints';
 
 export class AtoaClient {
   private baseUrl: string;
   private env: AtoaEnv;
 
-  constructor(env: AtoaEnv) {
+  constructor(env: AtoaEnv, environment: AtoaEnvironment = 'production') {
     this.env = env;
-    this.baseUrl = getBaseUrl(env);
+    this.baseUrl = getBaseUrl(environment);
   }
 
   private async request<T>(
@@ -85,7 +86,7 @@ export class AtoaClient {
   }
 
   async fetchInstitutions(searchTerm?: string): Promise<BankInstitution[]> {
-    let endpoint = Endpoints.institutions;
+    let endpoint: string = Endpoints.institutions;
     if (searchTerm && searchTerm.length > 0) {
       endpoint = `${endpoint}&search=${encodeURIComponent(searchTerm)}`;
     }
@@ -103,6 +104,7 @@ export class AtoaClient {
     if (customerDetails) {
       body.customerDetails = customerDetails;
     }
+
     return this.request<PaymentRequestData>(
       'POST',
       Endpoints.getPaymentDetails,

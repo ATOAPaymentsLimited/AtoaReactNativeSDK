@@ -1,38 +1,22 @@
 import type { MerchantThemeDetails, SavedBankDetails, StoreDetails } from './merchant';
+import { TransactionStatus, VALID_STATUSES } from '../constants/transaction-status';
+import type { TransactionStatusValue } from '../constants/transaction-status';
+
+export { TransactionStatus, type TransactionStatusValue };
 
 export interface Amount {
   amount: number;
   currency: string;
 }
 
-export type TransactionStatusValue =
-  | 'COMPLETED'
-  | 'PENDING'
-  | 'FAILED'
-  | 'REFUNDED'
-  | 'AWAITING_AUTHORIZATION'
-  | 'CANCELLED'
-  | 'EXPIRED'
-  | 'PAYMENT_NOT_INITIATED';
-
 export function parseTransactionStatus(
   value: string | null | undefined
 ): TransactionStatusValue | string {
   if (!value) {
-    return 'PAYMENT_NOT_INITIATED';
+    return TransactionStatus.PAYMENT_NOT_INITIATED;
   }
   const upper = value.toUpperCase();
-  const validStatuses: TransactionStatusValue[] = [
-    'COMPLETED',
-    'PENDING',
-    'FAILED',
-    'REFUNDED',
-    'AWAITING_AUTHORIZATION',
-    'CANCELLED',
-    'EXPIRED',
-    'PAYMENT_NOT_INITIATED',
-  ];
-  if (validStatuses.includes(upper as TransactionStatusValue)) {
+  if (VALID_STATUSES.includes(upper as TransactionStatusValue)) {
     return upper as TransactionStatusValue;
   }
   return upper;
@@ -133,8 +117,11 @@ export interface DeviceInfo {
 export interface PaymentRequestWithSource {
   requestCreatedAt?: string;
   splitBill?: boolean;
+  /** Stringified boolean — API expects string, converted via .toString() in buildPaymentAuthBody */
   allowSdkRetry?: string;
+  /** Stringified boolean — API expects string, converted via .toString() in buildPaymentAuthBody */
   strictExpiry?: string;
+  /** Stringified number — API expects string, converted via .toString() in buildPaymentAuthBody */
   expiresIn?: string;
   paymentRequestId?: string;
 }
@@ -175,23 +162,23 @@ export interface TransactionDetails {
 }
 
 export function isCompleted(details: TransactionDetails): boolean {
-  return details.status === 'COMPLETED';
+  return details.status === TransactionStatus.COMPLETED;
 }
 
 export function isFailed(details: TransactionDetails): boolean {
-  return details.status === 'FAILED';
+  return details.status === TransactionStatus.FAILED;
 }
 
 export function isPending(details: TransactionDetails): boolean {
-  return details.status === 'PENDING';
+  return details.status === TransactionStatus.PENDING;
 }
 
 export function isAwaitingAuth(details: TransactionDetails): boolean {
-  return details.status === 'AWAITING_AUTHORIZATION';
+  return details.status === TransactionStatus.AWAITING_AUTHORIZATION;
 }
 
 export function isNotInitiated(details: TransactionDetails): boolean {
-  return details.status === 'PAYMENT_NOT_INITIATED';
+  return details.status === TransactionStatus.PAYMENT_NOT_INITIATED;
 }
 
 function parseAmount(amount: unknown): number {

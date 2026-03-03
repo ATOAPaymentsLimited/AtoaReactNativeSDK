@@ -48,3 +48,10 @@ buck-out/
 
 # Misc
 .env
+
+# VS Code
+.vscode/
+
+.claude/
+
+.mcp.json

@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Colors } from '../../constants/colors';
-import { Spacing } from '../../constants/spacing';
+import { Strings } from '../../constants/strings';
+import { FONT_FAMILY } from '../../constants/typography';
 
 interface BankTabBarProps {
   selectedIndex: number;
@@ -22,7 +23,7 @@ export const BankTabBar = React.memo(function BankTabBar({ selectedIndex, onTabC
             selectedIndex === 0 && styles.tabTextSelected,
           ]}
         >
-          Personal Banks
+          {Strings.bankSelection.personalBanksTab}
         </Text>
       </TouchableOpacity>
       <TouchableOpacity
@@ -36,7 +37,7 @@ export const BankTabBar = React.memo(function BankTabBar({ selectedIndex, onTabC
             selectedIndex === 1 && styles.tabTextSelected,
           ]}
         >
-          Business Banks
+          {Strings.bankSelection.businessBanksTab}
         </Text>
       </TouchableOpacity>
     </View>
@@ -46,26 +47,27 @@ export const BankTabBar = React.memo(function BankTabBar({ selectedIndex, onTabC
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: Colors.grey100,
-    borderRadius: Spacing.small,
-    padding: 2,
+    backgroundColor: Colors.grey50,
+    borderRadius: 12,
+    height: 44,
+    padding: 4,
   },
   tab: {
     flex: 1,
-    paddingVertical: Spacing.small,
     alignItems: 'center',
-    borderRadius: Spacing.small - 2,
+    justifyContent: 'center',
+    borderRadius: 10,
   },
   tabSelected: {
     backgroundColor: Colors.white,
-    shadowColor: Colors.black,
+    shadowColor: '#778994',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 3,
   },
   tabText: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 13,
     fontWeight: '500',
     color: Colors.grey600,

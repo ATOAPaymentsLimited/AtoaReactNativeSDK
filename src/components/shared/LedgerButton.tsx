@@ -9,18 +9,18 @@ import {
 } from 'react-native';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
-
-type ButtonVariant =
-  | 'primary1'
-  | 'primary2'
-  | 'secondary'
-  | 'tertiary'
-  | 'ghost';
+import {
+  type ButtonVariant,
+  type ButtonSize,
+  BUTTON_HEIGHTS,
+} from '../../constants/component-constants';
+import { FONT_FAMILY } from '../../constants/typography';
 
 interface LedgerButtonProps {
   title: string;
   onPress: () => void;
   variant?: ButtonVariant;
+  size?: ButtonSize;
   disabled?: boolean;
   loading?: boolean;
   backgroundColor?: string;
@@ -33,6 +33,7 @@ export function LedgerButton({
   title,
   onPress,
   variant = 'primary1',
+  size = 'large',
   disabled = false,
   loading = false,
   backgroundColor,
@@ -50,6 +51,7 @@ export function LedgerButton({
     <TouchableOpacity
       style={[
         styles.base,
+        { height: BUTTON_HEIGHTS[size] },
         variantStyles.container,
         disabled && styles.disabled,
         style,
@@ -88,12 +90,12 @@ function getVariantStyles(
       };
     case 'primary2':
       return {
-        container: { backgroundColor: bgColor ?? Colors.brandPrimary },
+        container: { backgroundColor: bgColor ?? Colors.black },
         text: { color: fgColor ?? Colors.white },
       };
     case 'secondary':
       return {
-        container: { backgroundColor: Colors.grey100 },
+        container: { backgroundColor: Colors.grey50 },
         text: { color: Colors.black },
       };
     case 'tertiary':
@@ -106,7 +108,7 @@ function getVariantStyles(
         container: {
           backgroundColor: Colors.white,
           borderWidth: 1,
-          borderColor: Colors.grey300,
+          borderColor: Colors.black,
         },
         text: { color: Colors.black },
       };
@@ -115,18 +117,18 @@ function getVariantStyles(
 
 const styles = StyleSheet.create({
   base: {
-    height: 48,
+    height: BUTTON_HEIGHTS.large,
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: Spacing.large,
   },
   text: {
-    fontFamily: 'Figtree',
-    fontSize: 16,
+    fontFamily: FONT_FAMILY,
+    fontSize: 14,
     fontWeight: '700',
   },
   disabled: {
-    opacity: 0.5,
+    opacity: 0.4,
   },
 });

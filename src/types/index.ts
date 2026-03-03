@@ -1,4 +1,4 @@
-export type { AtoaEnv } from './environment';
+export type { AtoaEnv, AtoaEnvironment } from './environment';
 export type {
   BankInstitution,
   BankMedia,
@@ -21,6 +21,7 @@ export type {
   TransactionDetails,
 } from './payment';
 export {
+  TransactionStatus,
   parseTransactionStatus,
   parseTransactionDetails,
   isCompleted,

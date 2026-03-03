@@ -1,21 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
-  TextInput,
   TouchableOpacity,
-  Text,
   StyleSheet,
   Animated,
 } from 'react-native';
+import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
+import { SvgIcon } from '../shared/SvgIcon';
+import { Strings } from '../../constants/strings';
+import { FONT_FAMILY } from '../../constants/typography';
+
+const PLACEHOLDER_TEXTS = Strings.bankSelection.searchPlaceholders;
 
 interface AnimatedSearchFieldProps {
   value: string;
   onChangeText: (text: string) => void;
 }
-
-const PLACEHOLDER_TEXTS = ['Personal Banks', 'Business Banks'];
 
 export function AnimatedSearchField({
   value,
@@ -48,14 +50,16 @@ export function AnimatedSearchField({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.searchIcon}>🔍</Text>
+      <View style={styles.searchIconContainer}>
+        <SvgIcon name="search" size={20} color={Colors.black} />
+      </View>
       <View style={styles.inputContainer}>
-        <TextInput
+        <BottomSheetTextInput
           style={styles.input}
           value={value}
           onChangeText={onChangeText}
           placeholder=""
-          placeholderTextColor={Colors.grey400}
+          placeholderTextColor={Colors.grey500}
           cursorColor={Colors.black}
         />
         {value.length === 0 && (
@@ -63,9 +67,9 @@ export function AnimatedSearchField({
             style={[styles.placeholderContainer, { opacity: fadeAnim }]}
             pointerEvents="none"
           >
-            <Text style={styles.placeholderText}>
+            <Animated.Text style={styles.placeholderText}>
               {PLACEHOLDER_TEXTS[placeholderIndex]}
-            </Text>
+            </Animated.Text>
           </Animated.View>
         )}
       </View>
@@ -74,7 +78,7 @@ export function AnimatedSearchField({
           onPress={() => onChangeText('')}
           style={styles.clearButton}
         >
-          <Text style={styles.clearText}>✕</Text>
+          <SvgIcon name="close" size={18} color={Colors.black} />
         </TouchableOpacity>
       )}
     </View>
@@ -93,8 +97,7 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.small + Spacing.tiny,
     marginHorizontal: Spacing.large,
   },
-  searchIcon: {
-    fontSize: 14,
+  searchIconContainer: {
     marginRight: Spacing.small,
   },
   inputContainer: {
@@ -102,8 +105,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   input: {
-    fontFamily: 'Figtree',
-    fontSize: 14,
+    fontFamily: FONT_FAMILY,
+    fontSize: 13,
+    fontWeight: '600',
     color: Colors.black,
     padding: 0,
     height: 20,
@@ -114,8 +118,9 @@ const styles = StyleSheet.create({
     right: 0,
   },
   placeholderText: {
-    fontFamily: 'Figtree',
-    fontSize: 14,
+    fontFamily: FONT_FAMILY,
+    fontSize: 13,
+    fontWeight: '500',
     color: Colors.grey400,
   },
   clearButton: {
@@ -124,9 +129,5 @@ const styles = StyleSheet.create({
     height: 20,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  clearText: {
-    fontSize: 12,
-    color: Colors.grey500,
   },
 });

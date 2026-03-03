@@ -4,22 +4,26 @@ import type { BankInstitution } from '../../types/bank';
 import { getBankIcon } from '../../types/bank';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
+import { SvgIcon } from '../shared/SvgIcon';
+import { FONT_FAMILY } from '../../constants/typography';
 
 interface BankListItemProps {
   bank: BankInstitution;
   isSelected: boolean;
   onPress: (bank: BankInstitution) => void;
+  forceDisabled?: boolean;
 }
 
-export const BankListItem = React.memo(function BankListItem({ bank, isSelected, onPress }: BankListItemProps) {
+export const BankListItem = React.memo(function BankListItem({ bank, isSelected, onPress, forceDisabled }: BankListItemProps) {
   const iconUrl = getBankIcon(bank);
-  const isDisabled = !bank.enabled;
+  const isBankDown = !bank.enabled;
+  const notSupported =  !!forceDisabled;
 
   return (
     <TouchableOpacity
-      style={[styles.container, isDisabled && styles.disabled]}
+      style={[styles.container, notSupported && styles.disabled]}
       onPress={() => onPress(bank)}
-      disabled={isDisabled}
+      disabled={!!forceDisabled}
       activeOpacity={0.7}
     >
       <View style={styles.iconContainer}>
@@ -32,19 +36,19 @@ export const BankListItem = React.memo(function BankListItem({ bank, isSelected,
         )}
       </View>
       <View style={styles.nameContainer}>
-        <Text style={styles.name} numberOfLines={1}>
+        <Text style={[styles.name, isBankDown && styles.nameDisabled]} numberOfLines={1}>
           {bank.fullName}
         </Text>
-        {isDisabled && (
-          <View style={styles.downIndicator}>
-            <Text style={styles.downText}>↓</Text>
+        {isBankDown && (
+          <View style={styles.downBadge}>
+            <SvgIcon name="highImportance" size={16} color={Colors.errorDefault} />
           </View>
         )}
       </View>
       <View
-        style={[styles.checkbox, isSelected && styles.checkboxSelected]}
+        style={[styles.radioOuter, isSelected && styles.radioOuterSelected]}
       >
-        {isSelected && <Text style={styles.checkText}>✓</Text>}
+        {isSelected && <View style={styles.radioInner} />}
       </View>
     </TouchableOpacity>
   );
@@ -60,56 +64,61 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
   iconContainer: {
-    width: 40,
-    height: 40,
+    width: 32,
+    height: 32,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: Colors.grey200,
+    borderColor: Colors.grey100,
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
+    backgroundColor: Colors.white,
   },
   icon: {
-    width: 32,
-    height: 32,
+    width: 20,
+    height: 20,
   },
   nameContainer: {
     flex: 1,
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     marginLeft: Spacing.medium,
+    gap: Spacing.small,
   },
   name: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 14,
     fontWeight: '500',
-    color: Colors.black,
-    flex: 1,
+    color: Colors.grey700,
+    flexShrink: 1,
   },
-  downIndicator: {
-    marginLeft: Spacing.small,
+  nameDisabled: {
+    color: Colors.grey600,
   },
-  downText: {
-    color: Colors.errorDarker,
-    fontSize: 12,
+  downBadge: {
+    backgroundColor: Colors.errorSubtle,
+    borderRadius: 16,
+    paddingHorizontal: Spacing.mini,
+    paddingVertical: Spacing.tiny,
   },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: Spacing.medium,
+  radioOuter: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
     borderWidth: 1.5,
     borderColor: Colors.grey300,
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: Spacing.medium,
   },
-  checkboxSelected: {
-    backgroundColor: Colors.black,
+  radioOuterSelected: {
+    borderWidth: 2,
     borderColor: Colors.black,
   },
-  checkText: {
-    color: Colors.white,
-    fontSize: 14,
-    fontWeight: '700',
+  radioInner: {
+    width: Spacing.medium,
+    height: Spacing.medium,
+    borderRadius: Spacing.medium / 2,
+    backgroundColor: Colors.black,
   },
 });
