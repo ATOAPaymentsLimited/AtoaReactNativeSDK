@@ -14,7 +14,7 @@ import { AtoaLoader } from '../shared/AtoaLoader';
 import { ErrorWidget } from '../shared/ErrorWidget';
 import { ReviewDetailsTile } from './ReviewDetailsTile';
 import { formatAmount } from '../../utils/formatAmount';
-import { INACTIVE_STATE_PATTERN } from '../../constants/component-constants';
+import { ERROR_BANK_APP_DOWN, ERROR_BANK_DOWN, INACTIVE_STATE_PATTERN } from '../../constants/component-constants';
 
 interface ConfirmationScreenProps {
   onClose: () => void;
@@ -97,8 +97,8 @@ export function ConfirmationScreen({
   if (bankAuthError) {
     const errMsg = bankAuthError.message?.trim();
     const isBankDown =
-      errMsg?.toLowerCase().includes('bank app is down') ||
-      errMsg?.toLowerCase().includes('bank is down');
+      errMsg?.toLowerCase().includes(ERROR_BANK_APP_DOWN) ||
+      errMsg?.toLowerCase().includes(ERROR_BANK_DOWN);
     if (isBankDown && selectedBank) {
       return (
         <BottomSheetView>

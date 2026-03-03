@@ -21,6 +21,7 @@ export type {
   TransactionDetails,
 } from './payment';
 export {
+  TransactionStatus,
   parseTransactionStatus,
   parseTransactionDetails,
   isCompleted,

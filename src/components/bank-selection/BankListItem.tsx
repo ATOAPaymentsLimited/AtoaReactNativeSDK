@@ -15,7 +15,7 @@ interface BankListItemProps {
 
 export const BankListItem = React.memo(function BankListItem({ bank, isSelected, onPress, forceDisabled }: BankListItemProps) {
   const iconUrl = getBankIcon(bank);
-  const isDisabled = !bank.enabled;
+  const isBankDown = !bank.enabled;
   const notSupported =  !!forceDisabled;
 
   return (
@@ -35,10 +35,10 @@ export const BankListItem = React.memo(function BankListItem({ bank, isSelected,
         )}
       </View>
       <View style={styles.nameContainer}>
-        <Text style={[styles.name, isDisabled && styles.nameDisabled]} numberOfLines={1}>
+        <Text style={[styles.name, isBankDown && styles.nameDisabled]} numberOfLines={1}>
           {bank.fullName}
         </Text>
-        {isDisabled && (
+        {isBankDown && (
           <View style={styles.downBadge}>
             <SvgIcon name="highImportance" size={16} color={Colors.errorDefault} />
           </View>

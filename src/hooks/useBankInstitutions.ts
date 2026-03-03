@@ -8,6 +8,7 @@ import { AtoaException } from '../types/error';
 import { buildPaymentAuthBody } from '../utils/buildPaymentAuthBody';
 import { isAppInstalled } from '../utils/appInstalled';
 import { getBrandingColors } from '../utils/brandingColors';
+import { ERROR_BANK_APP_DOWN, ERROR_BANK_DOWN, ERROR_SERVER_NOT_REACHABLE } from '../constants/component-constants';
 
 function toAtoaException(e: unknown): AtoaException {
   if (e instanceof AtoaException) { return e; }
@@ -24,6 +25,8 @@ export function useBankInstitutions() {
   );
   const linkRefreshCountRef = useRef(0);
   const stopPollingRef = useRef<() => void>(() => {});
+  const selectedBankRef = useRef(state.selectedBank);
+  selectedBankRef.current = state.selectedBank;
 
   // Cleanup on unmount
   useEffect(() => {
@@ -47,7 +50,7 @@ export function useBankInstitutions() {
     } catch (e) {
       const err = toAtoaException(e);
       options.onError?.(err);
-      if (err.message.includes('Server is not reachable')) {
+      if (err.message.includes(ERROR_SERVER_NOT_REACHABLE)) {
         checkConnection();
       }
       dispatch({ type: 'SET_PAYMENT_DETAILS_ERROR', payload: err });
@@ -67,7 +70,7 @@ export function useBankInstitutions() {
     } catch (e) {
       const err = toAtoaException(e);
       options.onError?.(err);
-      if (err.message.includes('Server is not reachable')) {
+      if (err.message.includes(ERROR_SERVER_NOT_REACHABLE)) {
         checkConnection();
       }
       dispatch({ type: 'SET_BANK_FETCHING_ERROR', payload: err });
@@ -202,6 +205,11 @@ export function useBankInstitutions() {
         options.onError?.(err);
         dispatch({ type: 'SET_PAYMENT_AUTH', payload: null });
         dispatch({ type: 'SET_BANK_AUTH_ERROR', payload: err });
+
+        const msg = err.message?.toLowerCase() ?? '';
+        if (msg.includes(ERROR_BANK_APP_DOWN) || msg.includes(ERROR_BANK_DOWN)) {
+          return 'bank_down';
+        }
         return 'error';
       } finally {
         dispatch({ type: 'SET_LOADING_AUTH', payload: false });
@@ -290,10 +298,10 @@ export function useBankInstitutions() {
           dispatch({ type: 'SET_SHOW_LINK_EXPIRED', payload: true });
         }, 5 * 60 * 1000);
       } else {
-        selectBank(state.selectedBank);
+        selectBank(selectedBankRef.current);
       }
     }, 5 * 60 * 1000);
-  }, [stopPolling, selectBank, state.selectedBank, dispatch]);
+  }, [stopPolling, selectBank, dispatch]);
 
   const personalBanks = state.bankList.filter((b) => !b.businessBank);
   const businessBanks = state.bankList.filter((b) => b.businessBank);

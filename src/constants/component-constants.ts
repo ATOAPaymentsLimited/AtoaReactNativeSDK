@@ -51,6 +51,11 @@ export const BUTTON_HEIGHTS: Record<ButtonSize, number> = {
 // --- usePaymentStatus ---
 export const POLLING_INTERVAL_MS = 1000;
 
+// --- Error message patterns ---
+export const ERROR_SERVER_NOT_REACHABLE = 'Server is not reachable';
+export const ERROR_BANK_APP_DOWN = 'bank app is down';
+export const ERROR_BANK_DOWN = 'bank is down';
+
 // --- ConfirmationScreen ---
 export const INACTIVE_STATE_PATTERN = /inactive|background/;
 

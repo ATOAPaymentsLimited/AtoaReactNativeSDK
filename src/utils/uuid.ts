@@ -11,7 +11,7 @@ function getRandomBytes(length: number): Uint8Array {
   if (typeof crypto?.getRandomValues === 'function') {
     crypto.getRandomValues(bytes);
   } else {
-    for (let i = 0; i < length; i++) {
+     for (let i = 0; i < length; i++) {
       bytes[i] = Math.floor(Math.random() * 256);
     }
   }

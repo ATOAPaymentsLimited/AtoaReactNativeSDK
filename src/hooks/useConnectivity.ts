@@ -23,17 +23,18 @@ export function useConnectivity(baseUrl?: string) {
 
   const hasInternet = useCallback(async (): Promise<boolean> => {
     const url = baseUrl ?? 'https://api.atoa.me/api/';
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000);
-      const response = await fetch(url, {
+      await fetch(url, {
         method: 'GET',
         signal: controller.signal,
       });
-      clearTimeout(timeoutId);
-      return response.status === 200;
+      return true;
     } catch {
       return false;
+    } finally {
+      clearTimeout(timeoutId);
     }
   }, [baseUrl]);
 

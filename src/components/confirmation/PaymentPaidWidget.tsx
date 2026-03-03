@@ -8,12 +8,14 @@ import { formatAmount } from '../../utils/formatAmount';
 
 interface PaymentPaidWidgetProps {
   amount?: number;
+  currency?: string;
   time?: string;
   referenceId?: string;
 }
 
 export function PaymentPaidWidget({
   amount,
+  currency,
   time,
   referenceId,
 }: PaymentPaidWidgetProps) {
@@ -27,7 +29,7 @@ export function PaymentPaidWidget({
 
       {amount != null && amount > 0 && (
         <>
-          <Text style={styles.amount}>{formatAmount(amount)}</Text>
+          <Text style={styles.amount}>{formatAmount(amount, currency)}</Text>
           <View style={styles.spacerLarge} />
         </>
       )}

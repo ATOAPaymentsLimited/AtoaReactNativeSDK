@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 import { usePaymentContext } from './PaymentContext';
 import { AtoaException } from '../types/error';
-import { POLLING_INTERVAL_MS } from '../constants/component-constants';
+import { INACTIVE_STATE_PATTERN, POLLING_INTERVAL_MS } from '../constants/component-constants';
 
 export function usePaymentStatus() {
   const { state, dispatch, client, options } = usePaymentContext();
@@ -67,13 +67,13 @@ export function usePaymentStatus() {
   useEffect(() => {
     const handleAppStateChange = (nextAppState: AppStateStatus) => {
       if (
-        appStateRef.current.match(/inactive|background/) &&
+        appStateRef.current.match(INACTIVE_STATE_PATTERN) &&
         nextAppState === 'active'
       ) {
         resume();
       } else if (
         appStateRef.current === 'active' &&
-        nextAppState.match(/inactive|background/)
+        nextAppState.match(INACTIVE_STATE_PATTERN)
       ) {
         pause();
       }

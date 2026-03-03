@@ -66,7 +66,6 @@ function AtoaPaymentModalInner({
     resetSelectBank,
     selectBank,
   } = useBankInstitutions();
-  const contentHeight = 0;
   const hasInitializedRef = useRef(false);
   const [isDataReady, setIsDataReady] = useState(false);
   const handleCloseRef = useRef<() => void>(() => {});
@@ -229,7 +228,7 @@ function AtoaPaymentModalInner({
     switch (currentScreen) {
       case 'loading':
         return (
-          <View style={[styles.loadingSplash, { height: contentHeight }]}>
+          <View style={styles.loadingSplash}>
             <SDKLoader />
           </View>
         );
@@ -287,7 +286,7 @@ function AtoaPaymentModalInner({
         android_keyboardInputMode="adjustResize"
       >
         <View style={styles.sheetContent}>
-          <ConnectivityWrapper onBack={handleClose} height={contentHeight}>
+          <ConnectivityWrapper onBack={handleClose}>
             {renderScreen()}
           </ConnectivityWrapper>
         </View>

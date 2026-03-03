@@ -118,6 +118,7 @@ export function BankSelectionScreen({
           <View style={styles.loaderContainer}>
             <PaymentPaidWidget
               amount={err.amount}
+              currency={state.paymentDetails?.amount?.currency}
               time={err.time}
               referenceId={err.referenceId}
             />
