@@ -5,6 +5,7 @@ import { getBankIcon } from '../../types/bank';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { SvgIcon } from '../shared/SvgIcon';
+import { FONT_FAMILY } from '../../constants/typography';
 
 interface BankGridItemProps {
   bank: BankInstitution;
@@ -108,7 +109,7 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.tiny,
   },
   name: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 12,
     fontWeight: '500',
     color: Colors.grey700,

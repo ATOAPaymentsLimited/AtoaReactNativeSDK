@@ -13,6 +13,7 @@ import { useBankInstitutions } from '../../hooks/useBankInstitutions';
 import type { BankInstitution } from '../../types/bank';
 import { getBankIcon } from '../../types/bank';
 import { VISIBLE_BANK_COUNT } from '../../constants/component-constants';
+import { FONT_FAMILY } from '../../constants/typography';
 
 interface HowToMakePaymentScreenProps {
   onContinue: () => void;
@@ -206,7 +207,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   bankCountText: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 13,
     fontWeight: '500',
     color: Colors.grey700,
@@ -228,13 +229,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   stepNumber: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 14,
     fontWeight: '700',
     color: Colors.infoDarker,
   },
   stepText: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 14,
     fontWeight: '400',
     color: Colors.grey700,
@@ -255,7 +256,7 @@ const styles = StyleSheet.create({
     marginTop: Spacing.huge,
   },
   trustText: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 12,
     fontWeight: '600',
     color: Colors.positiveDarker,
@@ -268,7 +269,7 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.huge * 3 + Spacing.medium,
   },
   poweredByText: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 13,
     fontWeight: '500',
     color: Colors.grey500,

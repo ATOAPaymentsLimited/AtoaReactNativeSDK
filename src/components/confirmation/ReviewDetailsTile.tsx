@@ -9,6 +9,7 @@ import {
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { SvgIcon } from '../shared/SvgIcon';
+import { FONT_FAMILY } from '../../constants/typography';
 
 interface ReviewDetailsTileProps {
   iconUrl?: string;
@@ -85,27 +86,27 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   heading: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 12,
     fontWeight: '600',
     color: Colors.grey500,
   },
   content: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 14,
     fontWeight: '700',
     color: Colors.black,
     marginTop: 2,
   },
   rightText: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 16,
     fontWeight: '700',
     color: Colors.black,
     marginLeft: Spacing.small,
   },
   actionText: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 14,
     fontWeight: '700',
     color: '#E42646',

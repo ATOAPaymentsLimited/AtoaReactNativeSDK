@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { Strings } from '../../constants/strings';
+import { FONT_FAMILY } from '../../constants/typography';
 
 interface ErrorWidgetProps {
   title?: string;
@@ -37,7 +38,7 @@ const styles = StyleSheet.create({
     gap: Spacing.medium,
   },
   title: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 16,
     fontWeight: '700',
     color: Colors.black,
@@ -45,7 +46,7 @@ const styles = StyleSheet.create({
     lineHeight: 23.2,
   },
   message: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 14,
     fontWeight: '400',
     color: Colors.grey500,
@@ -53,7 +54,7 @@ const styles = StyleSheet.create({
     lineHeight: 21,
   },
   retryText: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 14,
     fontWeight: '700',
     color: '#E42646',

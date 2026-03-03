@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Colors } from '../../constants/colors';
 import { Strings } from '../../constants/strings';
+import { FONT_FAMILY } from '../../constants/typography';
 
 interface BankTabBarProps {
   selectedIndex: number;
@@ -66,7 +67,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   tabText: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 13,
     fontWeight: '500',
     color: Colors.grey600,

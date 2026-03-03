@@ -15,6 +15,7 @@ import { ErrorWidget } from '../shared/ErrorWidget';
 import { ReviewDetailsTile } from './ReviewDetailsTile';
 import { formatAmount } from '../../utils/formatAmount';
 import { ERROR_BANK_APP_DOWN, ERROR_BANK_DOWN, INACTIVE_STATE_PATTERN } from '../../constants/component-constants';
+import { FONT_FAMILY } from '../../constants/typography';
 
 interface ConfirmationScreenProps {
   onClose: () => void;
@@ -258,7 +259,7 @@ const styles = StyleSheet.create({
     height: Spacing.huge,
   },
   linkExpiredText: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 14,
     fontWeight: '500',
     color: Colors.errorDefault,
@@ -279,7 +280,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   appWarningText: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 12,
     fontWeight: '400',
     color: Colors.errorDarker,
@@ -296,7 +297,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   poweredByText: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 13,
     fontWeight: '500',
     color: Colors.grey500,
@@ -308,7 +309,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   termsText: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 11,
     fontWeight: '400',
     color: Colors.grey500,
@@ -339,13 +340,13 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   bankDownBadgeText: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 11,
     fontWeight: '700',
     color: Colors.errorDefault,
   },
   bankDownMessage: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 16,
     fontWeight: '400',
     color: Colors.black,

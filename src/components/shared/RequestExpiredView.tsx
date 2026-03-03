@@ -4,6 +4,7 @@ import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { Strings } from '../../constants/strings';
 import { SvgIcon } from './SvgIcon';
+import { FONT_FAMILY } from '../../constants/typography';
 
 export function RequestExpiredView() {
   return (
@@ -32,7 +33,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 16,
     fontWeight: '700',
     color: Colors.black,
@@ -40,7 +41,7 @@ const styles = StyleSheet.create({
     lineHeight: 23.2,
   },
   message: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 14,
     fontWeight: '400',
     color: Colors.grey500,

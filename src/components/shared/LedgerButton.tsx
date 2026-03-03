@@ -14,6 +14,7 @@ import {
   type ButtonSize,
   BUTTON_HEIGHTS,
 } from '../../constants/component-constants';
+import { FONT_FAMILY } from '../../constants/typography';
 
 interface LedgerButtonProps {
   title: string;
@@ -123,7 +124,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.large,
   },
   text: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 14,
     fontWeight: '700',
   },

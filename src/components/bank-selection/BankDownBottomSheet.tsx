@@ -6,6 +6,7 @@ import { Spacing } from '../../constants/spacing';
 import { Strings } from '../../constants/strings';
 import { SvgIcon } from '../shared/SvgIcon';
 import { LedgerButton } from '../shared/LedgerButton';
+import { FONT_FAMILY } from '../../constants/typography';
 
 interface BankDownBottomSheetProps {
   bank: BankInstitution;
@@ -98,7 +99,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   badgeText: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 11,
     fontWeight: '700',
     color: Colors.errorDefault,
@@ -110,7 +111,7 @@ const styles = StyleSheet.create({
     height: Spacing.huge,
   },
   message: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 16,
     fontWeight: '400',
     color: Colors.black,

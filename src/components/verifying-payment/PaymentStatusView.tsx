@@ -6,6 +6,7 @@ import { isCompleted } from '../../types/payment';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { Strings } from '../../constants/strings';
+import { FONT_FAMILY } from '../../constants/typography';
 
 interface PaymentStatusViewProps {
   transactionDetails: TransactionDetails;
@@ -62,7 +63,7 @@ const styles = StyleSheet.create({
     height: Spacing.medium,
   },
   successText: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 16,
     fontWeight: '700',
     color: Colors.black,
@@ -73,7 +74,7 @@ const styles = StyleSheet.create({
     paddingVertical: 32,
   },
   statusText: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 16,
     fontWeight: '500',
     color: Colors.grey600,

@@ -5,6 +5,7 @@ import { getBankIcon } from '../../types/bank';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { SvgIcon } from '../shared/SvgIcon';
+import { FONT_FAMILY } from '../../constants/typography';
 
 interface BankListItemProps {
   bank: BankInstitution;
@@ -85,7 +86,7 @@ const styles = StyleSheet.create({
     gap: Spacing.small,
   },
   name: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 14,
     fontWeight: '500',
     color: Colors.grey700,

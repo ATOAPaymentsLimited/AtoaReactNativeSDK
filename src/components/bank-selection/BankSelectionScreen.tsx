@@ -19,6 +19,7 @@ import { BankGridItem } from './BankGridItem';
 import { BankListItem } from './BankListItem';
 import { BankDownBottomSheet } from './BankDownBottomSheet';
 import { BankLimitCard } from './BankLimitCard';
+import { FONT_FAMILY } from '../../constants/typography';
 
 interface BankSelectionScreenProps {
   onBack?: () => void;
@@ -366,7 +367,7 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.medium,
   },
   sectionLabel: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 12,
     fontWeight: '700',
     color: Colors.grey500,
@@ -386,14 +387,14 @@ const styles = StyleSheet.create({
     gap: Spacing.medium,
   },
   emptyTitle: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 16,
     fontWeight: '700',
     color: Colors.black,
     lineHeight: 23.2,
   },
   emptySubtitle: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 14,
     fontWeight: '400',
     color: Colors.grey500,

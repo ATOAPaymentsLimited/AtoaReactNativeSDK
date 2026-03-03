@@ -5,6 +5,7 @@ import { Spacing } from '../../constants/spacing';
 import { Strings } from '../../constants/strings';
 import { SvgIcon } from '../shared/SvgIcon';
 import { formatAmount } from '../../utils/formatAmount';
+import { FONT_FAMILY } from '../../constants/typography';
 
 interface BankLimitCardProps {
   amount: number;
@@ -35,7 +36,7 @@ const styles = StyleSheet.create({
     gap: Spacing.small,
   },
   text: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 12,
     fontWeight: '500',
     color: Colors.errorDarker,

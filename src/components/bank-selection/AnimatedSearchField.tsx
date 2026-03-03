@@ -10,6 +10,7 @@ import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { SvgIcon } from '../shared/SvgIcon';
 import { Strings } from '../../constants/strings';
+import { FONT_FAMILY } from '../../constants/typography';
 
 const PLACEHOLDER_TEXTS = Strings.bankSelection.searchPlaceholders;
 
@@ -104,7 +105,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   input: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 13,
     fontWeight: '600',
     color: Colors.black,
@@ -117,7 +118,7 @@ const styles = StyleSheet.create({
     right: 0,
   },
   placeholderText: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 13,
     fontWeight: '500',
     color: Colors.grey400,

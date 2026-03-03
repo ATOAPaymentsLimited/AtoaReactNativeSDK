@@ -11,6 +11,7 @@ import { BottomSheetHeader } from '../shared/BottomSheetHeader';
 import { ErrorWidget } from '../shared/ErrorWidget';
 import { DotLoadingAnimation } from '../shared/DotLoadingAnimation';
 import { PaymentStatusView } from './PaymentStatusView';
+import { FONT_FAMILY } from '../../constants/typography';
 
 interface VerifyingPaymentScreenProps {
   onClose: (result: 'completed' | 'closed') => void;
@@ -218,7 +219,7 @@ const styles = StyleSheet.create({
     height: Spacing.large,
   },
   verifyingText: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 16,
     fontWeight: '700',
     color: Colors.black,
@@ -226,7 +227,7 @@ const styles = StyleSheet.create({
     lineHeight: 23.2,
   },
   noteText: {
-    fontFamily: 'Figtree',
+    fontFamily: FONT_FAMILY,
     fontSize: 12,
     fontWeight: '500',
     color: Colors.grey500,
