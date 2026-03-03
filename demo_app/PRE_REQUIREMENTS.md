@@ -181,7 +181,16 @@ Add inside the main `<activity>`:
 
 Set `android:launchMode="singleTask"` on your main `<activity>` to prevent duplicate activities on deep link.
 
-### 5.2 build.gradle (app level)
+### 5.2 Custom Fonts (Required for SDK UI)
+
+The SDK uses Figtree font. Copy the font files from the SDK's `src/assets/fonts/` into your Android project:
+
+```
+android/app/src/main/assets/fonts/Figtree.ttf        (Regular)
+android/app/src/main/assets/fonts/Figtree_bold.ttf    (Bold)
+```
+
+### 5.3 build.gradle (app level)
 
 Ensure Hermes is enabled in `android/gradle.properties`:
 
@@ -239,7 +248,7 @@ cd ios && pod install
 
 ### 6.3 Info.plist
 
-Add URL scheme for deep linking:
+**URL scheme for deep linking:**
 
 ```xml
 <key>CFBundleURLTypes</key>
@@ -250,6 +259,54 @@ Add URL scheme for deep linking:
       <string>atoa</string>
     </array>
   </dict>
+</array>
+```
+
+**Bank app URL schemes (required for app installation checks):**
+
+The SDK checks whether bank apps are installed. On iOS 9+, you must declare every URL scheme you query in `LSApplicationQueriesSchemes`:
+
+```xml
+<key>LSApplicationQueriesSchemes</key>
+<array>
+  <string>pulsesecure</string>
+  <string>launchbmb</string>
+  <string>lloyds-retail</string>
+  <string>hsbc-pwnwguti5z</string>
+  <string>uk.co.santander.santanderUK</string>
+  <string>fb894703657238109</string>
+  <string>bos-retail</string>
+  <string>halifax-retail</string>
+  <string>monzo</string>
+  <string>starlingbank</string>
+  <string>tsbmobile</string>
+  <string>comfirstdirectbankingonthego</string>
+  <string>launchFT</string>
+  <string>virginmoneyimport</string>
+  <string>ybssavings</string>
+  <string>transferwise</string>
+  <string>tg</string>
+  <string>BOIOneAPP</string>
+  <string>ie.aib.mobilebanking</string>
+  <string>bos-commercial</string>
+  <string>chase-international</string>
+  <string>revolut</string>
+  <string>lloyds-commercial</string>
+  <string>dbbukmobileapp</string>
+  <string>nationwide</string>
+  <string>ydl</string>
+</array>
+```
+
+**Custom fonts (required for SDK UI):**
+
+The SDK uses Figtree font. Add the font files to your Xcode project and declare them in Info.plist:
+
+```xml
+<key>UIAppFonts</key>
+<array>
+  <string>Figtree-VariableFont_wght.ttf</string>
+  <string>Figtree-Italic-VariableFont_wght.ttf</string>
 </array>
 ```
 
