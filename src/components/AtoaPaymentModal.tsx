@@ -310,8 +310,10 @@ const styles = StyleSheet.create({
   },
   sheetContent: {
     flex: 1,
-    paddingTop: Spacing.large,
-    paddingBottom: Spacing.huge,
+    paddingTop: Spacing.small,
+    borderTopLeftRadius: Spacing.xtraLarge,
+    borderTopRightRadius: Spacing.xtraLarge,
+    overflow: 'hidden',
   },
   loadingSplash: {
     flex: 1,

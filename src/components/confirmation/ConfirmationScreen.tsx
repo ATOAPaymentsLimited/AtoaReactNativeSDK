@@ -137,12 +137,12 @@ export function ConfirmationScreen({
 
   return (
     <View style={styles.container}>
-      <BottomSheetHeader title={Strings.confirmation.title} onClose={onClose} />
-
       <BottomSheetScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
+        <BottomSheetHeader title={Strings.confirmation.title} onClose={onClose} />
+
         <InfoWidget message={Strings.confirmation.infoMessage} />
 
         <View style={styles.spacer} />
@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
     color: Colors.grey500,
     textAlign: 'center',
     lineHeight: 17.6,
-    paddingBottom: Spacing.huge * 3 + Spacing.medium,
+    paddingBottom: Spacing.huge,
   },
   termsBold: {
     fontWeight: '600',
