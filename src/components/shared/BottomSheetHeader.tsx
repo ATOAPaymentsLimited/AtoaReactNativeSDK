@@ -3,7 +3,7 @@ import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { SvgIcon } from './SvgIcon';
-import { FONT_FAMILY } from '../../constants/typography';
+import { getFontFamily } from '../../constants/typography';
 
 interface BottomSheetHeaderProps {
   title: string;
@@ -70,9 +70,8 @@ const styles = StyleSheet.create({
     width: 48 + Spacing.large * 2 + Spacing.small,
   },
   title: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('700'),
     fontSize: 16,
-    fontWeight: '700',
     lineHeight: 23.2,
     color: Colors.black,
     textAlign: 'center',
