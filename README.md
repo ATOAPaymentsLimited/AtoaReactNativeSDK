@@ -12,14 +12,17 @@ The Atoa React Native SDK allows merchants to easily integrate Atoa Payments int
 - [Installation](#installation)
 - [Setup](#setup)
 - [Usage](#usage)
-- [Complete Demo App](demo_app/App.tsx)
+- [API Reference](#api-reference)
+- [Handle Response](#handle-response)
 - [Handle Redirection](#handle-redirection-optional)
+- [Bank App Detection](#bank-app-detection)
+- [Complete Demo App](demo_app/App.tsx)
 
 > Please refer to our official React Native documentation [here](https://docs.atoa.me/react-native-sdk).
 
 ## Installation
 
-Run the following to add Atoa SDK to your React Native project
+### 1. Install the SDK
 
 ```sh
 npm install @atoapayments/atoa-react-native-sdk
@@ -31,17 +34,40 @@ or
 yarn add @atoapayments/atoa-react-native-sdk
 ```
 
-### Peer Dependencies
+### 2. Install required dependencies
 
-The SDK requires the following peer dependencies. Install them if you haven't already:
+The SDK uses a few community libraries for its payment sheet UI. **Most React Native projects already have some of these** — only add the ones you're missing.
+
+| Package                           | Used for                       | You likely have it if...                  |
+| --------------------------------- | ------------------------------ | ----------------------------------------- |
+| `react-native-gesture-handler`    | Touch & swipe gestures         | You use React Navigation or bottom sheets |
+| `react-native-reanimated`         | Smooth animations              | You use any animation-heavy library       |
+| `react-native-svg`                | Icons and graphics             | You render SVGs anywhere in your app      |
+| `@gorhom/bottom-sheet`            | Payment sheet modal            | —                                         |
+| `@react-native-community/netinfo` | Network connectivity detection | —                                         |
+| `lottie-react-native`             | Payment status animations      | —                                         |
+
+Install all at once (skip any you already have):
 
 ```sh
-npm install @gorhom/bottom-sheet react-native-gesture-handler react-native-reanimated react-native-svg @react-native-community/netinfo lottie-react-native react-native-worklets
+npm install @gorhom/bottom-sheet react-native-gesture-handler react-native-reanimated react-native-svg @react-native-community/netinfo lottie-react-native
+```
+
+Using Expo? Use `npx expo install` instead to ensure compatible versions:
+
+```sh
+npx expo install @gorhom/bottom-sheet react-native-gesture-handler react-native-reanimated react-native-svg @react-native-community/netinfo lottie-react-native
+```
+
+### 3. Install native dependencies (iOS)
+
+```sh
+cd ios && pod install
 ```
 
 ## Setup
 
-#### Wrap your app with AtoaProvider
+### Wrap your app with AtoaProvider
 
 Wrap your app root with `<AtoaProvider>` to enable the Atoa payment modal. This is **required** for `AtoaSdk.pay()` to work.
 
@@ -77,7 +103,7 @@ const Root = () => (
 
 Sample code to integrate can be found in [demo_app/App.tsx](demo_app/App.tsx).
 
-#### Import package
+### Import package
 
 ```tsx
 import {
@@ -89,14 +115,14 @@ import {
 } from '@atoapayments/atoa-react-native-sdk';
 ```
 
-#### Show Payment Sheet
+### Show Payment Sheet
 
-It's a full screen sheet which shows all the available bank list then once user selects the bank. They can confirm the bank details and redirected to their bank app or website.
+A full-screen payment sheet presents available banks. The user selects a bank, confirms the details, and is redirected to their bank app or website to complete payment.
 
 ```tsx
 const result = await AtoaSdk.pay({
   paymentId: 'your-payment-request-id',
-  env: 'prod',
+  env: 'production',
   // or 'sandbox'
   showHowPaymentWorks: false,
   // pass customer details for pre-select bank
@@ -155,7 +181,7 @@ The SDK supports displaying banks the customer has previously paid with through 
 #### Parameters
 
 - `options`: Configuration object (required)
-  - `env`: The Atoa environment to use (`'sandbox'` | `'prod'`)
+  - `env`: The Atoa environment to use (`'sandbox'` | `'production'`)
   - `paymentId`: The payment request ID (required)
   - `showHowPaymentWorks`: Shows a sheet which explains the steps for making a payment (required)
   - `customerDetails`: Customer details for the payment (optional)
@@ -167,7 +193,7 @@ The SDK supports displaying banks the customer has previously paid with through 
 
 ##### Environment
 
-- Type: `AtoaEnv` (`'sandbox'` | `'prod'`)
+- Type: `AtoaEnv` (`'sandbox'` | `'production'`)
 - Required: Yes
 - Description: Specifies which Atoa environment to use for the payment
 
@@ -247,27 +273,23 @@ if (result) {
 
 Sample response can be seen [here](https://docs.atoa.me/introduction#step-3-handle-payment-status).
 
-## Handle Redirection
+## Handle Redirection (Optional)
 
-While calling [payment-process](https://docs.atoa.me/api-reference/Payment/process-payment) API to generate a payment, you can specify a `redirectUrl` in your request body. The `redirectUrl`, which should be passed as body parameters, redirects to your website and then opens your app via deep linking. This enables users to open your application after payment.
+When calling the [payment-process](https://docs.atoa.me/api-reference/Payment/process-payment) API, you can specify a `redirectUrl` in your request body. After payment, the user is redirected to this URL, which can deep link back into your app.
 
-For journeys including web and mobile, you can use App Links for Android and Universal Links for iOS.
+Use [App Links](https://developer.android.com/training/app-links) (Android) or [Universal Links](https://developer.apple.com/documentation/xcode/allowing-apps-and-websites-to-link-to-your-content) (iOS) as your redirect URL. These must use the `https` scheme.
 
-Both are special types of deep links that you can set as your redirect URL, but these must use either the http or https URI schemes.
+**What happens after redirect:**
 
-Note: When a deep link has a custom URI scheme (not http or https) it will link to content that can only be accessed if the application is installed on the device.
+1. Deep link configured and working — user returns to your app automatically
+2. Deep link not configured — user lands on the redirect URL in a browser
+3. Deep link configured but fails — user lands on the browser; consider adding a "Return to app" button on your redirect page as a fallback
 
-There are 3 cases, after redirection to a given redirect URL
+> **Tip:** If deep linking fails, the user can always manually switch back to your app after payment.
 
-1. If you handled the deep links and works, then user redirected to app,
-2. If not handled deep links, user will redirect to web browser.
-3. If deep links is handled and fails to redirect to app, user will redirect to web browser to given redirect url.
+### Android Setup
 
-Note: If deep links is handled and fails to redirect to app, you can add a 'Return to app' UI in your redirect page, so that you can manually click and redirect to app. If not, user can manually switch to app after payment.
-
-- In Android, add intent-filters tag to handle deeplinks in `android/app/src/main/AndroidManifest.xml`
-
-Replace 'devapp.atoa.me' with your own web domain and '/sdk-redirect' with your path.
+Add an intent filter to `android/app/src/main/AndroidManifest.xml`. Replace `devapp.atoa.me` with your domain and `/sdk-redirect` with your path:
 
 ```xml
   <intent-filter android:autoVerify="true">
@@ -280,22 +302,22 @@ Replace 'devapp.atoa.me' with your own web domain and '/sdk-redirect' with your 
   </intent-filter>
 ```
 
-- In iOS, add dict tag to handle deeplinks in `Info.plist` and update your entitlements file
+### iOS Setup
 
-Info.plist: Replace 'devapp.atoa.me' with your own web domain.
+Add the following to your `Info.plist`. Replace `devapp.atoa.me` with your domain:
 
     <dict>
-    	<key>CFBundleTypeRole</key>
-    	<string>Editor</string>
-    	<key>CFBundleURLSchemes</key>
-    	<array>
-    		<string>https</string>
-    	</array>
-    	<key>CFBundleURLName</key>
-    	<string>devapp.atoa.me</string>
+      <key>CFBundleTypeRole</key>
+      <string>Editor</string>
+      <key>CFBundleURLSchemes</key>
+      <array>
+        <string>https</string>
+      </array>
+      <key>CFBundleURLName</key>
+      <string>devapp.atoa.me</string>
     </dict>
 
-Entitlements: Add key 'com.apple.developer.associated-domains' and replace 'devapp.atoa.me' with your own web domain in array tag
+Then update your entitlements file — add `com.apple.developer.associated-domains` with your domain:
 
 ```xml
   <?xml version="1.0" encoding="UTF-8"?>
@@ -312,11 +334,13 @@ Entitlements: Add key 'com.apple.developer.associated-domains' and replace 'deva
   </plist>
 ```
 
-### Checking bank app is installed or not
+### Bank App Detection
 
-Our mobile SDK checks if the bank(using for making payments) app is installed or not. For that, you need to add 'queries' tag for android and 'LSApplicationQueriesSchemes' key for iOS
+The SDK checks whether the user's selected bank app is installed on their device. This requires declaring the bank app package names / URL schemes in your native configuration.
 
-- In Android, you need to add 'queries' tag in `AndroidManifest.xml`
+#### Android
+
+Add a `<queries>` block to your `AndroidManifest.xml`:
 
 ```xml
  <queries>
@@ -351,7 +375,9 @@ Our mobile SDK checks if the bank(using for making payments) app is installed or
   </queries>
 ```
 
-- In iOS, you need to add 'LSApplicationQueriesSchemes' key in `Info.plist`
+#### iOS
+
+Add `LSApplicationQueriesSchemes` to your `Info.plist`:
 
 ```xml
 <key>LSApplicationQueriesSchemes</key>
@@ -385,11 +411,13 @@ Our mobile SDK checks if the bank(using for making payments) app is installed or
 </array>
 ```
 
-#### Resources for deep-linking
+### Resources
 
 - [React Native Linking](https://reactnative.dev/docs/linking)
 - [Android App Links](https://developer.android.com/training/app-links)
 - [iOS Universal Links](https://developer.apple.com/documentation/xcode/allowing-apps-and-websites-to-link-to-your-content)
+
+## Support
 
 For any issues or inquiries, please contact hello@paywithatoa.co.uk.
 

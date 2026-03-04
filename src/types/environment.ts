@@ -1,3 +1,3 @@
-export type AtoaEnv = 'sandbox' | 'prod';
+export type AtoaEnv = 'sandbox' | 'production';
 
 export type AtoaEnvironment = 'development' | 'staging' | 'production';

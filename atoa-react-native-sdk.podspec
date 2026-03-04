@@ -15,6 +15,12 @@ Pod::Spec.new do |s|
 
   s.source_files = "ios/**/*.{h,m,mm,swift}"
 
+  s.resource_bundles = {
+    'AtoaReactNativeSdkFonts' => ['src/assets/fonts/*.ttf']
+  }
+
+  s.frameworks = 'CoreText'
+
   if respond_to?(:install_modules_dependencies, true)
     install_modules_dependencies(s)
   else
