@@ -15,7 +15,33 @@ The Atoa React Native SDK allows merchants to easily integrate Atoa Payments int
 - [Complete Demo App](demo_app/App.tsx)
 - [Handle Redirection](#handle-redirection-optional)
 
-> Please refer to our official React Native documentation [here](https://docs.atoa.me/react-native-sdk).
+> Please refer to our React Native SDK integration documentation [here](https://docs.atoa.me/react-native-sdk).
+
+## Pre-Requirements
+
+### Environment Prerequisites
+
+| Tool            | Minimum Version | Notes                          |
+| --------------- | --------------- | ------------------------------ |
+| Node.js         | >= 20           | Required by `engines` field    |
+| npm / yarn      | Latest stable   |                                |
+| JDK             | 17              | Required for Android builds    |
+| Android Studio  | Latest stable   | SDK 36, Build Tools 36.0.0     |
+| NDK             | 27.1.12297006   |                                |
+| Xcode           | 15+             | For iOS builds                 |
+| CocoaPods       | Latest stable   | For iOS native dependencies    |
+| React Native CLI | 0.83.x         | `@react-native-community/cli`  |
+
+### Babel Configuration
+
+The SDK depends on `react-native-reanimated`, which requires a Babel plugin. Add it as the **last** plugin in your `babel.config.js`:
+
+```js
+module.exports = {
+  presets: ['module:@react-native/babel-preset'],
+  plugins: ['react-native-reanimated/plugin'], // must be LAST
+};
+```
 
 ## Installation
 
@@ -29,14 +55,6 @@ or
 
 ```sh
 yarn add @atoapayments/atoa-react-native-sdk
-```
-
-### Peer Dependencies
-
-The SDK requires the following peer dependencies. Install them if you haven't already:
-
-```sh
-npm install @gorhom/bottom-sheet react-native-gesture-handler react-native-reanimated react-native-svg @react-native-community/netinfo lottie-react-native react-native-worklets
 ```
 
 ## Setup
