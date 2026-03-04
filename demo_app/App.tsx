@@ -378,7 +378,7 @@ function App(): React.JSX.Element {
   const showPaymentSheet = async (paymentId: string) => {
     const options: AtoaPayOptions = {
       paymentId,
-      env: 'prod',
+      env: 'production',
       showHowPaymentWorks: showHowPaymentWorksRef.current,
       customerDetails: {
         phoneCountryCode: '44',

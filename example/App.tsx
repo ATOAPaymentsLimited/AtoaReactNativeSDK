@@ -18,7 +18,7 @@ function App(): React.JSX.Element {
   const [paymentId, setPaymentId] = useState('');
   const [isSandbox, setIsSandbox] = useState(true);
 
-  const env: AtoaEnv = isSandbox ? 'sandbox' : 'prod';
+  const env: AtoaEnv = isSandbox ? 'sandbox' : 'production';
 
   const handleInitiatePayment = async () => {
     const trimmed = paymentId.trim();
