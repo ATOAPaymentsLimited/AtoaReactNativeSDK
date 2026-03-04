@@ -15,7 +15,9 @@
     "!**/__tests__",
     "!**/__fixtures__",
     "!**/__mocks__",
-    "!**/.*"
+    "!**/.*",
+    "atoa-react-native-sdk.podspec",
+    "react-native.config.js"
   ],
   "scripts": {
     "test": "jest",
@@ -38,18 +40,32 @@
     "type": "git",
     "url": "https://github.com/ATOAPaymentsLimited/AtoaReactNativeSDK"
   },
-  "author": "Atoa Payments Limited <hello@paywithatoa.co.uk>",
+  "author": {
+    "name": "Vancha Omer",
+    "email": "hello@paywithatoa.co.uk",
+    "url": "https://paywithatoa.co.uk"
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/ATOAPaymentsLimited/AtoaReactNativeSDK/issues"
   },
   "homepage": "https://github.com/ATOAPaymentsLimited/AtoaReactNativeSDK#readme",
   "publishConfig": {
+    "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
   "dependencies": {
     "@babel/runtime": "^7.20.0",
     "react-native-root-siblings": "^5.0.1"
+  },
+  "peerDependencies": {
+    "@gorhom/bottom-sheet": ">=4",
+    "@react-native-community/netinfo": ">=9",
+    "react": ">=18",
+    "react-native": ">=0.72",
+    "react-native-gesture-handler": ">=2",
+    "react-native-reanimated": ">=3",
+    "react-native-svg": ">=13"
   },
   "devDependencies": {
     "@gorhom/bottom-sheet": "^5.0.0",
