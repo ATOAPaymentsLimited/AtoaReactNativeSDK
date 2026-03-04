@@ -59,6 +59,8 @@ Using Expo? Use `npx expo install` instead to ensure compatible versions:
 npx expo install @gorhom/bottom-sheet react-native-gesture-handler react-native-reanimated react-native-svg @react-native-community/netinfo lottie-react-native
 ```
 
+> **Note:** `react-native-reanimated` requires a Babel plugin. If you haven't already, add `'react-native-reanimated/plugin'` to your `babel.config.js`. See the [Reanimated installation guide](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/getting-started/) for details.
+
 ### 3. Install native dependencies (iOS)
 
 ```sh
