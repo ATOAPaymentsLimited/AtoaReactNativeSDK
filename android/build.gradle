@@ -18,6 +18,7 @@ android {
     sourceSets {
         main {
             java.srcDirs = ['src/main/java']
+            assets.srcDirs = ['../src/assets']
         }
     }
 }

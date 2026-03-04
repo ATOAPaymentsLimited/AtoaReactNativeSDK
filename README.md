@@ -45,16 +45,36 @@ module.exports = {
 
 ## Installation
 
-Run the following to add Atoa SDK to your React Native project
+Install the SDK along with its required peer dependencies:
 
 ```sh
-npm install @atoapayments/atoa-react-native-sdk
+npm install @atoapayments/atoa-react-native-sdk \
+  @gorhom/bottom-sheet \
+  @react-native-community/netinfo \
+  lottie-react-native \
+  react-native-gesture-handler \
+  react-native-reanimated \
+  react-native-svg \
+  react-native-worklets
 ```
 
 or
 
 ```sh
-yarn add @atoapayments/atoa-react-native-sdk
+yarn add @atoapayments/atoa-react-native-sdk \
+  @gorhom/bottom-sheet \
+  @react-native-community/netinfo \
+  lottie-react-native \
+  react-native-gesture-handler \
+  react-native-reanimated \
+  react-native-svg \
+  react-native-worklets
+```
+
+For iOS, run pod install:
+
+```sh
+cd ios && pod install
 ```
 
 ## Setup

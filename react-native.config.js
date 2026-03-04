@@ -1,9 +1,8 @@
 module.exports = {
   dependency: {
     platforms: {
-      android: null, // Disable autolinking - SDK uses old Bridge architecture
-      ios: null,     // Disable autolinking - SDK uses old Bridge architecture
+      android: {},
+      ios: {},
     },
   },
-  assets: ['./src/assets/fonts/'],
 };
