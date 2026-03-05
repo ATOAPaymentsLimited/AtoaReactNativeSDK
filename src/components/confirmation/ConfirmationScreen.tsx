@@ -15,7 +15,7 @@ import { ErrorWidget } from '../shared/ErrorWidget';
 import { ReviewDetailsTile } from './ReviewDetailsTile';
 import { formatAmount } from '../../utils/formatAmount';
 import { ERROR_BANK_APP_DOWN, ERROR_BANK_DOWN, INACTIVE_STATE_PATTERN } from '../../constants/component-constants';
-import { FONT_FAMILY } from '../../constants/typography';
+import { getFontFamily } from '../../constants/typography';
 
 interface ConfirmationScreenProps {
   onClose: () => void;
@@ -259,15 +259,14 @@ const styles = StyleSheet.create({
     height: Spacing.huge,
   },
   linkExpiredText: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('500'),
     fontSize: 14,
-    fontWeight: '500',
     color: Colors.errorDefault,
     textAlign: 'center',
     lineHeight: 21,
   },
   linkExpiredRefresh: {
-    fontWeight: '700',
+    fontFamily: getFontFamily('700'),
     textDecorationLine: 'underline',
   },
   appWarningBanner: {
@@ -280,15 +279,14 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   appWarningText: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('400'),
     fontSize: 12,
-    fontWeight: '400',
     color: Colors.errorDarker,
     lineHeight: 18,
     flex: 1,
   },
   appWarningLink: {
-    fontWeight: '700',
+    fontFamily: getFontFamily('700'),
     textDecorationLine: 'underline',
   },
   poweredByContainer: {
@@ -297,9 +295,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   poweredByText: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('500'),
     fontSize: 13,
-    fontWeight: '500',
     color: Colors.grey500,
   },
   poweredByLogo: {
@@ -309,20 +306,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   termsText: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('400'),
     fontSize: 11,
-    fontWeight: '400',
     color: Colors.grey500,
     textAlign: 'center',
     lineHeight: 17.6,
     paddingBottom: Spacing.huge,
   },
   termsBold: {
-    fontWeight: '600',
+    fontFamily: getFontFamily('600'),
   },
    termsLink: {
     color: Colors.grey500,
-    fontWeight: '700',
+    fontFamily: getFontFamily('700'),
   },
   bankDownContent: {
     paddingHorizontal: Spacing.xtraLarge,
@@ -340,20 +336,18 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   bankDownBadgeText: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('700'),
     fontSize: 11,
-    fontWeight: '700',
     color: Colors.errorDefault,
   },
   bankDownMessage: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('400'),
     fontSize: 16,
-    fontWeight: '400',
     color: Colors.black,
     lineHeight: 23.2,
   },
   bankDownBankName: {
-    fontWeight: '700',
+    fontFamily: getFontFamily('700'),
   },
   errorContent: {
     paddingHorizontal: Spacing.large,

@@ -9,7 +9,7 @@ import {
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { SvgIcon } from '../shared/SvgIcon';
-import { FONT_FAMILY } from '../../constants/typography';
+import { getFontFamily } from '../../constants/typography';
 
 interface ReviewDetailsTileProps {
   iconUrl?: string;
@@ -86,29 +86,25 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   heading: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('600'),
     fontSize: 12,
-    fontWeight: '600',
     color: Colors.grey500,
   },
   content: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('700'),
     fontSize: 14,
-    fontWeight: '700',
     color: Colors.black,
     marginTop: 2,
   },
   rightText: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('700'),
     fontSize: 16,
-    fontWeight: '700',
     color: Colors.black,
     marginLeft: Spacing.small,
   },
   actionText: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('700'),
     fontSize: 14,
-    fontWeight: '700',
     color: '#E42646',
     textDecorationLine: 'underline',
     marginLeft: Spacing.small,

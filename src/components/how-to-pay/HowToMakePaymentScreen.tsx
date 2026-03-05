@@ -13,8 +13,8 @@ import { useBankInstitutions } from '../../hooks/useBankInstitutions';
 import type { BankInstitution } from '../../types/bank';
 import { getBankIcon } from '../../types/bank';
 import { VISIBLE_BANK_COUNT } from '../../constants/component-constants';
-import { FONT_FAMILY } from '../../constants/typography';
 import { AtoaLogoSource } from '../../constants/images';
+import { getFontFamily } from '../../constants/typography';
 
 interface HowToMakePaymentScreenProps {
   onContinue: () => void;
@@ -208,9 +208,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   bankCountText: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('500'),
     fontSize: 13,
-    fontWeight: '500',
     color: Colors.grey700,
   },
   stepsContainer: {
@@ -230,21 +229,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   stepNumber: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('700'),
     fontSize: 14,
-    fontWeight: '700',
     color: Colors.infoDarker,
   },
   stepText: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('400'),
     fontSize: 14,
-    fontWeight: '400',
     color: Colors.grey700,
     flex: 1,
     lineHeight: 21,
   },
   stepTextBold: {
-    fontWeight: '700',
+    fontFamily: getFontFamily('700'),
   },
   trustContainer: {
     flexDirection: 'row',
@@ -257,9 +254,8 @@ const styles = StyleSheet.create({
     marginTop: Spacing.huge,
   },
   trustText: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('600'),
     fontSize: 12,
-    fontWeight: '600',
     color: Colors.positiveDarker,
   },
   poweredByContainer: {
@@ -270,9 +266,8 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.huge * 3 + Spacing.medium,
   },
   poweredByText: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('500'),
     fontSize: 13,
-    fontWeight: '500',
     color: Colors.grey500,
   },
   poweredByLogo: {

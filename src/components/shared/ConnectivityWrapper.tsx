@@ -6,7 +6,7 @@ import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { Strings } from '../../constants/strings';
 import { SvgIcon } from './SvgIcon';
-import { FONT_FAMILY } from '../../constants/typography';
+import { getFontFamily } from '../../constants/typography';
 
 interface ConnectivityWrapperProps {
   children: React.ReactNode;
@@ -129,16 +129,14 @@ const styles = StyleSheet.create({
     height: Spacing.huge,
   },
   title: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('700'),
     fontSize: 16,
-    fontWeight: '700',
     color: Colors.black,
     textAlign: 'center',
   },
   message: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('400'),
     fontSize: 14,
-    fontWeight: '400',
     color: Colors.black,
     textAlign: 'center',
   },

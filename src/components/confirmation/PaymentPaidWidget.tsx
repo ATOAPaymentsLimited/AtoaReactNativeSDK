@@ -5,7 +5,7 @@ import { Spacing } from '../../constants/spacing';
 import { Strings } from '../../constants/strings';
 import { SvgIcon } from '../shared/SvgIcon';
 import { formatAmount } from '../../utils/formatAmount';
-import { FONT_FAMILY } from '../../constants/typography';
+import { getFontFamily } from '../../constants/typography';
 
 interface PaymentPaidWidgetProps {
   amount?: number;
@@ -67,21 +67,18 @@ const styles = StyleSheet.create({
     height: Spacing.xtraLarge,
   },
   amount: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('700'),
     fontSize: 28,
-    fontWeight: '700',
     color: Colors.black,
   },
   title: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('700'),
     fontSize: 16,
-    fontWeight: '700',
     color: Colors.black,
   },
   detail: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('400'),
     fontSize: 14,
-    fontWeight: '400',
     color: Colors.grey500,
     marginTop: Spacing.small,
   },
