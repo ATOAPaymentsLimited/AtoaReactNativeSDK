@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Spacing } from '../../constants/spacing';
 import { SvgIcon } from './SvgIcon';
 import { type InfoVariant, VARIANT_CONFIG } from '../../constants/component-constants';
-import { FONT_FAMILY } from '../../constants/typography';
+import { getFontFamily } from '../../constants/typography';
 
 interface InfoWidgetProps {
   message: string;
@@ -37,9 +37,8 @@ const styles = StyleSheet.create({
     gap: Spacing.small,
   },
   text: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('500'),
     fontSize: 11,
-    fontWeight: '500',
     lineHeight: 17.6,
     flex: 1,
   },

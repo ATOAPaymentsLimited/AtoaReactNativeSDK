@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Colors } from '../../constants/colors';
 import { Strings } from '../../constants/strings';
-import { FONT_FAMILY } from '../../constants/typography';
+import { getFontFamily } from '../../constants/typography';
 
 interface BankTabBarProps {
   selectedIndex: number;
@@ -67,13 +67,12 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   tabText: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('500'),
     fontSize: 13,
-    fontWeight: '500',
     color: Colors.grey600,
   },
   tabTextSelected: {
-    fontWeight: '700',
+    fontFamily: getFontFamily('700'),
     color: Colors.black,
   },
 });
