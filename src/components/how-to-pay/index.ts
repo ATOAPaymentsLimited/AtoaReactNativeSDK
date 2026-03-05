@@ -1,0 +1,1 @@
+export { HowToMakePaymentScreen } from './HowToMakePaymentScreen';
