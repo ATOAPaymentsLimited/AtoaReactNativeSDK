@@ -14,6 +14,7 @@ import type { BankInstitution } from '../../types/bank';
 import { getBankIcon } from '../../types/bank';
 import { VISIBLE_BANK_COUNT } from '../../constants/component-constants';
 import { FONT_FAMILY } from '../../constants/typography';
+import { AtoaLogoSource } from '../../constants/images';
 
 interface HowToMakePaymentScreenProps {
   onContinue: () => void;
@@ -65,7 +66,7 @@ export function HowToMakePaymentScreen({
         {/* Bank Logos */}
         <View style={styles.logosContainer}>
           <Image
-            source={require('../../assets/images/red-back-atoa-logo.png')}
+            source={AtoaLogoSource}
             style={styles.atoaLogo}
             resizeMode="contain"
           />

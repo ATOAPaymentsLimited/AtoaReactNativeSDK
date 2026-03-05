@@ -12,6 +12,7 @@ import { ErrorWidget } from '../shared/ErrorWidget';
 import { DotLoadingAnimation } from '../shared/DotLoadingAnimation';
 import { PaymentStatusView } from './PaymentStatusView';
 import { FONT_FAMILY } from '../../constants/typography';
+import { AtoaLogoSource } from '../../constants/images';
 
 interface VerifyingPaymentScreenProps {
   onClose: (result: 'completed' | 'closed') => void;
@@ -131,7 +132,7 @@ export function VerifyingPaymentScreen({
         {/* Atoa Logo + Dot Loading + Bank Icon */}
         <View style={styles.animationRow}>
           <Image
-            source={require('../../assets/images/red-back-atoa-logo.png')}
+            source={AtoaLogoSource}
             style={styles.atoaLogo}
             resizeMode="contain"
           />
