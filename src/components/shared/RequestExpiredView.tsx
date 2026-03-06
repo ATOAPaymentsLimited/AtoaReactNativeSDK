@@ -4,7 +4,7 @@ import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { Strings } from '../../constants/strings';
 import { SvgIcon } from './SvgIcon';
-import { FONT_FAMILY } from '../../constants/typography';
+import { getFontFamily } from '../../constants/typography';
 
 export function RequestExpiredView() {
   return (
@@ -33,17 +33,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('700'),
     fontSize: 16,
-    fontWeight: '700',
     color: Colors.black,
     textAlign: 'center',
     lineHeight: 23.2,
   },
   message: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('400'),
     fontSize: 14,
-    fontWeight: '400',
     color: Colors.grey500,
     textAlign: 'center',
     lineHeight: 21,

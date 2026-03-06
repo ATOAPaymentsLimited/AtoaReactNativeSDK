@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { Strings } from '../../constants/strings';
-import { FONT_FAMILY } from '../../constants/typography';
+import { getFontFamily } from '../../constants/typography';
 
 interface ErrorWidgetProps {
   title?: string;
@@ -38,25 +38,22 @@ const styles = StyleSheet.create({
     gap: Spacing.medium,
   },
   title: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('700'),
     fontSize: 16,
-    fontWeight: '700',
     color: Colors.black,
     textAlign: 'center',
     lineHeight: 23.2,
   },
   message: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('400'),
     fontSize: 14,
-    fontWeight: '400',
     color: Colors.grey500,
     textAlign: 'center',
     lineHeight: 21,
   },
   retryText: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('700'),
     fontSize: 14,
-    fontWeight: '700',
     color: '#E42646',
     textDecorationLine: 'underline',
     lineHeight: 22.4,

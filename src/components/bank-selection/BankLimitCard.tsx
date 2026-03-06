@@ -5,7 +5,7 @@ import { Spacing } from '../../constants/spacing';
 import { Strings } from '../../constants/strings';
 import { SvgIcon } from '../shared/SvgIcon';
 import { formatAmount } from '../../utils/formatAmount';
-import { FONT_FAMILY } from '../../constants/typography';
+import { getFontFamily } from '../../constants/typography';
 
 interface BankLimitCardProps {
   amount: number;
@@ -36,14 +36,13 @@ const styles = StyleSheet.create({
     gap: Spacing.small,
   },
   text: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('500'),
     fontSize: 12,
-    fontWeight: '500',
     color: Colors.errorDarker,
     lineHeight: 18,
     flex: 1,
   },
   amountText: {
-    fontWeight: '700',
+    fontFamily: getFontFamily('700'),
   },
 });

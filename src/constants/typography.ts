@@ -1,105 +1,107 @@
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 
-export const FONT_FAMILY = 'Figtree';
+const iosFontMap: Record<string, string> = {
+  '400': 'Figtree-Regular',
+  '500': 'Figtree-Medium',
+  '600': 'Figtree-SemiBold',
+  '700': 'Figtree-Bold',
+};
+
+const androidFontMap: Record<string, string> = {
+  '400': 'Figtree',
+  '500': 'Figtree_medium',
+  '600': 'Figtree_semibold',
+  '700': 'Figtree_bold',
+};
+
+export function getFontFamily(weight: '400' | '500' | '600' | '700' = '400') {
+  const map = Platform.OS === 'ios' ? iosFontMap : androidFontMap;
+  return map[weight] ?? map['400'];
+}
 
 export const Typography = StyleSheet.create({
   displayLarge: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('700'),
     fontSize: 48,
-    fontWeight: '700',
     letterSpacing: 0,
   },
   displayMedium: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('700'),
     fontSize: 36,
-    fontWeight: '700',
     letterSpacing: 0,
   },
   displaySmall: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('700'),
     fontSize: 32,
-    fontWeight: '700',
     letterSpacing: 0,
   },
   headlineLarge: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('700'),
     fontSize: 32,
-    fontWeight: '700',
     letterSpacing: 0,
   },
   headlineMedium: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('700'),
     fontSize: 28,
-    fontWeight: '700',
     letterSpacing: 0,
   },
   headlineSmall: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('700'),
     fontSize: 24,
-    fontWeight: '700',
     lineHeight: 31.2,
     letterSpacing: 0,
   },
   titleLarge: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('400'),
     fontSize: 24,
-    fontWeight: '400',
     lineHeight: 31.2,
     letterSpacing: 0,
   },
   titleMedium: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('400'),
     fontSize: 20,
-    fontWeight: '400',
     lineHeight: 28,
     letterSpacing: 0,
   },
   titleSmall: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('400'),
     fontSize: 16,
-    fontWeight: '400',
     lineHeight: 23.2,
     letterSpacing: 0,
   },
   labelLarge: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('400'),
     fontSize: 20,
-    fontWeight: '400',
     lineHeight: 28,
     letterSpacing: 0,
   },
   labelMedium: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('400'),
     fontSize: 18,
-    fontWeight: '400',
     lineHeight: 25.2,
     letterSpacing: 0,
   },
   labelSmall: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('400'),
     fontSize: 13,
-    fontWeight: '400',
     lineHeight: 19.5,
     letterSpacing: 0,
   },
   bodyLarge: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('400'),
     fontSize: 14,
-    fontWeight: '400',
     lineHeight: 21,
     letterSpacing: 0,
   },
   bodyMedium: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('400'),
     fontSize: 12,
-    fontWeight: '400',
     lineHeight: 18,
     letterSpacing: 0,
   },
   bodySmall: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('400'),
     fontSize: 11,
-    fontWeight: '400',
     lineHeight: 17.6,
     letterSpacing: 0,
   },

@@ -5,7 +5,7 @@ import { getBankIcon } from '../../types/bank';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { SvgIcon } from '../shared/SvgIcon';
-import { FONT_FAMILY } from '../../constants/typography';
+import { getFontFamily } from '../../constants/typography';
 
 interface BankGridItemProps {
   bank: BankInstitution;
@@ -109,15 +109,14 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.tiny,
   },
   name: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('500'),
     fontSize: 12,
-    fontWeight: '500',
     color: Colors.grey700,
     marginTop: Spacing.small,
     textAlign: 'center',
   },
   nameSelected: {
-    fontWeight: '700',
+    fontFamily: getFontFamily('700'),
     color: Colors.black,
   },
   nameDisabled: {

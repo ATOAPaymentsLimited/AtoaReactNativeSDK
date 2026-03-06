@@ -14,7 +14,7 @@ import {
   type ButtonSize,
   BUTTON_HEIGHTS,
 } from '../../constants/component-constants';
-import { FONT_FAMILY } from '../../constants/typography';
+import { getFontFamily } from '../../constants/typography';
 
 interface LedgerButtonProps {
   title: string;
@@ -124,9 +124,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.large,
   },
   text: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('700'),
     fontSize: 14,
-    fontWeight: '700',
   },
   disabled: {
     opacity: 0.4,

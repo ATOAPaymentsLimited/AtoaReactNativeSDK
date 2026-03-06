@@ -18,7 +18,7 @@ static void AtoaLoadFonts(void) {
     NSURL *resourceBundleURL = [classBundle URLForResource:@"AtoaReactNativeSdkFonts" withExtension:@"bundle"];
     NSBundle *fontBundle = resourceBundleURL ? [NSBundle bundleWithURL:resourceBundleURL] : classBundle;
 
-    NSArray<NSString *> *fontNames = @[@"Figtree", @"Figtree_bold"];
+    NSArray<NSString *> *fontNames = @[@"Figtree", @"Figtree_medium", @"Figtree_semibold", @"Figtree_bold"];
     for (NSString *fontName in fontNames) {
         NSURL *fontURL = [fontBundle URLForResource:fontName withExtension:@"ttf"];
         if (fontURL) {

@@ -5,7 +5,7 @@ import { getBankIcon } from '../../types/bank';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { SvgIcon } from '../shared/SvgIcon';
-import { FONT_FAMILY } from '../../constants/typography';
+import { getFontFamily } from '../../constants/typography';
 
 interface BankListItemProps {
   bank: BankInstitution;
@@ -86,9 +86,8 @@ const styles = StyleSheet.create({
     gap: Spacing.small,
   },
   name: {
-    fontFamily: FONT_FAMILY,
+    fontFamily: getFontFamily('500'),
     fontSize: 14,
-    fontWeight: '500',
     color: Colors.grey700,
     flexShrink: 1,
   },

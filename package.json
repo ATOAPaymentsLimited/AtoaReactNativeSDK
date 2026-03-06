@@ -1,6 +1,6 @@
 {
   "name": "@atoapayments/atoa-react-native-sdk",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Atoa React Native SDK for integrating Atoa Payments into mobile applications",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
