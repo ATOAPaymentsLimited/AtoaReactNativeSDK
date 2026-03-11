@@ -331,6 +331,34 @@ function IconHighImportance({ size, color = '#97A6B2' }: IconProps) {
   );
 }
 
+function IconVisa({ size }: IconProps) {
+  const w = size * 1.6;
+  return (
+    <Svg width={w} height={size} viewBox="0 0 32 20" fill="none">
+      <Rect width={32} height={20} rx={4} fill="#1A1F71" />
+      <Path
+        d="M13.6 13.5H11.8L12.9 6.5H14.7L13.6 13.5ZM10.4 6.5L8.7 11.2L8.5 10.2L7.8 7.2C7.8 7.2 7.7 6.5 6.8 6.5H4.1L4 6.6C4 6.6 5 6.8 6.2 7.5L7.8 13.5H9.7L12.3 6.5H10.4ZM24.8 13.5H26.5L25 6.5H23.5C22.8 6.5 22.6 7 22.6 7L19.9 13.5H21.8L22.2 12.4H24.5L24.8 13.5ZM22.7 11L23.7 8.2L24.3 11H22.7ZM19.4 8.2L19.6 7C19.6 7 18.7 6.6 17.7 6.6C16.6 6.6 14.2 7.1 14.2 9.2C14.2 11.1 16.9 11.1 16.9 12.1C16.9 13.1 14.5 12.9 13.6 12.2L13.4 13.5C13.4 13.5 14.3 13.9 15.6 13.9C16.9 13.9 18.8 13.1 18.8 11.2C18.8 9.2 16.1 9 16.1 8.2C16.1 7.4 17.9 7.5 18.8 8L19.4 8.2Z"
+        fill="white"
+      />
+    </Svg>
+  );
+}
+
+function IconMastercard({ size }: IconProps) {
+  const w = size * 1.6;
+  return (
+    <Svg width={w} height={size} viewBox="0 0 32 20" fill="none">
+      <Rect width={32} height={20} rx={4} fill="#252525" />
+      <Circle cx={12.5} cy={10} r={5.5} fill="#EB001B" />
+      <Circle cx={19.5} cy={10} r={5.5} fill="#F79E1B" />
+      <Path
+        d="M16 5.8a5.47 5.47 0 0 1 2 4.2 5.47 5.47 0 0 1-2 4.2 5.47 5.47 0 0 1-2-4.2 5.47 5.47 0 0 1 2-4.2Z"
+        fill="#FF5F00"
+      />
+    </Svg>
+  );
+}
+
 const icons = {
   back: IconBack,
   close: IconClose,
@@ -356,4 +384,6 @@ const icons = {
   refund: IconRefund,
   refunded: IconRefunded,
   highImportance: IconHighImportance,
+  visa: IconVisa,
+  mastercard: IconMastercard,
 };

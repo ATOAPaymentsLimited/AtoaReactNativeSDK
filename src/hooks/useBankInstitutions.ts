@@ -15,6 +15,12 @@ function toAtoaException(e: unknown): AtoaException {
   return new AtoaException('custom', e instanceof Error ? e.message : String(e));
 }
 
+const sortByFullName = (a: BankInstitution, b: BankInstitution) =>
+  a.fullName.toLowerCase().localeCompare(b.fullName.toLowerCase());
+
+const sortByOrderBy = (a: BankInstitution, b: BankInstitution) =>
+  a.orderBy - b.orderBy;
+
 export function useBankInstitutions() {
   const { state, dispatch, client, options } = usePaymentContext();
   const { checkConnection } = useConnectivityContext();
@@ -218,6 +224,44 @@ export function useBankInstitutions() {
     [state.paymentDetails, dispatch, client, options, checkBankAppAvailability]
   );
 
+  const selectCardPayment = useCallback(
+    async (): Promise<'success' | 'error'> => {
+      dispatch({ type: 'SET_LOADING_AUTH', payload: true });
+      dispatch({ type: 'SET_PAYMENT_AUTH', payload: null });
+      dispatch({ type: 'SET_BANK_AUTH_ERROR', payload: null });
+
+      const paymentDetails = state.paymentDetails;
+      if (!paymentDetails) {
+        dispatch({ type: 'SET_LOADING_AUTH', payload: false });
+        return 'error';
+      }
+
+      try {
+        const body = buildPaymentAuthBody({
+          paymentDetails,
+          institutionId: 'rapyd',
+          paymentRequestId: options.paymentId,
+          features: ['CREATE_DOMESTIC_SINGLE_PAYMENT'],
+          requestCreatedAt: paymentDetails.requestCreatedAt ?? '',
+          transactionType: 'CARD',
+        });
+
+        const paymentAuth = await client.getPaymentAuth(body);
+        dispatch({ type: 'SET_PAYMENT_AUTH', payload: paymentAuth });
+        return 'success';
+      } catch (e) {
+        const err = toAtoaException(e);
+        options.onError?.(err);
+        dispatch({ type: 'SET_PAYMENT_AUTH', payload: null });
+        dispatch({ type: 'SET_BANK_AUTH_ERROR', payload: err });
+        return 'error';
+      } finally {
+        dispatch({ type: 'SET_LOADING_AUTH', payload: false });
+      }
+    },
+    [state.paymentDetails, dispatch, client, options]
+  );
+
   const authorizeBank = useCallback(async (): Promise<boolean> => {
     const paymentAuth = state.paymentAuth;
     if (!paymentAuth) {
@@ -303,19 +347,19 @@ export function useBankInstitutions() {
     }, 5 * 60 * 1000);
   }, [stopPolling, selectBank, dispatch]);
 
-  const personalBanks = state.bankList.filter((b) => !b.businessBank);
-  const businessBanks = state.bankList.filter((b) => b.businessBank);
+  const personalBanks = useMemo(
+    () => state.bankList.filter((b) => !b.businessBank),
+    [state.bankList]
+  );
+  const businessBanks = useMemo(
+    () => state.bankList.filter((b) => b.businessBank),
+    [state.bankList]
+  );
   const brandingColors = getBrandingColors(
     state.paymentDetails?.merchantThemeDetails
   );
 
   const paymentAmount = state.paymentDetails?.amount?.amount ?? null;
-
-  const sortByFullName = (a: BankInstitution, b: BankInstitution) =>
-    a.fullName.toLowerCase().localeCompare(b.fullName.toLowerCase());
-
-  const sortByOrderBy = (a: BankInstitution, b: BankInstitution) =>
-    a.orderBy - b.orderBy;
 
   // Banks whose transactionAmountLimit >= payment amount (supported)
   const personalBanksEnabled = useMemo(() => {
@@ -393,6 +437,7 @@ export function useBankInstitutions() {
     fetchFilteredBanks,
     search,
     selectBank,
+    selectCardPayment,
     authorizeBank,
     checkBankAppAvailability,
     getPaymentDetailsAndBanks,

@@ -3,6 +3,11 @@ import type { CustomerDetails } from './customer';
 import type { AtoaException } from './error';
 import type { TransactionDetails } from './payment';
 
+export enum TransactionType {
+  BANK = 'BANK',
+  CARD = 'CARD',
+}
+
 export interface AtoaPayOptions {
   /** The payment request ID (required) */
   paymentId: string;
@@ -10,6 +15,8 @@ export interface AtoaPayOptions {
   env: AtoaEnv;
   /** Shows a sheet explaining the steps for making a payment (required) */
   showHowPaymentWorks: boolean;
+  /** Transaction type: BANK (default) or CARD */
+  transactionType?: TransactionType;
   /** Customer details for pre-selecting bank (optional) */
   customerDetails?: CustomerDetails;
   /** Called when the user closes the payment flow */

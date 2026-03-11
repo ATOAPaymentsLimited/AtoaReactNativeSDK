@@ -19,6 +19,7 @@ export const Strings = {
     paymentProcessingError: 'Error processing payment',
     bankLimitWarning:
       'Some banks listed below might not handle the payments of ',
+    payByCard: 'Pay by card',
   },
 
   confirmation: {
@@ -90,6 +91,21 @@ export const Strings = {
     title: 'Oops! No internet connection',
     message:
       'Server is not reachable. Please check your internet connection and try again',
+  },
+
+  cardConfirmation: {
+    title: 'Review',
+    infoMessage:
+      'Your card details will be securely processed by our payment partner.',
+    payingTo: 'Paying to',
+    payWith: 'Pay with',
+    cardPayment: 'Card Payment',
+    payByCard: 'Pay by Card  \u2192',
+    termsPrefix: " By continuing, you trust this merchant and accept Atoa's ",
+    termsLink: 'terms',
+    notEnabledTitle: 'Card payment is not available',
+    notEnabledMessage:
+      'Card payments are not enabled for this merchant. Please use a bank transfer instead.',
   },
 
   paymentPaid: {

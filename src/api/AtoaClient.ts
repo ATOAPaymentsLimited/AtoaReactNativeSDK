@@ -15,9 +15,11 @@ import { Endpoints, applyEnvParam } from './endpoints';
 export class AtoaClient {
   private baseUrl: string;
   private env: AtoaEnv;
+  readonly environment: AtoaEnvironment;
 
   constructor(env: AtoaEnv, environment: AtoaEnvironment = 'production') {
     this.env = env;
+    this.environment = environment;
     this.baseUrl = getBaseUrl(environment);
   }
 

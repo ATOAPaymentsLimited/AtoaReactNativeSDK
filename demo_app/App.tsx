@@ -14,6 +14,7 @@ import {
   isCompleted,
   isFailed,
   isPending,
+  TransactionType,
   type AtoaPayOptions,
 } from '@atoapayments/atoa-react-native-sdk';
 import NetInfo from '@react-native-community/netinfo';
@@ -61,11 +62,11 @@ function getRequestData(amount: number) {
 
 async function getPaymentRequestId(amount: number): Promise<string> {
   const response = await fetch(
-    'https://api.atoa.me/api/payments/process-payment',
+    'https://devapi.atoa.me/api/payments/process-payment',
     {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${ATOA_TOKEN}`,
+        Authorization: `Bearer Zjk2Y2QwMWItYjEzYy00YzIxLTlkNTItYzFkZTRlODcyMWFjOnlNZVRqTHNTUlB0VzlKaTk=`,
       'Content-Type': 'application/json',
       },
       body: JSON.stringify(getRequestData(amount)),
@@ -270,26 +271,62 @@ function RadioSelected() {
   );
 }
 
-function PayByBankRow() {
-
+function RadioUnselected() {
   return (
-    <View style={styles.payByBankCard}>
+    <View style={styles.radioOuter}>
+      <View style={styles.radioInnerTransparent} />
+    </View>
+  );
+}
+
+function PayByBankRow({selected, onPress}: {selected: boolean; onPress: () => void}) {
+  return (
+    <Pressable
+      style={[styles.payByBankCard, selected ? styles.cardSelected : styles.cardUnselected]}
+      onPress={onPress}>
       <View style={styles.payByBankLeft}>
-        <RadioSelected />
+        {selected ? <RadioSelected /> : <RadioUnselected />}
         <View style={styles.payByBankTextContainer}>
           <Text style={styles.payByBankTitle}>Pay by bank app</Text>
           <Text style={styles.payByBankSubtitle}>Powered by Atoa</Text>
         </View>
       </View>
       <View style={styles.bankLogosRow}>
-          {/* Atoa Logo */}
         <Image
           source={require('./assets/images/bank_logos.png')}
           style={styles.bankLogosImage}
           resizeMode="contain"
         />
       </View>
-    </View>
+    </Pressable>
+  );
+}
+
+function PayByCardRow({selected, onPress}: {selected: boolean; onPress: () => void}) {
+  return (
+    <Pressable
+      style={[styles.payByBankCard, selected ? styles.cardSelected : styles.cardUnselected]}
+      onPress={onPress}>
+      <View style={styles.payByBankLeft}>
+        {selected ? <RadioSelected /> : <RadioUnselected />}
+        <View style={styles.payByBankTextContainer}>
+          <Text style={styles.payByBankTitle}>Pay by Card</Text>
+          <Text style={styles.payByBankSubtitle}>Powered by Atoa</Text>
+        </View>
+      </View>
+      <View style={styles.bankLogosRow}>
+        <Image
+          source={require('./assets/images/mastercard.png')}
+          style={styles.cardLogoSmall}
+          resizeMode="contain"
+        />
+        <Image
+          source={require('./assets/images/visa.png')}
+          style={styles.cardLogoSmall}
+          resizeMode="contain"
+        />
+      </View>
+    </Pressable>
   );
 }
 
@@ -340,6 +377,7 @@ function ProductCard({
 
 function App(): React.JSX.Element {
   const [products] = useState<Product[]>(INITIAL_PRODUCTS);
+  const [transactionType, setTransactionType] = useState<TransactionType>(TransactionType.BANK);
   const [isLoading, setIsLoading] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isRetrying, setIsRetrying] = useState(false);
@@ -380,6 +418,7 @@ function App(): React.JSX.Element {
       paymentId,
       env: 'production',
       showHowPaymentWorks: showHowPaymentWorksRef.current,
+      transactionType,
       customerDetails: {
         phoneCountryCode: '44',
         phoneNumber: '8788899999',
@@ -407,11 +446,9 @@ function App(): React.JSX.Element {
     if (result) {
       if (isCompleted(result)) {
         showSnackbar('Payment Successful', '#00802B');
-      } else if (isPending(result)) {
-        showSnackbar('Payment Pending', '#CC8800');
       } else if (isFailed(result)) {
         showSnackbar('Payment Failed', '#BC5A34');
-      } 
+      }
     }
   };
 
@@ -486,8 +523,16 @@ function App(): React.JSX.Element {
 
         <View style={styles.spacerLarge} />
 
-        {/* Payment Method */}
-        <PayByBankRow />
+        {/* Payment Methods */}
+        <PayByBankRow
+          selected={transactionType === TransactionType.BANK}
+          onPress={() => setTransactionType(TransactionType.BANK)}
+        />
+        <View style={styles.spacerMedium} />
+        <PayByCardRow
+          selected={transactionType === TransactionType.CARD}
+          onPress={() => setTransactionType(TransactionType.CARD)}
+        />
 
         {/* Extra spacing for bottom sheet */}
         <View style={styles.bottomPadding} />
@@ -690,8 +735,20 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     backgroundColor: '#1A1A1A',
   },
+  radioInnerTransparent: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: 'transparent',
+  },
 
-  // Pay by Bank
+  // Payment method cards
+  cardSelected: {
+    borderColor: '#000000',
+  },
+  cardUnselected: {
+    borderColor: '#E8E9EB',
+  },
   payByBankCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -700,7 +757,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#000000',
     backgroundColor: '#FFFFFF',
   },
   payByBankLeft: {
@@ -730,6 +786,11 @@ const styles = StyleSheet.create({
   bankLogosImage: {
      width: 120,
      height: 40,
+  },
+  cardLogoSmall: {
+    width: 30,
+    height: 21,
+    marginLeft: 4,
   },
 
   // Bottom Padding

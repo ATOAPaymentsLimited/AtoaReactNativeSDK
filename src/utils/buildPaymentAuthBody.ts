@@ -15,8 +15,9 @@ export function buildPaymentAuthBody(params: {
   paymentRequestId: string;
   features: string[];
   requestCreatedAt: string;
+  transactionType?: string;
 }): PaymentAuthRequestBody {
-  const { paymentDetails, institutionId, paymentRequestId, features, requestCreatedAt } = params;
+  const { paymentDetails, institutionId, paymentRequestId, features, requestCreatedAt, transactionType } = params;
 
   let consumerId = paymentDetails.consumerId;
   if (!consumerId || consumerId.length === 0) {
@@ -58,5 +59,6 @@ export function buildPaymentAuthBody(params: {
     encrptedPaymentDetails: paymentDetails.encryptedPaymentDetails,
     encryptedRefundPaymentDetails: paymentDetails.encryptedRefundPaymentDetails,
     encryptedQrDetails: paymentDetails.encryptedQrDetails,
+    transactionType,
   };
 }

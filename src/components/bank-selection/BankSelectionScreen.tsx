@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { View, Text, FlatList, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Text, FlatList, StyleSheet, useWindowDimensions, Pressable } from 'react-native';
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { useBankInstitutions } from '../../hooks/useBankInstitutions';
 import type { BankInstitution } from '../../types/bank';
@@ -19,16 +19,21 @@ import { BankGridItem } from './BankGridItem';
 import { BankListItem } from './BankListItem';
 import { BankDownBottomSheet } from './BankDownBottomSheet';
 import { BankLimitCard } from './BankLimitCard';
+import { SvgIcon } from '../shared/SvgIcon';
 import { getFontFamily } from '../../constants/typography';
 
 interface BankSelectionScreenProps {
   onBack?: () => void;
   onHelp?: () => void;
+  onPayByCard?: () => void;
+  cardPaymentEnabled?: boolean;
 }
 
 export function BankSelectionScreen({
   onBack,
   onHelp,
+  onPayByCard,
+  cardPaymentEnabled,
 }: BankSelectionScreenProps) {
   const {
     state,
@@ -289,6 +294,18 @@ export function BankSelectionScreen({
             if (item.type === 'list') {
               return (
                 <View style={styles.allBanksContainer}>
+                  {cardPaymentEnabled && onPayByCard && (
+                    <Pressable style={styles.payByCardButton} onPress={onPayByCard}>
+                      <View style={styles.payByCardTextContainer}>
+                        <Text style={styles.payByCardTitle}>{Strings.bankSelection.payByCard}</Text>
+                        <Text style={styles.payByCardSubtitle}>Powered by Atoa</Text>
+                      </View>
+                      <View style={styles.payByCardLogos}>
+                        <SvgIcon name="mastercard" size={20} />
+                        <SvgIcon name="visa" size={20} />
+                      </View>
+                    </Pressable>
+                  )}
                   <Text style={styles.sectionLabel}>{Strings.bankSelection.allBanksLabel}</Text>
                   {allBanksEnabled.map((bank) => (
                     <BankListItem
@@ -408,5 +425,38 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  payByCardButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+    paddingHorizontal: Spacing.large,
+    marginBottom: Spacing.large,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.grey200,
+    backgroundColor: Colors.white,
+  },
+  payByCardTextContainer: {
+    marginLeft: Spacing.small,
+  },
+  payByCardTitle: {
+    fontFamily: getFontFamily('600'),
+    fontSize: 15,
+    color: Colors.black,
+    lineHeight: 20,
+  },
+  payByCardSubtitle: {
+    fontFamily: getFontFamily('400'),
+    fontSize: 12,
+    color: Colors.grey500,
+    lineHeight: 16,
+    marginTop: 2,
+  },
+  payByCardLogos: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
 });

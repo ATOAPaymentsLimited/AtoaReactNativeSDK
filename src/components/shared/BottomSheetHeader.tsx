@@ -11,6 +11,7 @@ interface BottomSheetHeaderProps {
   onBack?: () => void;
   showHelp?: boolean;
   onHelp?: () => void;
+  rightAction?: React.ReactNode;
 }
 
 export function BottomSheetHeader({
@@ -19,6 +20,7 @@ export function BottomSheetHeader({
   onBack,
   showHelp,
   onHelp,
+  rightAction,
 }: BottomSheetHeaderProps) {
   return (
     <View style={styles.container}>
@@ -31,6 +33,7 @@ export function BottomSheetHeader({
       </View>
       <Text style={styles.title}>{title}</Text>
       <View style={[styles.sideRight, showHelp && onHelp && onClose && styles.sideRightWide]}>
+        {rightAction}
         {showHelp && onHelp && (
           <TouchableOpacity onPress={onHelp} style={styles.iconButton}>
             <SvgIcon name="help" size={Spacing.large} />
