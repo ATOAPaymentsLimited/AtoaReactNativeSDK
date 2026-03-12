@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Linking, Platform, AppState, type AppStateStatus } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Linking, Platform, AppState, type AppStateStatus } from 'react-native';
 import { BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
 import { useBankInstitutions } from '../../hooks/useBankInstitutions';
 import { getBankIcon } from '../../types/bank';
+import { isCardPaymentEnabled } from '../../types/payment';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { Strings } from '../../constants/strings';
@@ -18,24 +19,29 @@ import { ERROR_BANK_APP_DOWN, ERROR_BANK_DOWN, INACTIVE_STATE_PATTERN } from '..
 import { getFontFamily } from '../../constants/typography';
 
 interface ConfirmationScreenProps {
+  mode: 'bank' | 'card';
   onClose: () => void;
-  onGoToBank: () => void;
-  onChangeBank: () => void;
+  onConfirm: () => void;
+  onChangeSelection: () => void;
 }
 
 export function ConfirmationScreen({
+  mode,
   onClose,
-  onGoToBank,
-  onChangeBank,
+  onConfirm,
+  onChangeSelection,
 }: ConfirmationScreenProps) {
   const { state, dispatch, selectBank, checkBankAppAvailability, brandingColors } = useBankInstitutions();
   const { paymentDetails, selectedBank, isAppInstalled, showLinkExpired, bankAuthError } =
     state;
   const appStateRef = useRef(AppState.currentState);
 
-  // Re-check bank app availability when app resumes (e.g. user installed app from store)
-  // Re-check when app returns from background (e.g. user installed bank app from store)
+  const isBank = mode === 'bank';
+
+  // Re-check bank app availability when app returns from background (bank mode only)
   useEffect(() => {
+    if (!isBank) { return; }
+
     const handleAppStateChange = (nextAppState: AppStateStatus) => {
       if (
         appStateRef.current.match(INACTIVE_STATE_PATTERN) &&
@@ -51,7 +57,7 @@ export function ConfirmationScreen({
       handleAppStateChange
     );
     return () => subscription.remove();
-  }, [checkBankAppAvailability]);
+  }, [isBank, checkBankAppAvailability]);
 
   const amount = paymentDetails?.amount;
   const amountStr = amount ? formatAmount(amount.amount, amount.currency) : '';
@@ -84,7 +90,8 @@ export function ConfirmationScreen({
     selectBank(selectedBank);
   }, [dispatch, selectBank, selectedBank]);
 
-  if (state.isLoadingAuth) {
+  // --- Loading state (bank mode only — card mode has no auth loading here) ---
+  if (isBank && state.isLoadingAuth) {
     return (
       <View style={styles.container}>
         <BottomSheetHeader title={Strings.confirmation.title} onClose={onClose} />
@@ -95,7 +102,8 @@ export function ConfirmationScreen({
     );
   }
 
-  if (bankAuthError) {
+  // --- Error states ---
+  if (isBank && bankAuthError) {
     const errMsg = bankAuthError.message?.trim();
     const isBankDown =
       errMsg?.toLowerCase().includes(ERROR_BANK_APP_DOWN) ||
@@ -116,7 +124,7 @@ export function ConfirmationScreen({
             <View style={styles.spacerXl} />
             <LedgerButton
               title={Strings.bankDown.selectAnother}
-              onPress={onChangeBank}
+              onPress={onChangeSelection}
               variant="secondary"
               size="xtraLarge"
             />
@@ -135,6 +143,56 @@ export function ConfirmationScreen({
     );
   }
 
+  if (!isBank && bankAuthError) {
+    return (
+      <View style={styles.container}>
+        <BottomSheetHeader title={Strings.cardConfirmation.title} onClose={onClose} />
+        <View style={styles.errorContent}>
+          <ErrorWidget message={bankAuthError.message} />
+        </View>
+      </View>
+    );
+  }
+
+  if (!isBank && !isCardPaymentEnabled(paymentDetails)) {
+    return (
+      <View style={styles.container}>
+        <BottomSheetHeader title={Strings.cardConfirmation.title} onClose={onClose} />
+        <View style={styles.errorContent}>
+          <ErrorWidget
+            title={Strings.cardConfirmation.notEnabledTitle}
+            message={Strings.cardConfirmation.notEnabledMessage}
+          />
+          <LedgerButton
+            title="Pay by bank instead"
+            onPress={onChangeSelection}
+            variant="primary2"
+            size="xtraLarge"
+            backgroundColor={brandingColors?.backgroundColor}
+            foregroundColor={brandingColors?.foregroundColor}
+          />
+        </View>
+      </View>
+    );
+  }
+
+  // --- Main confirmation view ---
+  const infoMessage = isBank
+    ? Strings.confirmation.infoMessage
+    : Strings.cardConfirmation.infoMessage;
+
+  const confirmButtonTitle = isBank
+    ? Strings.confirmation.goToBank(selectedBank?.name ?? Strings.confirmation.defaultBankName)
+    : Strings.cardConfirmation.payByCard;
+
+  const termsPrefix = isBank
+    ? Strings.confirmation.termsPrefix
+    : Strings.cardConfirmation.termsPrefix;
+
+  const termsLink = isBank
+    ? Strings.confirmation.termsLink
+    : Strings.cardConfirmation.termsLink;
+
   return (
     <View style={styles.container}>
       <BottomSheetScrollView
@@ -143,7 +201,7 @@ export function ConfirmationScreen({
       >
         <BottomSheetHeader title={Strings.confirmation.title} onClose={onClose} />
 
-        <InfoWidget message={Strings.confirmation.infoMessage} />
+        <InfoWidget message={infoMessage} />
 
         <View style={styles.spacer} />
 
@@ -157,17 +215,35 @@ export function ConfirmationScreen({
 
         <View style={styles.spacer} />
 
-        {/* Bank details tile */}
-        <ReviewDetailsTile
-          iconUrl={bankIconUrl}
-          heading={Strings.confirmation.from}
-          content={bankName}
-          actionText={Strings.confirmation.change}
-          onAction={onChangeBank}
-        />
+        {/* Bank details tile (bank mode) */}
+        {isBank && (
+          <ReviewDetailsTile
+            iconUrl={bankIconUrl}
+            heading={Strings.confirmation.from}
+            content={bankName}
+            actionText={Strings.confirmation.change}
+            onAction={onChangeSelection}
+          />
+        )}
 
-        {/* App not installed warning */}
-        {!isAppInstalled && (
+        {/* Card payment method tile (card mode) */}
+        {!isBank && (
+          <View style={styles.cardMethodTile}>
+            <View style={styles.cardLogosRow}>
+              <SvgIcon name="mastercard" size={20} />
+            </View>
+            <View style={styles.cardMethodTextContainer}>
+              <Text style={styles.cardMethodHeading}>{Strings.cardConfirmation.payWith}</Text>
+              <Text style={styles.cardMethodContent}>{Strings.cardConfirmation.cards}</Text>
+            </View>
+            <TouchableOpacity onPress={onChangeSelection}>
+              <Text style={styles.changeText}>{Strings.confirmation.change}</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* App not installed warning (bank mode only) */}
+        {isBank && !isAppInstalled && (
           <>
             <View style={styles.spacer} />
             <View style={styles.appWarningBanner}>
@@ -190,7 +266,8 @@ export function ConfirmationScreen({
           </>
         )}
 
-        {showLinkExpired && (
+        {/* Link expired (bank mode only) */}
+        {isBank && showLinkExpired && (
           <>
             <View style={styles.spacer} />
             <Text style={styles.linkExpiredText}>
@@ -206,28 +283,27 @@ export function ConfirmationScreen({
         <View style={styles.spacer} />
 
         <LedgerButton
-          title={Strings.confirmation.goToBank(selectedBank?.name ?? Strings.confirmation.defaultBankName)}
-          onPress={onGoToBank}
+          title={confirmButtonTitle}
+          onPress={onConfirm}
           variant="primary2"
           size="xtraLarge"
           backgroundColor={brandingColors?.backgroundColor}
           foregroundColor={brandingColors?.foregroundColor}
-          disabled={showLinkExpired}
+          disabled={isBank && showLinkExpired}
         />
-
 
         <View style={styles.spacerXl} />
 
         {/* Terms */}
         <Text style={styles.termsText}>
-          {Strings.confirmation.termsPrefix}
+          {termsPrefix}
           <Text
             style={styles.termsLink}
             onPress={() =>
               Linking.openURL('https://paywithatoa.co.uk/terms/')
             }
           >
-            {Strings.confirmation.termsLink}
+            {termsLink}
           </Text>
         </Text>
       </BottomSheetScrollView>
@@ -251,9 +327,6 @@ const styles = StyleSheet.create({
   },
   spacer: {
     height: Spacing.large,
-  },
-  spacerMedium: {
-    height: Spacing.medium,
   },
   spacerXl: {
     height: Spacing.huge,
@@ -289,21 +362,41 @@ const styles = StyleSheet.create({
     fontFamily: getFontFamily('700'),
     textDecorationLine: 'underline',
   },
-  poweredByContainer: {
+  cardMethodTile: {
+    flexDirection: 'row',
+    backgroundColor: Colors.grey50,
+    padding: Spacing.large,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.grey200,
+    alignItems: 'center',
+  },
+  cardLogosRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: 6,
+    marginRight: Spacing.medium,
   },
-  poweredByText: {
-    fontFamily: getFontFamily('500'),
-    fontSize: 13,
+  cardMethodTextContainer: {
+    flex: 1,
+  },
+  cardMethodHeading: {
+    fontFamily: getFontFamily('600'),
+    fontSize: 12,
     color: Colors.grey500,
   },
-  poweredByLogo: {
-    width: 30,
-    height: 12,
-    overflow: 'hidden',
-    justifyContent: 'center',
+  cardMethodContent: {
+    fontFamily: getFontFamily('700'),
+    fontSize: 14,
+    color: Colors.black,
+    marginTop: 2,
+  },
+  changeText: {
+    fontFamily: getFontFamily('700'),
+    fontSize: 14,
+    color: '#E42646',
+    textDecorationLine: 'underline',
+    marginLeft: Spacing.small,
   },
   termsText: {
     fontFamily: getFontFamily('400'),
@@ -313,10 +406,7 @@ const styles = StyleSheet.create({
     lineHeight: 17.6,
     paddingBottom: Spacing.huge,
   },
-  termsBold: {
-    fontFamily: getFontFamily('600'),
-  },
-   termsLink: {
+  termsLink: {
     color: Colors.grey500,
     fontFamily: getFontFamily('700'),
   },

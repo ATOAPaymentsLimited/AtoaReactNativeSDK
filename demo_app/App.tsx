@@ -377,7 +377,7 @@ function ProductCard({
 
 function App(): React.JSX.Element {
   const [products] = useState<Product[]>(INITIAL_PRODUCTS);
-  const [transactionType, setTransactionType] = useState<TransactionType>(TransactionType.BANK);
+  const [transactionType, setTransactionType] = useState<TransactionType>(TransactionType.OPEN_BANKING);
   const [isLoading, setIsLoading] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isRetrying, setIsRetrying] = useState(false);
@@ -527,8 +527,8 @@ function App(): React.JSX.Element {
 
         {/* Payment Methods */}
         <PayByBankRow
-          selected={transactionType === TransactionType.BANK}
-          onPress={() => setTransactionType(TransactionType.BANK)}
+          selected={transactionType === TransactionType.OPEN_BANKING}
+          onPress={() => setTransactionType(TransactionType.OPEN_BANKING)}
         />
         <View style={styles.spacerMedium} />
         <PayByCardRow

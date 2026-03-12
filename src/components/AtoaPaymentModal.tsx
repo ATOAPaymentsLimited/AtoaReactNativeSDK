@@ -15,7 +15,7 @@ import { BankSelectionScreen } from './bank-selection/BankSelectionScreen';
 import { HowToMakePaymentScreen } from './how-to-pay/HowToMakePaymentScreen';
 import { ConfirmationScreen } from './confirmation/ConfirmationScreen';
 import { VerifyingPaymentScreen } from './verifying-payment/VerifyingPaymentScreen';
-import { CardCheckoutScreen, CardConfirmationScreen, CardPaymentResultView, type CardCheckoutResult } from './card-checkout';
+import { CardCheckoutScreen, CardPaymentResultView, type CardCheckoutResult } from './card-checkout';
 import { ConnectivityWrapper } from './shared/ConnectivityWrapper';
 import { SDKLoader } from './shared/AtoaLoader';
 
@@ -25,7 +25,6 @@ type Screen =
   | 'bankSelection'
   | 'confirmation'
   | 'verifying'
-  | 'cardConfirmation'
   | 'cardCheckout'
   | 'cardPaymentSuccess'
 
@@ -62,6 +61,7 @@ function AtoaPaymentModalInner({
   onComplete,
 }: AtoaPaymentModalProps) {
   const [currentScreen, setCurrentScreen] = useState<Screen>('loading');
+  const [confirmationMode, setConfirmationMode] = useState<'bank' | 'card'>('bank');
   const bottomSheetRef = useRef<BottomSheet>(null);
   const { state, dispatch } = usePaymentContext();
   const {
@@ -96,7 +96,8 @@ function AtoaPaymentModalInner({
       state.lastBankDetails == null;
     dispatch({ type: 'SET_SHOW_HOW_PAYMENT_WORKS', payload: shouldShow });
     if (options.transactionType === TransactionType.CARD) {
-      setCurrentScreen('cardConfirmation');
+      setConfirmationMode('card');
+      setCurrentScreen('confirmation');
     } else if (shouldShow) {
       setCurrentScreen('howToPay');
     } else if (!state.hasLastPaymentDetails) {
@@ -142,6 +143,7 @@ function AtoaPaymentModalInner({
       !state.isLoadingAuth &&
       (currentScreen === 'bankSelection' || currentScreen === 'loading' || currentScreen === 'howToPay')
     ) {
+      setConfirmationMode('bank');
       setCurrentScreen('confirmation');
       startPolling();
     }
@@ -200,6 +202,11 @@ function AtoaPaymentModalInner({
     setCurrentScreen('verifying');
   }, []);
 
+  const handlePayByCard = useCallback(() => {
+    setConfirmationMode('card');
+    setCurrentScreen('confirmation');
+  }, []);
+
   const handleCardConfirmationConfirm = useCallback(async () => {
     const result = await selectCardPayment();
     if (result === 'success') {
@@ -251,6 +258,7 @@ function AtoaPaymentModalInner({
 
   const handleChangeBank = useCallback(() => {
     resetSelectBank();
+    setConfirmationMode('bank');
     setCurrentScreen('bankSelection');
   }, [resetSelectBank]);
 
@@ -304,27 +312,20 @@ function AtoaPaymentModalInner({
             }
             onHelp={() => setCurrentScreen('howToPay')}
             cardPaymentEnabled={isCardPaymentEnabled(state.paymentDetails)}
-            onPayByCard={handleCardConfirmationConfirm}
+            onPayByCard={handlePayByCard}
           />
         );
       case 'confirmation':
         return (
           <ConfirmationScreen
+            mode={confirmationMode}
             onClose={handleClose}
-            onGoToBank={handleGoToBank}
-            onChangeBank={handleChangeBank}
+            onConfirm={confirmationMode === 'bank' ? handleGoToBank : handleCardConfirmationConfirm}
+            onChangeSelection={handleChangeBank}
           />
         );
       case 'verifying':
         return <VerifyingPaymentScreen onClose={handleVerifyingClose} />;
-      case 'cardConfirmation':
-        return (
-          <CardConfirmationScreen
-            onClose={handleClose}
-            onConfirm={handleCardConfirmationConfirm}
-            onChangePaymentMethod={handleChangeBank}
-          />
-        );
       case 'cardCheckout': {
         const checkoutId = state.paymentAuth?.cardCheckoutId;
         if (!checkoutId) {
@@ -339,7 +340,7 @@ function AtoaPaymentModalInner({
             checkoutId={checkoutId}
             merchantName={state.paymentDetails?.merchantBusinessName ?? ''}
             onResult={handleCardCheckoutResult}
-            onBack={() => setCurrentScreen('cardConfirmation')}
+            onBack={() => setCurrentScreen('confirmation')}
           />
         );
       }

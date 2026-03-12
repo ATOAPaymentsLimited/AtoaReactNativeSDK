@@ -294,18 +294,6 @@ export function BankSelectionScreen({
             if (item.type === 'list') {
               return (
                 <View style={styles.allBanksContainer}>
-                  {cardPaymentEnabled && onPayByCard && (
-                    <Pressable style={styles.payByCardButton} onPress={onPayByCard}>
-                      <View style={styles.payByCardTextContainer}>
-                        <Text style={styles.payByCardTitle}>{Strings.bankSelection.payByCard}</Text>
-                        <Text style={styles.payByCardSubtitle}>Powered by Atoa</Text>
-                      </View>
-                      <View style={styles.payByCardLogos}>
-                        <SvgIcon name="mastercard" size={20} />
-                        <SvgIcon name="visa" size={20} />
-                      </View>
-                    </Pressable>
-                  )}
                   <Text style={styles.sectionLabel}>{Strings.bankSelection.allBanksLabel}</Text>
                   {allBanksEnabled.map((bank) => (
                     <BankListItem
@@ -325,6 +313,20 @@ export function BankSelectionScreen({
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         />
+      )}
+
+      {cardPaymentEnabled && onPayByCard && (
+        <View style={styles.payByCardFooter}>
+          <Pressable style={styles.payByCardButton} onPress={onPayByCard}>
+            <View style={styles.payByCardTextContainer}>
+              <Text style={styles.cardPaymentOptions}>{Strings.bankSelection.cardPaymentOptions}</Text>
+            </View>
+            <View style={styles.payByCardLogos}>
+              <SvgIcon name="mastercard" size={24} />
+              <SvgIcon name="visa" size={24} />
+            </View>
+          </Pressable>
+        </View>
       )}
 
       {bankDownBank != null && (
@@ -426,13 +428,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  payByCardFooter: {
+    paddingHorizontal: Spacing.large,
+    paddingBottom: Spacing.huge * 2,
+    paddingTop: Spacing.large,
+    backgroundColor: Colors.white,
+  },
   payByCardButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 14,
+    paddingVertical: 16,
     paddingHorizontal: Spacing.large,
-    marginBottom: Spacing.large,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: Colors.grey200,
@@ -441,18 +448,11 @@ const styles = StyleSheet.create({
   payByCardTextContainer: {
     marginLeft: Spacing.small,
   },
-  payByCardTitle: {
-    fontFamily: getFontFamily('600'),
-    fontSize: 15,
+  cardPaymentOptions: {
+    fontFamily: getFontFamily('700'),
+    fontSize: 14,
     color: Colors.black,
     lineHeight: 20,
-  },
-  payByCardSubtitle: {
-    fontFamily: getFontFamily('400'),
-    fontSize: 12,
-    color: Colors.grey500,
-    lineHeight: 16,
-    marginTop: 2,
   },
   payByCardLogos: {
     flexDirection: 'row',

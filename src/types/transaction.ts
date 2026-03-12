@@ -1,4 +1,4 @@
 export enum TransactionType {
-  BANK = 'BANK',
+  OPEN_BANKING= 'OPEN_BANKING',
   CARD = 'CARD',
 }
