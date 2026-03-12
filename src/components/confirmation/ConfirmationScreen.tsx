@@ -419,7 +419,7 @@ const styles = StyleSheet.create({
   changeText: {
     fontFamily: getFontFamily('700'),
     fontSize: 14,
-    color: '#E42646',
+    color: Colors.actionRed,
     textDecorationLine: 'underline',
     marginLeft: Spacing.small,
   },
@@ -465,8 +465,8 @@ const styles = StyleSheet.create({
     fontFamily: getFontFamily('700'),
   },
   fullWidth: {
-    alignSelf: 'stretch' as const,
-    width: '100%' as const,
+    alignSelf: 'stretch',
+    width: '100%',
   },
   errorContent: {
     paddingHorizontal: Spacing.large,

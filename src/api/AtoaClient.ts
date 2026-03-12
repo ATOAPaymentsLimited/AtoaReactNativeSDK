@@ -9,6 +9,7 @@ import type {
 } from '../types/payment';
 import { parseTransactionDetails } from '../types/payment';
 import { AtoaException } from '../types/error';
+import { Strings } from '../constants/strings';
 import { getBaseUrl } from './config';
 import { Endpoints, applyEnvParam } from './endpoints';
 
@@ -47,7 +48,7 @@ export class AtoaClient {
         if (response.status === 502) {
           throw new AtoaException(
             'custom',
-            "Sorry, we're currently down for maintenance. Please check back later."
+            Strings.api.maintenanceMessage
           );
         }
 
@@ -55,7 +56,7 @@ export class AtoaClient {
           throw new AtoaException(
             'custom',
             (errorData as Record<string, unknown>).message as string ??
-              'Unknown Error',
+              Strings.api.unknownError,
             (errorData as Record<string, unknown>).amount as number | undefined,
             (errorData as Record<string, unknown>).referenceId as
               | string
@@ -64,7 +65,7 @@ export class AtoaClient {
           );
         }
 
-        throw new AtoaException('custom', 'Unknown Error');
+        throw new AtoaException('custom', Strings.api.unknownError);
       }
 
       const data = (await response.json()) as T;
@@ -82,7 +83,7 @@ export class AtoaClient {
       // Network error
       throw new AtoaException(
         'custom',
-        'Server is not reachable. Please verify your internet connection and try again'
+        Strings.api.serverNotReachable
       );
     }
   }

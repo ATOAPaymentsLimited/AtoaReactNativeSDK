@@ -109,6 +109,16 @@ export const Strings = {
     payByBank: 'Pay by bank',
   },
 
+  api: {
+    maintenanceMessage:
+      "Sorry, we're currently down for maintenance. Please check back later.",
+    unknownError: 'Unknown Error',
+    serverNotReachable:
+      'Server is not reachable. Please verify your internet connection and try again',
+    cardCheckoutUnavailable:
+      'Card checkout is not available. Please try again.',
+  },
+
   paymentPaid: {
     title: 'This payment is already paid',
     paidOn: (time: string) => `Paid on ${time}`,

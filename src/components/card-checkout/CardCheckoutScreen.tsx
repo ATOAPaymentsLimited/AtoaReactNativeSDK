@@ -123,7 +123,7 @@ export function CardCheckoutScreen({
         javaScriptEnabled
         domStorageEnabled
         thirdPartyCookiesEnabled
-        mixedContentMode="always"
+        mixedContentMode="compatibility"
         style={styles.webview}
       />
       <Pressable onPress={onBack} style={styles.backButton} hitSlop={8}>

@@ -9,7 +9,9 @@ import { TransactionType } from '../types/transaction';
 import type { AtoaPayOptions } from '../types/sdk';
 import type { TransactionDetails } from '../types/payment';
 import { isCompleted, isCardPaymentEnabled, TransactionStatus } from '../types/payment';
+import { AtoaException } from '../types/error';
 import { Colors } from '../constants/colors';
+import { Strings } from '../constants/strings';
 import { Spacing } from '../constants/spacing';
 import { BankSelectionScreen } from './bank-selection/BankSelectionScreen';
 import { HowToMakePaymentScreen } from './how-to-pay/HowToMakePaymentScreen';
@@ -235,8 +237,13 @@ function AtoaPaymentModalInner({
   const handleCardConfirmationConfirm = useCallback(() => {
     if (state.paymentAuth?.cardCheckoutId) {
       setCurrentScreen('cardCheckout');
+    } else {
+      dispatch({
+        type: 'SET_BANK_AUTH_ERROR',
+        payload: new AtoaException('custom', Strings.api.cardCheckoutUnavailable),
+      });
     }
-  }, [state.paymentAuth]);
+  }, [state.paymentAuth, dispatch]);
 
   const handleCardCheckoutResult = useCallback(
     (result: CardCheckoutResult) => {

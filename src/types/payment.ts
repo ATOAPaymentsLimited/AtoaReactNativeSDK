@@ -106,7 +106,7 @@ export interface PaymentAuthRequestBody {
   orderId?: string;
   merchantPaymentOptions?: Record<string, unknown>;
   /** Intentional typo: matches backend API field name */
-  encryptedPaymentDetails?: string;
+  encrptedPaymentDetails?: string;
   encryptedRefundPaymentDetails?: string;
   encryptedQrDetails?: string;
   redirectOnCompleted?: boolean;
