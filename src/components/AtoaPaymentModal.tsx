@@ -97,14 +97,13 @@ function AtoaPaymentModalInner({
       state.lastBankDetails == null;
     dispatch({ type: 'SET_SHOW_HOW_PAYMENT_WORKS', payload: shouldShow });
     if (options.transactionType === TransactionType.CARD) {
-      setConfirmationMode('card');
-      setCurrentScreen('confirmation');
+      selectCardPayment();
     } else if (shouldShow) {
       setCurrentScreen('howToPay');
     } else if (!state.hasLastPaymentDetails) {
       setCurrentScreen('bankSelection');
     }
-  }, [isDataReady, state.showHowPaymentWorks, state.hasLastPaymentDetails, state.lastBankDetails, options.showHowPaymentWorks, dispatch, options.transactionType]);
+  }, [isDataReady, state.showHowPaymentWorks, state.hasLastPaymentDetails, state.lastBankDetails, options.showHowPaymentWorks, dispatch, options.transactionType, selectCardPayment]);
 
   // Auto-select last bank if available, skip to confirmation
   const hasAutoSelectedRef = useRef(false);
@@ -150,16 +149,28 @@ function AtoaPaymentModalInner({
     }
   }, [state.paymentAuth, state.selectedBank, state.isLoadingAuth, currentScreen, startPolling]);
 
+  // Navigate to card confirmation when card auth is ready
+  useEffect(() => {
+    if (
+      state.paymentAuth?.cardCheckoutId &&
+      !state.isLoadingAuth &&
+      (currentScreen === 'loading' || currentScreen === 'bankSelection')
+    ) {
+      setConfirmationMode('card');
+      setCurrentScreen('confirmation');
+    }
+  }, [state.paymentAuth, state.isLoadingAuth, currentScreen]);
+
   // Navigate to confirmation when secure payment auth fails
   useEffect(() => {
     if (
       state.bankAuthError &&
-      state.selectedBank &&
-      (currentScreen === 'bankSelection' || currentScreen === 'loading')
+      (currentScreen === 'bankSelection' || currentScreen === 'loading') &&
+      (state.selectedBank || confirmationMode === 'card')
     ) {
       setCurrentScreen('confirmation');
     }
-  }, [state.bankAuthError, state.selectedBank, currentScreen]);
+  }, [state.bankAuthError, state.selectedBank, currentScreen, confirmationMode]);
 
   // Navigate back to confirmation when link expires during verifying
   useEffect(() => {
@@ -203,17 +214,16 @@ function AtoaPaymentModalInner({
     setCurrentScreen('verifying');
   }, []);
 
-  const handlePayByCard = useCallback(() => {
+  const handlePayByCard = useCallback(async () => {
     setConfirmationMode('card');
-    setCurrentScreen('confirmation');
-  }, []);
+    await selectCardPayment();
+  }, [selectCardPayment]);
 
-  const handleCardConfirmationConfirm = useCallback(async () => {
-    const result = await selectCardPayment();
-    if (result === 'success') {
+  const handleCardConfirmationConfirm = useCallback(() => {
+    if (state.paymentAuth?.cardCheckoutId) {
       setCurrentScreen('cardCheckout');
     }
-  }, [selectCardPayment]);
+  }, [state.paymentAuth]);
 
   const handleCardCheckoutResult = useCallback(
     (result: CardCheckoutResult) => {
