@@ -15,7 +15,8 @@ import { BankSelectionScreen } from './bank-selection/BankSelectionScreen';
 import { HowToMakePaymentScreen } from './how-to-pay/HowToMakePaymentScreen';
 import { ConfirmationScreen } from './confirmation/ConfirmationScreen';
 import { VerifyingPaymentScreen } from './verifying-payment/VerifyingPaymentScreen';
-import { CardCheckoutScreen, CardPaymentResultView, type CardCheckoutResult } from './card-checkout';
+import { CardCheckoutScreen, type CardCheckoutResult } from './card-checkout';
+import { PaymentSuccessView } from './shared/PaymentSuccessView';
 import { ConnectivityWrapper } from './shared/ConnectivityWrapper';
 import { SDKLoader } from './shared/AtoaLoader';
 
@@ -345,7 +346,7 @@ function AtoaPaymentModalInner({
         );
       }
       case 'cardPaymentSuccess':
-        return <CardPaymentResultView type="success" onClose={handleClose} />;
+        return <PaymentSuccessView onClose={handleClose} />;
     }
   };
 

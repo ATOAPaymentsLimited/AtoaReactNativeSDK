@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 import { usePaymentContext } from './PaymentContext';
 import { AtoaException } from '../types/error';
+import { isPending } from '../types/payment';
 import { INACTIVE_STATE_PATTERN, POLLING_INTERVAL_MS } from '../constants/component-constants';
 
 export function usePaymentStatus() {
@@ -27,6 +28,11 @@ export function usePaymentStatus() {
         dispatch({ type: 'SET_TRANSACTION_DETAILS', payload: details });
         dispatch({ type: 'SET_PAYMENT_STATUS_ERROR', payload: null });
 
+        // Stop polling for card payments when status is PENDING
+        if (isPending(details) && state.paymentAuth?.cardCheckoutId) {
+          stop();
+        }
+
         options.onPaymentStatusChange?.({
           status: typeof details.status === 'string' ? details.status : '',
           redirectUrlParams: details.redirectUrlParams,
@@ -40,7 +46,7 @@ export function usePaymentStatus() {
         dispatch({ type: 'SET_PAYMENT_STATUS_ERROR', payload: err });
       }
     },
-    [client, dispatch, options]
+    [client, dispatch, options, state.paymentAuth, stop]
   );
 
   const startListening = useCallback(

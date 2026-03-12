@@ -322,8 +322,8 @@ export function BankSelectionScreen({
               <Text style={styles.cardPaymentOptions}>{Strings.bankSelection.cardPaymentOptions}</Text>
             </View>
             <View style={styles.payByCardLogos}>
-              <SvgIcon name="mastercard" size={24} />
-              <SvgIcon name="visa" size={24} />
+              <SvgIcon name="mastercard" size={28} />
+              <SvgIcon name="visa" size={28} />
             </View>
           </Pressable>
         </View>

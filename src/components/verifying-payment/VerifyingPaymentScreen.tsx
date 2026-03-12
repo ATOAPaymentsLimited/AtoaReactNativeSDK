@@ -10,7 +10,7 @@ import { Strings } from '../../constants/strings';
 import { BottomSheetHeader } from '../shared/BottomSheetHeader';
 import { ErrorWidget } from '../shared/ErrorWidget';
 import { DotLoadingAnimation } from '../shared/DotLoadingAnimation';
-import { PaymentStatusView } from './PaymentStatusView';
+import { PaymentSuccessView } from '../shared/PaymentSuccessView';
 import { AtoaLogoSource } from '../../constants/images';
 import { getFontFamily } from '../../constants/typography';
 interface VerifyingPaymentScreenProps {
@@ -99,7 +99,7 @@ export function VerifyingPaymentScreen({
     !isNotInitiated(transactionDetails)
   ) {
     return (
-      <PaymentStatusView
+      <PaymentSuccessView
         transactionDetails={transactionDetails}
         onClose={handleClose}
       />

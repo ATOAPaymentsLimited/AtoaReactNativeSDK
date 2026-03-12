@@ -15,12 +15,6 @@ function toAtoaException(e: unknown): AtoaException {
   return new AtoaException('custom', e instanceof Error ? e.message : String(e));
 }
 
-const sortByFullName = (a: BankInstitution, b: BankInstitution) =>
-  a.fullName.toLowerCase().localeCompare(b.fullName.toLowerCase());
-
-const sortByOrderBy = (a: BankInstitution, b: BankInstitution) =>
-  a.orderBy - b.orderBy;
-
 export function useBankInstitutions() {
   const { state, dispatch, client, options } = usePaymentContext();
   const { checkConnection } = useConnectivityContext();
@@ -348,19 +342,20 @@ export function useBankInstitutions() {
     }, 5 * 60 * 1000);
   }, [stopPolling, selectBank, dispatch]);
 
-  const personalBanks = useMemo(
-    () => state.bankList.filter((b) => !b.businessBank),
-    [state.bankList]
-  );
-  const businessBanks = useMemo(
-    () => state.bankList.filter((b) => b.businessBank),
-    [state.bankList]
-  );
+  const personalBanks = state.bankList.filter((b) => !b.businessBank);
+  const businessBanks = state.bankList.filter((b) => b.businessBank);
+
   const brandingColors = getBrandingColors(
     state.paymentDetails?.merchantThemeDetails
   );
 
   const paymentAmount = state.paymentDetails?.amount?.amount ?? null;
+
+  const sortByFullName = (a: BankInstitution, b: BankInstitution) =>
+    a.fullName.toLowerCase().localeCompare(b.fullName.toLowerCase());
+
+  const sortByOrderBy = (a: BankInstitution, b: BankInstitution) =>
+    a.orderBy - b.orderBy;
 
   // Banks whose transactionAmountLimit >= payment amount (supported)
   const personalBanksEnabled = useMemo(() => {
