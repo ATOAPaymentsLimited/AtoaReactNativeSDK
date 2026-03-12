@@ -145,34 +145,35 @@ export function ConfirmationScreen({
 
   if (!isBank && bankAuthError) {
     return (
-      <View style={styles.container}>
+      <BottomSheetView>
         <BottomSheetHeader title={Strings.cardConfirmation.title} onClose={onClose} />
         <View style={styles.errorContent}>
           <ErrorWidget message={bankAuthError.message} />
         </View>
-      </View>
+      </BottomSheetView>
     );
   }
 
   if (!isBank && !isCardPaymentEnabled(paymentDetails)) {
     return (
-      <View style={styles.container}>
-        <BottomSheetHeader title={Strings.cardConfirmation.title} onClose={onClose} />
+      <BottomSheetView>
+        <BottomSheetHeader title="" onClose={onClose} />
         <View style={styles.errorContent}>
           <ErrorWidget
             title={Strings.cardConfirmation.notEnabledTitle}
             message={Strings.cardConfirmation.notEnabledMessage}
           />
           <LedgerButton
-            title="Pay by bank instead"
+            title="Pay by bank"
             onPress={onChangeSelection}
             variant="primary2"
             size="xtraLarge"
             backgroundColor={brandingColors?.backgroundColor}
             foregroundColor={brandingColors?.foregroundColor}
           />
+          <View style={styles.spacerXl} />
         </View>
-      </View>
+      </BottomSheetView>
     );
   }
 
