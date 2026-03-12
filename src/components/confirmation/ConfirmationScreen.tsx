@@ -31,7 +31,7 @@ export function ConfirmationScreen({
   onConfirm,
   onChangeSelection,
 }: ConfirmationScreenProps) {
-  const { state, dispatch, selectBank, checkBankAppAvailability, brandingColors } = useBankInstitutions();
+  const { state, dispatch, selectBank, selectCardPayment, checkBankAppAvailability, brandingColors } = useBankInstitutions();
   const { paymentDetails, selectedBank, isAppInstalled, showLinkExpired, bankAuthError } =
     state;
   const appStateRef = useRef(AppState.currentState);
@@ -90,11 +90,11 @@ export function ConfirmationScreen({
     selectBank(selectedBank);
   }, [dispatch, selectBank, selectedBank]);
 
-  // --- Loading state (bank mode only — card mode has no auth loading here) ---
-  if (isBank && state.isLoadingAuth) {
+  // --- Loading state ---
+  if (state.isLoadingAuth) {
     return (
       <View style={styles.container}>
-        <BottomSheetHeader title={Strings.confirmation.title} onClose={onClose} />
+        <BottomSheetHeader title={isBank ? Strings.confirmation.title : Strings.cardConfirmation.title} onClose={onClose} />
         <View style={styles.loaderContainer}>
           <AtoaLoader />
         </View>
@@ -148,7 +148,27 @@ export function ConfirmationScreen({
       <BottomSheetView>
         <BottomSheetHeader title={Strings.cardConfirmation.title} onClose={onClose} />
         <View style={styles.errorContent}>
-          <ErrorWidget message={bankAuthError.message} />
+          <ErrorWidget message={bankAuthError.message} onRetry={selectCardPayment} />
+          <View style={styles.spacer} />
+          <LedgerButton
+            title="Pay by bank"
+            onPress={onChangeSelection}
+            variant="secondary"
+            size="xtraLarge"
+          />
+          <View style={styles.spacerXl} />
+        </View>
+      </BottomSheetView>
+    );
+  }
+
+  if (!isBank && state.paymentDetailsError) {
+    return (
+      <BottomSheetView>
+        <BottomSheetHeader title={Strings.cardConfirmation.title} onClose={onClose} />
+        <View style={styles.errorContent}>
+          <ErrorWidget message={state.paymentDetailsError.message} />
+          <View style={styles.spacerXl} />
         </View>
       </BottomSheetView>
     );

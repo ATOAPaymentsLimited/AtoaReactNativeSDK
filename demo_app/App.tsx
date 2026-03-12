@@ -288,7 +288,6 @@ function PayByBankRow({selected, onPress}: {selected: boolean; onPress: () => vo
         {selected ? <RadioSelected /> : <RadioUnselected />}
         <View style={styles.payByBankTextContainer}>
           <Text style={styles.payByBankTitle}>Pay by bank app</Text>
-          <Text style={styles.payByBankSubtitle}>Powered by Atoa</Text>
         </View>
       </View>
       <View style={styles.bankLogosRow}>
@@ -311,7 +310,6 @@ function PayByCardRow({selected, onPress}: {selected: boolean; onPress: () => vo
         {selected ? <RadioSelected /> : <RadioUnselected />}
         <View style={styles.payByBankTextContainer}>
           <Text style={styles.payByBankTitle}>Pay by Card</Text>
-          <Text style={styles.payByBankSubtitle}>Powered by Atoa</Text>
         </View>
       </View>
       <View style={styles.bankLogosRow}>
@@ -419,6 +417,7 @@ function App(): React.JSX.Element {
       env: 'production',
       showHowPaymentWorks: showHowPaymentWorksRef.current,
       transactionType,
+      showCardPaymentOption: true,
       customerDetails: {
         phoneCountryCode: '44',
         phoneNumber: '8788899999',

@@ -13,6 +13,8 @@ export interface AtoaPayOptions {
   showHowPaymentWorks: boolean;
   /** Transaction type: OPEN_BANKING (default) or CARD */
   transactionType?: TransactionType;
+  /** Whether to show the card payment option in bank selection (default: true) */
+  showCardPaymentOption?: boolean;
   /** Customer details for pre-selecting bank (optional) */
   customerDetails?: CustomerDetails;
   /** Called when the user closes the payment flow */

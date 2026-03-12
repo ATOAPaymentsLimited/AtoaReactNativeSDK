@@ -97,6 +97,7 @@ function AtoaPaymentModalInner({
       state.lastBankDetails == null;
     dispatch({ type: 'SET_SHOW_HOW_PAYMENT_WORKS', payload: shouldShow });
     if (options.transactionType === TransactionType.CARD) {
+      setConfirmationMode('card');
       selectCardPayment();
     } else if (shouldShow) {
       setCurrentScreen('howToPay');
@@ -172,6 +173,17 @@ function AtoaPaymentModalInner({
     }
   }, [state.bankAuthError, state.selectedBank, currentScreen, confirmationMode]);
 
+  // Navigate to confirmation when payment details fail for card flow
+  useEffect(() => {
+    if (
+      state.paymentDetailsError &&
+      confirmationMode === 'card' &&
+      currentScreen === 'loading'
+    ) {
+      setCurrentScreen('confirmation');
+    }
+  }, [state.paymentDetailsError, confirmationMode, currentScreen]);
+
   // Navigate back to confirmation when link expires during verifying
   useEffect(() => {
     if (state.showLinkExpired && currentScreen === 'verifying') {
@@ -214,9 +226,10 @@ function AtoaPaymentModalInner({
     setCurrentScreen('verifying');
   }, []);
 
-  const handlePayByCard = useCallback(async () => {
+  const handlePayByCard = useCallback(() => {
     setConfirmationMode('card');
-    await selectCardPayment();
+    setCurrentScreen('confirmation');
+    selectCardPayment();
   }, [selectCardPayment]);
 
   const handleCardConfirmationConfirm = useCallback(() => {
@@ -322,7 +335,7 @@ function AtoaPaymentModalInner({
                 : handleClose
             }
             onHelp={() => setCurrentScreen('howToPay')}
-            cardPaymentEnabled={isCardPaymentEnabled(state.paymentDetails)}
+            cardPaymentEnabled={options.showCardPaymentOption !== false && isCardPaymentEnabled(state.paymentDetails)}
             onPayByCard={handlePayByCard}
           />
         );
