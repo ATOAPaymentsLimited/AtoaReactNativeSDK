@@ -12,6 +12,7 @@ The Atoa React Native SDK allows merchants to easily integrate Atoa Payments int
 - [Installation](#installation)
 - [Setup](#setup)
 - [Usage](#usage)
+- [Card Payments](#card-payments)
 - [API Reference](#api-reference)
 - [Handle Response](#handle-response)
 - [Handle Redirection](#handle-redirection-optional)
@@ -113,6 +114,7 @@ import {
   isCompleted,
   isFailed,
   isPending,
+  TransactionType,
   type AtoaPayOptions,
 } from '@atoapayments/atoa-react-native-sdk';
 ```
@@ -178,6 +180,51 @@ The SDK supports displaying banks the customer has previously paid with through 
 - Keep the same `customerDetails` across all payments for the same customer to ensure continuity of previously used banks.
 - Consider user consent and data privacy regulations when implementing this functionality.
 
+## Card Payments
+
+The SDK supports card payments in addition to open banking. There are two ways to enable card payments:
+
+### Direct Card Payment Flow
+
+Set `transactionType` to `TransactionType.CARD` to open the SDK directly in card payment mode. The SDK will skip bank selection and go straight to the card payment confirmation screen.
+
+```tsx
+import { AtoaSdk, TransactionType } from '@atoapayments/atoa-react-native-sdk';
+
+const result = await AtoaSdk.pay({
+  paymentId: 'your-payment-request-id',
+  env: 'production',
+  showHowPaymentWorks: false,
+  transactionType: TransactionType.CARD,
+});
+```
+
+### Card Option in Bank Selection
+
+When using the default open banking flow (`TransactionType.OPEN_BANKING`), you can show a "Pay by Card" button in the bank selection screen. This allows users to choose between bank transfer and card payment.
+
+```tsx
+const result = await AtoaSdk.pay({
+  paymentId: 'your-payment-request-id',
+  env: 'production',
+  showHowPaymentWorks: false,
+  showCardPaymentOption: true, // show card button in bank selection (default: true)
+});
+```
+
+Set `showCardPaymentOption` to `false` to hide the card payment button from bank selection:
+
+```tsx
+const result = await AtoaSdk.pay({
+  paymentId: 'your-payment-request-id',
+  env: 'production',
+  showHowPaymentWorks: false,
+  showCardPaymentOption: false, // hide card button
+});
+```
+
+> **Note:** Card payments must also be enabled for your merchant account on the Atoa dashboard. If card payments are not enabled by the API, the card option will not appear regardless of the `showCardPaymentOption` setting.
+
 ## API Reference
 
 #### Parameters
@@ -186,6 +233,8 @@ The SDK supports displaying banks the customer has previously paid with through 
   - `env`: The Atoa environment to use (`'sandbox'` | `'production'`)
   - `paymentId`: The payment request ID (required)
   - `showHowPaymentWorks`: Shows a sheet which explains the steps for making a payment (required)
+  - `transactionType`: Transaction type — `TransactionType.OPEN_BANKING` (default) or `TransactionType.CARD` (optional)
+  - `showCardPaymentOption`: Whether to show the card payment option in bank selection (default: `true`) (optional)
   - `customerDetails`: Customer details for the payment (optional)
   - `onError`: Error callback function (optional)
   - `onPaymentStatusChange`: Callback for payment status updates (optional)
@@ -210,6 +259,20 @@ The SDK supports displaying banks the customer has previously paid with through 
 - Type: `boolean`
 - Required: Yes
 - Description: Shows a sheet which explains the steps for making a payment.
+
+##### Transaction Type
+
+- Type: `TransactionType` (`TransactionType.OPEN_BANKING` | `TransactionType.CARD`)
+- Required: No
+- Default: `TransactionType.OPEN_BANKING`
+- Description: Controls the payment flow. `OPEN_BANKING` shows bank selection first, `CARD` goes directly to card payment confirmation.
+
+##### Show Card Payment Option
+
+- Type: `boolean`
+- Required: No
+- Default: `true`
+- Description: Whether to show the "Pay by Card" button in the bank selection screen. Only applies when `transactionType` is `OPEN_BANKING`. Card payments must also be enabled for the merchant on the Atoa dashboard.
 
 ##### Customer Details
 
