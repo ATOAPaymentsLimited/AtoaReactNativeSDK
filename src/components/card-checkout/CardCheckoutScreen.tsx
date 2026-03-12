@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import { View, StyleSheet, BackHandler, Pressable } from 'react-native';
+import { View, StyleSheet, BackHandler, Platform, Pressable } from 'react-native';
 import { WebView } from 'react-native-webview';
 import type { WebViewNavigation } from 'react-native-webview';
 import { usePaymentContext } from '../../hooks/PaymentContext';
@@ -21,6 +21,10 @@ interface CardCheckoutScreenProps {
 }
 
 const REDIRECT_PATH = '/card-checkout-redirect';
+
+// Safari user-agent so the checkout page doesn't show a "switch browser" dialog on iOS.
+const IOS_USER_AGENT =
+  'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
 
 /**
  * Parse query parameters from a URL string.
@@ -124,6 +128,11 @@ export function CardCheckoutScreen({
         domStorageEnabled
         thirdPartyCookiesEnabled
         mixedContentMode="compatibility"
+        // iOS: spoof Safari user-agent to prevent "switch browser" dialog
+        {...(Platform.OS === 'ios' && { userAgent: IOS_USER_AGENT })}
+        // iOS: share cookies with Safari so the checkout page works seamlessly
+        sharedCookiesEnabled={Platform.OS === 'ios'}
+        allowsInlineMediaPlayback
         style={styles.webview}
       />
       <Pressable onPress={onBack} style={styles.backButton} hitSlop={8}>
