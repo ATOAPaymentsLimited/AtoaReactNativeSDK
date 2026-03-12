@@ -106,6 +106,7 @@ export const Strings = {
     notEnabledTitle: 'Card payment is not available',
     notEnabledMessage:
       'Card payments are not enabled for this merchant. Please use a bank transfer instead.',
+    payByBank: 'Pay by bank',
   },
 
   paymentPaid: {

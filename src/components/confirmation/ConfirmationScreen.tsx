@@ -31,7 +31,7 @@ export function ConfirmationScreen({
   onConfirm,
   onChangeSelection,
 }: ConfirmationScreenProps) {
-  const { state, dispatch, selectBank, selectCardPayment, checkBankAppAvailability, brandingColors } = useBankInstitutions();
+  const { state, dispatch, selectBank, checkBankAppAvailability, brandingColors } = useBankInstitutions();
   const { paymentDetails, selectedBank, isAppInstalled, showLinkExpired, bankAuthError } =
     state;
   const appStateRef = useRef(AppState.currentState);
@@ -148,14 +148,16 @@ export function ConfirmationScreen({
       <BottomSheetView>
         <BottomSheetHeader title={Strings.cardConfirmation.title} onClose={onClose} />
         <View style={styles.errorContent}>
-          <ErrorWidget message={bankAuthError.message} onRetry={selectCardPayment} />
+          <ErrorWidget message={bankAuthError.message} />
           <View style={styles.spacer} />
-          <LedgerButton
-            title="Pay by bank"
-            onPress={onChangeSelection}
-            variant="secondary"
-            size="xtraLarge"
-          />
+          <View style={styles.fullWidth}>
+            <LedgerButton
+              title={Strings.cardConfirmation.payByBank}
+              onPress={onChangeSelection}
+              variant="secondary"
+              size="xtraLarge"
+            />
+          </View>
           <View style={styles.spacerXl} />
         </View>
       </BottomSheetView>
@@ -183,14 +185,16 @@ export function ConfirmationScreen({
             title={Strings.cardConfirmation.notEnabledTitle}
             message={Strings.cardConfirmation.notEnabledMessage}
           />
-          <LedgerButton
-            title="Pay by bank"
-            onPress={onChangeSelection}
-            variant="primary2"
-            size="xtraLarge"
-            backgroundColor={brandingColors?.backgroundColor}
-            foregroundColor={brandingColors?.foregroundColor}
-          />
+          <View style={styles.fullWidth}>
+            <LedgerButton
+              title={Strings.cardConfirmation.payByBank}
+              onPress={onChangeSelection}
+              variant="primary2"
+              size="xtraLarge"
+              backgroundColor={brandingColors?.backgroundColor}
+              foregroundColor={brandingColors?.foregroundColor}
+            />
+          </View>
           <View style={styles.spacerXl} />
         </View>
       </BottomSheetView>
@@ -459,6 +463,10 @@ const styles = StyleSheet.create({
   },
   bankDownBankName: {
     fontFamily: getFontFamily('700'),
+  },
+  fullWidth: {
+    alignSelf: 'stretch' as const,
+    width: '100%' as const,
   },
   errorContent: {
     paddingHorizontal: Spacing.large,
