@@ -56,9 +56,9 @@ export function buildPaymentAuthBody(params: {
       paymentRequestId,
     },
     redirectOnCompleted: paymentDetails.redirectOnCompleted,
-    encrptedPaymentDetails: paymentDetails.encryptedPaymentDetails,
+    encryptedPaymentDetails: paymentDetails.encryptedPaymentDetails,
     encryptedRefundPaymentDetails: paymentDetails.encryptedRefundPaymentDetails,
     encryptedQrDetails: paymentDetails.encryptedQrDetails,
-    transactionType,
+    transactionType: transactionType,
   };
 }

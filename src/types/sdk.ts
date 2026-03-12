@@ -2,11 +2,7 @@ import type { AtoaEnv } from './environment';
 import type { CustomerDetails } from './customer';
 import type { AtoaException } from './error';
 import type { TransactionDetails } from './payment';
-
-export enum TransactionType {
-  BANK = 'BANK',
-  CARD = 'CARD',
-}
+import type { TransactionType } from './transaction';
 
 export interface AtoaPayOptions {
   /** The payment request ID (required) */

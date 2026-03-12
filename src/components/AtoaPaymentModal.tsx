@@ -5,7 +5,7 @@ import BottomSheet from '@gorhom/bottom-sheet';
 import { PaymentProvider, usePaymentContext } from '../hooks/PaymentContext';
 import { ConnectivityProvider } from '../hooks/ConnectivityContext';
 import { useBankInstitutions } from '../hooks/useBankInstitutions';
-import { TransactionType } from '../types/sdk';
+import { TransactionType } from '../types/transaction';
 import type { AtoaPayOptions } from '../types/sdk';
 import type { TransactionDetails } from '../types/payment';
 import { isCompleted, isCardPaymentEnabled, TransactionStatus } from '../types/payment';

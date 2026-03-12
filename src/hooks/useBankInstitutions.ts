@@ -197,6 +197,7 @@ export function useBankInstitutions() {
           paymentRequestId: options.paymentId,
           features: selectedBank.features,
           requestCreatedAt: paymentDetails.requestCreatedAt ?? '',
+          transactionType: 'BANK',
         });
 
         const paymentAuth = await client.getPaymentAuth(body);

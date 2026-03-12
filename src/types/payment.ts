@@ -75,7 +75,6 @@ export interface PaymentAuthResponse {
   androidPackageName?: string;
   iOSPackageName?: string;
   cardCheckoutId?: string;
-  cardTransactionId?: string;
 }
 
 export interface PaymentAuthRequestBody {
@@ -107,7 +106,7 @@ export interface PaymentAuthRequestBody {
   orderId?: string;
   merchantPaymentOptions?: Record<string, unknown>;
   /** Intentional typo: matches backend API field name */
-  encrptedPaymentDetails?: string;
+  encryptedPaymentDetails?: string;
   encryptedRefundPaymentDetails?: string;
   encryptedQrDetails?: string;
   redirectOnCompleted?: boolean;

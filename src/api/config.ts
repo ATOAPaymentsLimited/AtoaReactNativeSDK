@@ -22,5 +22,10 @@ export function getCardCheckoutUrl(
   businessName: string
 ): string {
   const baseUrl = CARD_CHECKOUT_BASE_URLS[environment];
-  return `${baseUrl}card-checkout?checkoutId=${encodeURIComponent(checkoutId)}&businessName=${encodeURIComponent(businessName)}&deviceOrigin=SDK_MOBILE_APP`;
+  const params = new URLSearchParams({
+    checkoutId,
+    businessName,
+    deviceOrigin: 'SDK_MOBILE_APP',
+  });
+  return `${baseUrl}card-checkout?${params.toString()}`;
 }

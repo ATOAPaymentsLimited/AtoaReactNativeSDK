@@ -62,11 +62,11 @@ function getRequestData(amount: number) {
 
 async function getPaymentRequestId(amount: number): Promise<string> {
   const response = await fetch(
-    'https://devapi.atoa.me/api/payments/process-payment',
+    'https://api.atoa.me/api/payments/process-payment',
     {
       method: 'POST',
       headers: {
-        Authorization: `Bearer Zjk2Y2QwMWItYjEzYy00YzIxLTlkNTItYzFkZTRlODcyMWFjOnlNZVRqTHNTUlB0VzlKaTk=`,
+        Authorization: `Bearer ${ATOA_TOKEN}`,
       'Content-Type': 'application/json',
       },
       body: JSON.stringify(getRequestData(amount)),
@@ -446,6 +446,8 @@ function App(): React.JSX.Element {
     if (result) {
       if (isCompleted(result)) {
         showSnackbar('Payment Successful', '#00802B');
+      } else if (isPending(result)) {
+        showSnackbar('Payment Pending', '#CC8800');
       } else if (isFailed(result)) {
         showSnackbar('Payment Failed', '#BC5A34');
       }
@@ -788,8 +790,8 @@ const styles = StyleSheet.create({
      height: 40,
   },
   cardLogoSmall: {
-    width: 30,
-    height: 21,
+    width: 50,
+    height: 36,
     marginLeft: 4,
   },
 
