@@ -182,7 +182,7 @@ The SDK supports displaying banks the customer has previously paid with through 
 
 ## Card Payments
 
-The SDK supports card payments in addition to open banking. There are two ways to enable card payments:
+The SDK supports card payments in addition to open banking. Card payments must be enabled for your merchant account on the Atoa dashboard. If card payments are not enabled for the merchant, the card option will not appear.
 
 ### Direct Card Payment Flow
 
@@ -201,29 +201,18 @@ const result = await AtoaSdk.pay({
 
 ### Card Option in Bank Selection
 
-When using the default open banking flow (`TransactionType.OPEN_BANKING`), you can show a "Pay by Card" button in the bank selection screen. This allows users to choose between bank transfer and card payment.
+When using the default flow (no `transactionType` specified), a "Card payment options" button automatically appears at the end of the bank selection list if card payments are enabled for the merchant. This allows users to choose between bank transfer and card payment within the same flow. Setting `transactionType` to `TransactionType.OPEN_BANKING` shows bank selection only, without the card payment option.
 
 ```tsx
 const result = await AtoaSdk.pay({
   paymentId: 'your-payment-request-id',
   env: 'production',
   showHowPaymentWorks: false,
-  showCardPaymentOption: true, // show card button in bank selection (default: true)
+  // Card option appears automatically if enabled for the merchant
 });
 ```
 
-Set `showCardPaymentOption` to `false` to hide the card payment button from bank selection:
-
-```tsx
-const result = await AtoaSdk.pay({
-  paymentId: 'your-payment-request-id',
-  env: 'production',
-  showHowPaymentWorks: false,
-  showCardPaymentOption: false, // hide card button
-});
-```
-
-> **Note:** Card payments must also be enabled for your merchant account on the Atoa dashboard. If card payments are not enabled by the API, the card option will not appear regardless of the `showCardPaymentOption` setting.
+> **Note:** The card payment option visibility is controlled by the merchant's Atoa dashboard settings. There is no SDK-level toggle — if card payments are enabled for the merchant account, the option is shown automatically.
 
 ## API Reference
 
@@ -233,8 +222,7 @@ const result = await AtoaSdk.pay({
   - `env`: The Atoa environment to use (`'sandbox'` | `'production'`)
   - `paymentId`: The payment request ID (required)
   - `showHowPaymentWorks`: Shows a sheet which explains the steps for making a payment (required)
-  - `transactionType`: Transaction type — `TransactionType.OPEN_BANKING` (default) or `TransactionType.CARD` (optional)
-  - `showCardPaymentOption`: Whether to show the card payment option in bank selection (default: `true`) (optional)
+  - `transactionType`: Transaction type — `undefined` (default, bank + card), `TransactionType.OPEN_BANKING` (bank only), or `TransactionType.CARD` (card only) (optional)
   - `customerDetails`: Customer details for the payment (optional)
   - `onError`: Error callback function (optional)
   - `onPaymentStatusChange`: Callback for payment status updates (optional)
@@ -264,15 +252,8 @@ const result = await AtoaSdk.pay({
 
 - Type: `TransactionType` (`TransactionType.OPEN_BANKING` | `TransactionType.CARD`)
 - Required: No
-- Default: `TransactionType.OPEN_BANKING`
-- Description: Controls the payment flow. `OPEN_BANKING` shows bank selection first, `CARD` goes directly to card payment confirmation.
-
-##### Show Card Payment Option
-
-- Type: `boolean`
-- Required: No
-- Default: `true`
-- Description: Whether to show the "Pay by Card" button in the bank selection screen. Only applies when `transactionType` is `OPEN_BANKING`. Card payments must also be enabled for the merchant on the Atoa dashboard.
+- Default: `undefined` (shows bank selection with card payment option if enabled for the merchant)
+- Description: Controls the payment flow. When not specified, the SDK shows bank selection with an optional card payment button. `OPEN_BANKING` shows bank selection only. `CARD` goes directly to card payment confirmation.
 
 ##### Customer Details
 
