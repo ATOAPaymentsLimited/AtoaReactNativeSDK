@@ -53,6 +53,7 @@ export const POLLING_INTERVAL_MS = 1000;
 
 // --- AtoaClient ---
 export const REQUEST_TIMEOUT_MS = 30000;
+export const DEFAULT_TRANSACTION_LIMIT = 15000;
 
 // --- Error message patterns ---
 export const ERROR_SERVER_NOT_REACHABLE = 'Server is not reachable';

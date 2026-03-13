@@ -12,7 +12,7 @@ import { AtoaException } from '../types/error';
 import { Strings } from '../constants/strings';
 import { getBaseUrl } from './config';
 import { Endpoints, applyEnvParam } from './endpoints';
-import { REQUEST_TIMEOUT_MS } from '../constants/component-constants';
+import { REQUEST_TIMEOUT_MS, DEFAULT_TRANSACTION_LIMIT } from '../constants/component-constants';
 
 export class AtoaClient {
   private baseUrl: string;
@@ -108,7 +108,11 @@ export class AtoaClient {
     if (searchTerm && searchTerm.length > 0) {
       endpoint = `${endpoint}&search=${encodeURIComponent(searchTerm)}`;
     }
-    return this.request<BankInstitution[]>('GET', endpoint);
+    const banks = await this.request<BankInstitution[]>('GET', endpoint);
+    return banks.map((b) => ({
+      ...b,
+      transactionAmountLimit: b.transactionAmountLimit ?? DEFAULT_TRANSACTION_LIMIT,
+    }));
   }
 
   async getPaymentDetails(
