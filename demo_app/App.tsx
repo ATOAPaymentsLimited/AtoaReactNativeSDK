@@ -18,7 +18,7 @@ import {
   type AtoaPayOptions,
 } from '@atoapayments/atoa-react-native-sdk';
 import NetInfo from '@react-native-community/netinfo';
-import Svg, {Path, G, ClipPath, Rect, Defs} from 'react-native-svg';
+import Svg, {Path} from 'react-native-svg';
 import {SafeAreaView} from 'react-native-safe-area-context';
 
 const ATOA_TOKEN = 'YOUR_ATOA_TOKEN_HERE'; // Replace with your actual Atoa API token
@@ -213,55 +213,6 @@ function OfflineBanner({
   );
 }
 
-function DeleteIcon() {
-  return (
-    <Svg width={16} height={16} viewBox="0 0 16 16" fill="none">
-      <Defs>
-        <ClipPath id="clip0">
-          <Rect width={16} height={16} fill="white" />
-        </ClipPath>
-      </Defs>
-      <G clipPath="url(#clip0)">
-        <Path
-          d="M12.134 3.9375V11.1691C12.134 12.3268 11.1883 13.2654 10.0219 13.2654H5.97542C4.80897 13.2654 3.86328 12.3268 3.86328 11.1691V3.9375"
-          stroke="#F94444"
-          strokeWidth={0.944444}
-          strokeLinecap="round"
-        />
-        <Path
-          d="M8 6.73438V10.8386"
-          stroke="#F94444"
-          strokeWidth={0.944444}
-          strokeLinecap="round"
-        />
-        <Path
-          d="M6.11914 6.73438V10.8386"
-          stroke="#F94444"
-          strokeWidth={0.944444}
-          strokeLinecap="round"
-        />
-        <Path
-          d="M9.87891 6.73438V10.8386"
-          stroke="#F94444"
-          strokeWidth={0.944444}
-          strokeLinecap="round"
-        />
-        <Path
-          d="M6.11914 3.93584V2.9823C6.11914 2.47859 6.53065 2.07031 7.03802 2.07031H8.9597C9.46707 2.07031 9.87858 2.47859 9.87858 2.9823V3.93584"
-          stroke="#F94444"
-          strokeWidth={0.944444}
-          strokeLinecap="round"
-        />
-        <Path
-          d="M13.2626 3.9375H2.73633"
-          stroke="#F94444"
-          strokeWidth={0.944444}
-          strokeLinecap="round"
-        />
-      </G>
-    </Svg>
-  );
-}
 
 function RadioSelected() {
   return (
@@ -352,9 +303,12 @@ function PayByAtoaRow({selected, onPress}: {selected: boolean; onPress: () => vo
 
 function ProductCard({
   product,
- 
+  onIncrement,
+  onDecrement,
 }: {
   product: Product;
+  onIncrement: () => void;
+  onDecrement: () => void;
 }) {
   return (
     <View style={styles.productCard}>
@@ -364,29 +318,27 @@ function ProductCard({
         resizeMode="contain"
       />
       <View style={styles.productInfo}>
-        <View style={styles.productHeader}>
-          <Text style={styles.productName}>{product.name}</Text>
-          <Pressable hitSlop={8}>
-            <DeleteIcon />
-          </Pressable>
-        </View>
+        <Text style={styles.productName}>{product.name}</Text>
         <View style={styles.productSpacerSmall} />
         <Text style={styles.productPrice}>
-          £{product.price.toFixed(2)}
+          £{(product.price * product.quantity).toFixed(2)}
         </Text>
         <View style={styles.productSpacerSmall} />
         <View style={styles.quantityContainer}>
           <Pressable
-            style={styles.quantityButton}
-            hitSlop={4}>
-            <Text style={styles.quantityIcon}>−</Text>
+            style={[styles.quantityButton, product.quantity <= 1 && styles.quantityButtonDisabled]}
+            hitSlop={4}
+            onPress={onDecrement}
+            disabled={product.quantity <= 1}>
+            <Text style={[styles.quantityIcon, product.quantity <= 1 && styles.quantityIconDisabled]}>−</Text>
           </Pressable>
           <View style={styles.quantityValue}>
             <Text style={styles.quantityText}>{product.quantity}</Text>
           </View>
           <Pressable
             style={styles.quantityButton}
-            hitSlop={4}>
+            hitSlop={4}
+            onPress={onIncrement}>
             <Text style={styles.quantityIcon}>+</Text>
           </Pressable>
         </View>
@@ -396,7 +348,15 @@ function ProductCard({
 }
 
 function App(): React.JSX.Element {
-  const [products] = useState<Product[]>(INITIAL_PRODUCTS);
+  const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
+
+  const updateQuantity = useCallback((id: string, delta: number) => {
+    setProducts(prev =>
+      prev.map(p =>
+        p.id === id ? {...p, quantity: Math.max(1, p.quantity + delta)} : p,
+      ),
+    );
+  }, []);
   const [transactionType, setTransactionType] = useState<TransactionType | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -536,6 +496,8 @@ function App(): React.JSX.Element {
           <View key={product.id}>
             <ProductCard
               product={product}
+              onIncrement={() => updateQuantity(product.id, 1)}
+              onDecrement={() => updateQuantity(product.id, -1)}
             />
             {index < products.length - 1 && (
               <View style={styles.spacerMedium} />
@@ -695,11 +657,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 16,
   },
-  productHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
   productName: {
     fontSize: 12,
     fontWeight: '600',
@@ -731,10 +688,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  quantityButtonDisabled: {
+    opacity: 0.4,
+  },
   quantityIcon: {
     fontSize: 18,
     color: '#3498DB',
     fontWeight: '400',
+  },
+  quantityIconDisabled: {
+    color: '#B0B0B0',
   },
   quantityValue: {
     flex: 1,
