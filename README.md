@@ -183,7 +183,7 @@ The SDK supports displaying banks the customer has previously paid with through 
 ## Card Payments
 
 The SDK supports card payments in addition to open banking.
-Card payments must be enabled on your [Atoa dashboard](https://docs.atoa.me). The `transactionType` option controls the flow:
+The `transactionType` option controls the flow:
 
 | `transactionType`              | Behavior                                            |
 | ------------------------------ | --------------------------------------------------- |
