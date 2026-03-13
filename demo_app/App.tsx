@@ -328,6 +328,28 @@ function PayByCardRow({selected, onPress}: {selected: boolean; onPress: () => vo
   );
 }
 
+function PayByAtoaRow({selected, onPress}: {selected: boolean; onPress: () => void}) {
+  return (
+    <Pressable
+      style={[styles.payByBankCard, selected ? styles.cardSelected : styles.cardUnselected]}
+      onPress={onPress}>
+      <View style={styles.payByBankLeft}>
+        {selected ? <RadioSelected /> : <RadioUnselected />}
+        <View style={styles.payByBankTextContainer}>
+          <Text style={styles.payByBankTitle}>Pay by Atoa</Text>
+        </View>
+      </View>
+      <View style={styles.bankLogosRow}>
+        <Image
+          source={require('./assets/images/bank_and_cards.png')}
+          style={styles.bankAndCardImage}
+          resizeMode="contain"
+        />
+      </View>
+    </Pressable>
+  );
+}
+
 function ProductCard({
   product,
  
@@ -375,7 +397,7 @@ function ProductCard({
 
 function App(): React.JSX.Element {
   const [products] = useState<Product[]>(INITIAL_PRODUCTS);
-  const [transactionType, setTransactionType] = useState<TransactionType>(TransactionType.OPEN_BANKING);
+  const [transactionType, setTransactionType] = useState<TransactionType | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isRetrying, setIsRetrying] = useState(false);
@@ -417,7 +439,6 @@ function App(): React.JSX.Element {
       env: 'production',
       showHowPaymentWorks: showHowPaymentWorksRef.current,
       transactionType,
-      showCardPaymentOption: true,
       customerDetails: {
         phoneCountryCode: '44',
         phoneNumber: '8788899999',
@@ -525,6 +546,11 @@ function App(): React.JSX.Element {
         <View style={styles.spacerLarge} />
 
         {/* Payment Methods */}
+        <PayByAtoaRow
+          selected={transactionType === undefined}
+          onPress={() => setTransactionType(undefined)}
+        />
+        <View style={styles.spacerMedium} />
         <PayByBankRow
           selected={transactionType === TransactionType.OPEN_BANKING}
           onPress={() => setTransactionType(TransactionType.OPEN_BANKING)}
@@ -787,6 +813,10 @@ const styles = StyleSheet.create({
   bankLogosImage: {
      width: 120,
      height: 40,
+  },
+  bankAndCardImage: {
+    width: 160,
+    height: 40,
   },
   cardLogoSmall: {
     width: 50,

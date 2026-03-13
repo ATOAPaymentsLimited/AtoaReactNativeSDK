@@ -65,6 +65,7 @@ function AtoaPaymentModalInner({
 }: AtoaPaymentModalProps) {
   const [currentScreen, setCurrentScreen] = useState<Screen>('loading');
   const [confirmationMode, setConfirmationMode] = useState<'bank' | 'card'>('bank');
+  const [switchedFromCard, setSwitchedFromCard] = useState(false);
   const bottomSheetRef = useRef<BottomSheet>(null);
   const { state, dispatch } = usePaymentContext();
   const {
@@ -93,8 +94,10 @@ function AtoaPaymentModalInner({
     if (!isDataReady || state.showHowPaymentWorks !== null) {
       return;
     }
+    const hasError = !!state.bankFetchingError || !!state.paymentDetailsError;
     const shouldShow =
       options.showHowPaymentWorks &&
+      !hasError &&
       !state.hasLastPaymentDetails &&
       state.lastBankDetails == null;
     dispatch({ type: 'SET_SHOW_HOW_PAYMENT_WORKS', payload: shouldShow });
@@ -106,7 +109,7 @@ function AtoaPaymentModalInner({
     } else if (!state.hasLastPaymentDetails) {
       setCurrentScreen('bankSelection');
     }
-  }, [isDataReady, state.showHowPaymentWorks, state.hasLastPaymentDetails, state.lastBankDetails, options.showHowPaymentWorks, dispatch, options.transactionType, selectCardPayment]);
+  }, [isDataReady, state.showHowPaymentWorks, state.hasLastPaymentDetails, state.lastBankDetails, state.bankFetchingError, state.paymentDetailsError, options.showHowPaymentWorks, dispatch, options.transactionType, selectCardPayment]);
 
   // Auto-select last bank if available, skip to confirmation
   const hasAutoSelectedRef = useRef(false);
@@ -281,6 +284,7 @@ function AtoaPaymentModalInner({
       } else if (result.type === 'closed') {
         // User tapped "switch to bank" in webview
         resetSelectBank();
+        setSwitchedFromCard(true);
         setCurrentScreen('bankSelection');
       }
     },
@@ -342,7 +346,7 @@ function AtoaPaymentModalInner({
                 : handleClose
             }
             onHelp={() => setCurrentScreen('howToPay')}
-            cardPaymentEnabled={options.showCardPaymentOption !== false && isCardPaymentEnabled(state.paymentDetails)}
+            cardPaymentEnabled={(options.transactionType == null || switchedFromCard) && isCardPaymentEnabled(state.paymentDetails)}
             onPayByCard={handlePayByCard}
           />
         );
@@ -352,7 +356,7 @@ function AtoaPaymentModalInner({
             mode={confirmationMode}
             onClose={handleClose}
             onConfirm={confirmationMode === 'bank' ? handleGoToBank : handleCardConfirmationConfirm}
-            onChangeSelection={handleChangeBank}
+            onChangeSelection={confirmationMode === 'bank' || options.transactionType == null ? handleChangeBank : undefined}
           />
         );
       case 'verifying':

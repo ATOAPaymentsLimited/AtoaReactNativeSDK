@@ -22,7 +22,7 @@ interface ConfirmationScreenProps {
   mode: 'bank' | 'card';
   onClose: () => void;
   onConfirm: () => void;
-  onChangeSelection: () => void;
+  onChangeSelection?: () => void;
 }
 
 export function ConfirmationScreen({
@@ -108,7 +108,7 @@ export function ConfirmationScreen({
     const isBankDown =
       errMsg?.toLowerCase().includes(ERROR_BANK_APP_DOWN) ||
       errMsg?.toLowerCase().includes(ERROR_BANK_DOWN);
-    if (isBankDown && selectedBank) {
+    if (isBankDown) {
       return (
         <BottomSheetView>
           <View style={styles.bankDownContent}>
@@ -118,16 +118,18 @@ export function ConfirmationScreen({
             </View>
             <View style={styles.spacerXl} />
             <Text style={styles.bankDownMessage}>
-              <Text style={styles.bankDownBankName}>{selectedBank.name}</Text>
+              {selectedBank && <Text style={styles.bankDownBankName}>{selectedBank.name}</Text>}
               {Strings.bankDown.message}
             </Text>
             <View style={styles.spacerXl} />
-            <LedgerButton
-              title={Strings.bankDown.selectAnother}
-              onPress={onChangeSelection}
-              variant="secondary"
-              size="xtraLarge"
-            />
+            {onChangeSelection && (
+              <LedgerButton
+                title={Strings.bankDown.selectAnother}
+                onPress={onChangeSelection}
+                variant="secondary"
+                size="xtraLarge"
+              />
+            )}
           </View>
         </BottomSheetView>
       );
@@ -138,6 +140,19 @@ export function ConfirmationScreen({
         <BottomSheetHeader title={Strings.confirmation.title} onClose={onClose} />
         <View style={styles.errorContent}>
           <ErrorWidget message={bankAuthError.message} />
+          {onChangeSelection && (
+            <>
+              <View style={styles.spacer} />
+              <View style={styles.fullWidth}>
+                <LedgerButton
+                  title={Strings.bankDown.selectAnother}
+                  onPress={onChangeSelection}
+                  variant="secondary"
+                  size="xtraLarge"
+                />
+              </View>
+            </>
+          )}
         </View>
       </BottomSheetView>
     );
@@ -150,14 +165,16 @@ export function ConfirmationScreen({
         <View style={styles.errorContent}>
           <ErrorWidget message={bankAuthError.message} />
           <View style={styles.spacer} />
-          <View style={styles.fullWidth}>
-            <LedgerButton
-              title={Strings.cardConfirmation.payByBank}
-              onPress={onChangeSelection}
-              variant="secondary"
-              size="xtraLarge"
-            />
-          </View>
+          {onChangeSelection && (
+            <View style={styles.fullWidth}>
+              <LedgerButton
+                title={Strings.cardConfirmation.payByBank}
+                onPress={onChangeSelection}
+                variant="secondary"
+                size="xtraLarge"
+              />
+            </View>
+          )}
           <View style={styles.spacerXl} />
         </View>
       </BottomSheetView>
@@ -185,16 +202,18 @@ export function ConfirmationScreen({
             title={Strings.cardConfirmation.notEnabledTitle}
             message={Strings.cardConfirmation.notEnabledMessage}
           />
-          <View style={styles.fullWidth}>
-            <LedgerButton
-              title={Strings.cardConfirmation.payByBank}
-              onPress={onChangeSelection}
-              variant="primary2"
-              size="xtraLarge"
-              backgroundColor={brandingColors?.backgroundColor}
-              foregroundColor={brandingColors?.foregroundColor}
-            />
-          </View>
+          {onChangeSelection && (
+            <View style={styles.fullWidth}>
+              <LedgerButton
+                title={Strings.cardConfirmation.payByBank}
+                onPress={onChangeSelection}
+                variant="primary2"
+                size="xtraLarge"
+                backgroundColor={brandingColors?.backgroundColor}
+                foregroundColor={brandingColors?.foregroundColor}
+              />
+            </View>
+          )}
           <View style={styles.spacerXl} />
         </View>
       </BottomSheetView>
@@ -246,7 +265,7 @@ export function ConfirmationScreen({
             iconUrl={bankIconUrl}
             heading={Strings.confirmation.from}
             content={bankName}
-            actionText={Strings.confirmation.change}
+            actionText={onChangeSelection ? Strings.confirmation.change : undefined}
             onAction={onChangeSelection}
           />
         )}
@@ -261,9 +280,11 @@ export function ConfirmationScreen({
               <Text style={styles.cardMethodHeading}>{Strings.cardConfirmation.payWith}</Text>
               <Text style={styles.cardMethodContent}>{Strings.cardConfirmation.cards}</Text>
             </View>
-            <TouchableOpacity onPress={onChangeSelection}>
-              <Text style={styles.changeText}>{Strings.confirmation.change}</Text>
-            </TouchableOpacity>
+            {onChangeSelection && (
+              <TouchableOpacity onPress={onChangeSelection}>
+                <Text style={styles.changeText}>{Strings.confirmation.change}</Text>
+              </TouchableOpacity>
+            )}
           </View>
         )}
 

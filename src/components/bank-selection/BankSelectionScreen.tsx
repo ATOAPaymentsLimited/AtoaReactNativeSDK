@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { View, Text, FlatList, StyleSheet, useWindowDimensions, Pressable } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions, Pressable } from 'react-native';
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { useBankInstitutions } from '../../hooks/useBankInstitutions';
 import type { BankInstitution } from '../../types/bank';
@@ -41,10 +41,12 @@ export function BankSelectionScreen({
     selectBank,
     search,
     getPaymentDetailsAndBanks,
-    popularPersonalBanks,
-    popularBusinessBanks,
     allBanksEnabled,
     allBanksDisabledByAmount,
+    personalBanksEnabled,
+    businessBanksEnabled,
+    personalBanksDisabledByAmount,
+    businessBanksDisabledByAmount,
     paymentAmount,
   } = useBankInstitutions();
 
@@ -56,8 +58,8 @@ export function BankSelectionScreen({
   const hasError = state.bankFetchingError || state.paymentDetailsError;
   const isSearching = state.searchTerm.length > 0;
 
-  // Popular banks for current tab (already filtered by amount limit), first 8
-  const popularBanks = (selectedTabIndex === 0 ? popularPersonalBanks : popularBusinessBanks).slice(0, 8);
+  const tabbedBanksEnabled = selectedTabIndex === 0 ? personalBanksEnabled : businessBanksEnabled;
+  const tabbedBanksDisabledByAmount = selectedTabIndex === 0 ? personalBanksDisabledByAmount : businessBanksDisabledByAmount;
 
   const handleBankPress = useCallback(
     async (bank: BankInstitution) => {
@@ -201,15 +203,18 @@ export function BankSelectionScreen({
         <View style={styles.spacerSmall} />
         <BankLimitCard amount={paymentAmount} />
         <View style={styles.spacerMedium} />
-        {disabledBanks.map((bank) => (
-          <BankListItem
-            key={bank.id}
-            bank={bank}
-            isSelected={false}
-            onPress={handleBankPress}
-            forceDisabled
-          />
-        ))}
+        <View style={styles.disabledGrid}>
+          {disabledBanks.map((bank) => (
+            <View key={bank.id} style={gridItemStyle}>
+              <BankGridItem
+                bank={bank}
+                isSelected={false}
+                onPress={handleBankPress}
+                forceDisabled
+              />
+            </View>
+          ))}
+        </View>
       </View>
     );
   };
@@ -275,47 +280,19 @@ export function BankSelectionScreen({
         </>
       ) : (
         <BottomSheetFlatList
-          data={[{ type: 'grid' as const }, { type: 'list' as const }]}
-          keyExtractor={(item: { type: string }) => item.type}
-          renderItem={({ item }: { item: { type: string } }) => {
-            if (item.type === 'grid' && popularBanks.length > 0) {
-              return (
-                <FlatList
-                  data={popularBanks}
-                  keyExtractor={(bank) => bank.id}
-                  renderItem={renderGridItem}
-                  numColumns={4}
-                  scrollEnabled={false}
-                  contentContainerStyle={styles.gridContent}
-                  columnWrapperStyle={styles.gridRow}
-                />
-              );
-            }
-            if (item.type === 'list') {
-              return (
-                <View style={styles.allBanksContainer}>
-                  <Text style={styles.sectionLabel}>{Strings.bankSelection.allBanksLabel}</Text>
-                  {allBanksEnabled.map((bank) => (
-                    <BankListItem
-                      key={bank.id}
-                      bank={bank}
-                      isSelected={state.selectedBank?.id === bank.id}
-                      onPress={handleBankPress}
-                    />
-                  ))}
-                  {renderAmountLimitedSection(allBanksDisabledByAmount)}
-                </View>
-              );
-            }
-            return null;
-          }}
-          contentContainerStyle={styles.listContent}
+          data={tabbedBanksEnabled}
+          keyExtractor={(item: BankInstitution) => item.id}
+          renderItem={renderGridItem}
+          numColumns={4}
+          contentContainerStyle={[styles.listContent, styles.gridContent]}
+          columnWrapperStyle={styles.gridRow}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
+          ListFooterComponent={renderAmountLimitedSection(tabbedBanksDisabledByAmount)}
         />
       )}
 
-      {cardPaymentEnabled && onPayByCard && (
+      {cardPaymentEnabled && onPayByCard && !isSearching && (
         <View style={styles.payByCardFooter}>
           <Pressable style={styles.payByCardButton} onPress={onPayByCard}>
             <View style={styles.payByCardTextContainer}>
@@ -393,6 +370,11 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.small,
   },
   amountLimitedContainer: {},
+  disabledGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.large,
+  },
   resultsHeaderContainer: {
     paddingHorizontal: Spacing.large,
     paddingVertical: Spacing.medium,
