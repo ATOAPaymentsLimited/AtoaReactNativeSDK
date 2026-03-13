@@ -51,6 +51,9 @@ export const BUTTON_HEIGHTS: Record<ButtonSize, number> = {
 // --- usePaymentStatus ---
 export const POLLING_INTERVAL_MS = 1000;
 
+// --- AtoaClient ---
+export const REQUEST_TIMEOUT_MS = 30000;
+
 // --- Error message patterns ---
 export const ERROR_SERVER_NOT_REACHABLE = 'Server is not reachable';
 export const ERROR_BANK_APP_DOWN = 'bank app is down';

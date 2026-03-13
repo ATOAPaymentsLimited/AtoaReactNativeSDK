@@ -3,7 +3,7 @@ import { View, StyleSheet, BackHandler, Platform, Pressable } from 'react-native
 import { WebView } from 'react-native-webview';
 import type { WebViewNavigation } from 'react-native-webview';
 import { usePaymentContext } from '../../hooks/PaymentContext';
-import { getCardCheckoutUrl } from '../../api/config';
+import { getCardCheckoutUrl, IOS_USER_AGENT } from '../../api/config';
 import { SvgIcon } from '../shared/SvgIcon';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
@@ -21,10 +21,6 @@ interface CardCheckoutScreenProps {
 }
 
 const REDIRECT_PATH = '/card-checkout-redirect';
-
-// Safari user-agent so the checkout page doesn't show a "switch browser" dialog on iOS.
-const IOS_USER_AGENT =
-  'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
 
 /**
  * Parse query parameters from a URL string.

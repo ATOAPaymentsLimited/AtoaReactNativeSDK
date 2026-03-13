@@ -12,6 +12,7 @@ import { AtoaException } from '../types/error';
 import { Strings } from '../constants/strings';
 import { getBaseUrl } from './config';
 import { Endpoints, applyEnvParam } from './endpoints';
+import { REQUEST_TIMEOUT_MS } from '../constants/component-constants';
 
 export class AtoaClient {
   private baseUrl: string;
@@ -32,6 +33,12 @@ export class AtoaClient {
     const adjustedPath = applyEnvParam(path, this.env);
     const url = `${this.baseUrl}${adjustedPath}`;
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(
+      () => controller.abort(),
+      REQUEST_TIMEOUT_MS
+    );
+
     try {
       const response = await fetch(url, {
         method,
@@ -40,6 +47,7 @@ export class AtoaClient {
           Accept: 'application/json',
         },
         body: body ? JSON.stringify(body) : undefined,
+        signal: controller.signal,
       });
 
       if (!response.ok) {
@@ -80,11 +88,18 @@ export class AtoaClient {
         throw error;
       }
 
+      // Timeout error (AbortController fires AbortError)
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new AtoaException('custom', Strings.api.requestTimeout);
+      }
+
       // Network error
       throw new AtoaException(
         'custom',
         Strings.api.serverNotReachable
       );
+    } finally {
+      clearTimeout(timeoutId);
     }
   }
 

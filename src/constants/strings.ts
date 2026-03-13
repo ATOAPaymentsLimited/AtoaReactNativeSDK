@@ -115,6 +115,8 @@ export const Strings = {
     unknownError: 'Unknown Error',
     serverNotReachable:
       'Server is not reachable. Please verify your internet connection and try again',
+    requestTimeout:
+      'The request timed out. Please check your connection and try again.',
     cardCheckoutUnavailable:
       'Card checkout is not available. Please try again.',
   },
