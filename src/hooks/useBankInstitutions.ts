@@ -94,7 +94,7 @@ export function useBankInstitutions() {
         type: 'SET_HAS_LAST_PAYMENT_DETAILS',
         payload:
           lastBank.enabled &&
-          lastBank.transactionAmountLimit >= paymentDetails.amount.amount,
+          (lastBank.transactionAmountLimit == null || lastBank.transactionAmountLimit >= paymentDetails.amount.amount),
       });
       dispatch({ type: 'SET_LAST_BANK_DETAILS', payload: lastBank });
     }
@@ -358,17 +358,18 @@ export function useBankInstitutions() {
     a.orderBy - b.orderBy;
 
   // Banks whose transactionAmountLimit >= payment amount (supported)
+  // Banks with null transactionAmountLimit are treated as having no limit (always enabled)
   const personalBanksEnabled = useMemo(() => {
     if (paymentAmount == null) { return personalBanks; }
     return personalBanks
-      .filter((b) => b.transactionAmountLimit >= paymentAmount)
+      .filter((b) => b.transactionAmountLimit == null || b.transactionAmountLimit >= paymentAmount)
       .sort(sortByFullName);
   }, [personalBanks, paymentAmount]);
 
   const businessBanksEnabled = useMemo(() => {
     if (paymentAmount == null) { return businessBanks; }
     return businessBanks
-      .filter((b) => b.transactionAmountLimit >= paymentAmount)
+      .filter((b) => b.transactionAmountLimit == null || b.transactionAmountLimit >= paymentAmount)
       .sort(sortByFullName);
   }, [businessBanks, paymentAmount]);
 
@@ -376,14 +377,14 @@ export function useBankInstitutions() {
   const personalBanksDisabledByAmount = useMemo(() => {
     if (paymentAmount == null) { return []; }
     return personalBanks
-      .filter((b) => b.transactionAmountLimit < paymentAmount)
+      .filter((b) => b.transactionAmountLimit != null && b.transactionAmountLimit < paymentAmount)
       .sort(sortByFullName);
   }, [personalBanks, paymentAmount]);
 
   const businessBanksDisabledByAmount = useMemo(() => {
     if (paymentAmount == null) { return []; }
     return businessBanks
-      .filter((b) => b.transactionAmountLimit < paymentAmount)
+      .filter((b) => b.transactionAmountLimit != null && b.transactionAmountLimit < paymentAmount)
       .sort(sortByFullName);
   }, [businessBanks, paymentAmount]);
 
@@ -414,7 +415,7 @@ export function useBankInstitutions() {
   const allBanksEnabled = useMemo(() => {
     if (paymentAmount == null)  { return state.bankList; }
     return state.bankList
-      .filter((b) => b.transactionAmountLimit >= paymentAmount)
+      .filter((b) => b.transactionAmountLimit == null || b.transactionAmountLimit >= paymentAmount)
       .sort(sortByFullName);
   }, [state.bankList, paymentAmount]);
 
