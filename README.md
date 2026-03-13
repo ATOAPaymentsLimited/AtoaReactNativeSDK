@@ -182,33 +182,24 @@ The SDK supports displaying banks the customer has previously paid with through 
 
 ## Card Payments
 
-The SDK supports card payments in addition to open banking. Card payments must be enabled for your merchant account on the Atoa dashboard. If card payments are not enabled for the merchant, the card option will not appear.
+The SDK supports card payments in addition to open banking.
+Card payments must be enabled on your [Atoa dashboard](https://docs.atoa.me). The `transactionType` option controls the flow:
 
-### Direct Card Payment Flow
-
-Set `transactionType` to `TransactionType.CARD` to open the SDK directly in card payment mode. The SDK will skip bank selection and go straight to the card payment confirmation screen.
+| `transactionType`              | Behavior                                            |
+| ------------------------------ | --------------------------------------------------- |
+| Not set (default)              | Bank selection + card option at the end of the list |
+| `TransactionType.OPEN_BANKING` | Bank selection only                                 |
+| `TransactionType.CARD`         | Card payment only (skips bank selection)            |
 
 ```tsx
 import { AtoaSdk, TransactionType } from '@atoapayments/atoa-react-native-sdk';
 
+// Card-only flow
 const result = await AtoaSdk.pay({
   paymentId: 'your-payment-request-id',
   env: 'production',
   showHowPaymentWorks: false,
   transactionType: TransactionType.CARD,
-});
-```
-
-### Card Option in Bank Selection
-
-When using the default flow (no `transactionType` specified), a "Card payment options" button automatically appears at the end of the bank selection list if card payments are enabled for the merchant. This allows users to choose between bank transfer and card payment within the same flow. Setting `transactionType` to `TransactionType.OPEN_BANKING` shows bank selection only, without the card payment option.
-
-```tsx
-const result = await AtoaSdk.pay({
-  paymentId: 'your-payment-request-id',
-  env: 'production',
-  showHowPaymentWorks: false,
-  // Card option appears automatically if enabled for the merchant
 });
 ```
 
