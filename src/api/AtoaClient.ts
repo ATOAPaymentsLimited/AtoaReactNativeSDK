@@ -88,16 +88,7 @@ export class AtoaClient {
         throw error;
       }
 
-      // Timeout error (AbortController fires AbortError)
-      if (error instanceof Error && error.name === 'AbortError') {
-        throw new AtoaException('custom', Strings.api.requestTimeout);
-      }
-
-      // Network error
-      throw new AtoaException(
-        'custom',
-        Strings.api.serverNotReachable
-      );
+      throw new AtoaException('custom', Strings.api.serverNotReachable);
     } finally {
       clearTimeout(timeoutId);
     }

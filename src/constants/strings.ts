@@ -94,19 +94,12 @@ export const Strings = {
   },
 
   cardConfirmation: {
-    title: 'Review',
-    infoMessage:
-      'Your card details will be securely processed by our payment partner.',
-    payingTo: 'Paying to',
-    payWith: 'Pay with',
-    cards: 'Cards',
-    payByCard: 'Pay by Card  \u2192',
-    termsPrefix: " By continuing, you trust this merchant and accept Atoa's ",
-    termsLink: 'terms',
+
     notEnabledTitle: 'Card payment is not available',
     notEnabledMessage:
       'Card payments are not enabled for this merchant. Please use a bank transfer instead.',
-    payByBank: 'Pay by bank',
+    payByCard: 'Pay by card',
+
   },
 
   api: {
@@ -115,8 +108,6 @@ export const Strings = {
     unknownError: 'Unknown Error',
     serverNotReachable:
       'Server is not reachable. Please verify your internet connection and try again',
-    requestTimeout:
-      'The request timed out. Please check your connection and try again.',
     cardCheckoutUnavailable:
       'Card checkout is not available. Please try again.',
   },

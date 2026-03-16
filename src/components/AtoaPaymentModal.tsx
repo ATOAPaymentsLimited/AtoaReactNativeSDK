@@ -8,7 +8,7 @@ import { useBankInstitutions } from '../hooks/useBankInstitutions';
 import { TransactionType } from '../types/transaction';
 import type { AtoaPayOptions } from '../types/sdk';
 import type { TransactionDetails } from '../types/payment';
-import { isCompleted, isCardPaymentEnabled, TransactionStatus } from '../types/payment';
+import { isCompleted, isFailed, isCardPaymentEnabled } from '../types/payment';
 import { AtoaException } from '../types/error';
 import { Colors } from '../constants/colors';
 import { Strings } from '../constants/strings';
@@ -18,9 +18,10 @@ import { HowToMakePaymentScreen } from './how-to-pay/HowToMakePaymentScreen';
 import { ConfirmationScreen } from './confirmation/ConfirmationScreen';
 import { VerifyingPaymentScreen } from './verifying-payment/VerifyingPaymentScreen';
 import { CardCheckoutScreen, type CardCheckoutResult } from './card-checkout';
+import { CardErrorScreen } from './card-checkout/CardErrorScreen';
 import { PaymentSuccessView } from './shared/PaymentSuccessView';
 import { ConnectivityWrapper } from './shared/ConnectivityWrapper';
-import { SDKLoader } from './shared/AtoaLoader';
+import { FetchingBankLoader } from './shared/FetchingBankLoader';
 
 type Screen =
   | 'loading'
@@ -29,6 +30,7 @@ type Screen =
   | 'confirmation'
   | 'verifying'
   | 'cardCheckout'
+  | 'cardError'
   | 'cardPaymentSuccess'
 
 interface AtoaPaymentModalProps {
@@ -66,8 +68,7 @@ function AtoaPaymentModalInner({
   const [currentScreen, setCurrentScreen] = useState<Screen>('loading');
   const [confirmationMode, setConfirmationMode] = useState<'bank' | 'card'>('bank');
   const [switchedFromCard, setSwitchedFromCard] = useState(false);
-  const bottomSheetRef = useRef<BottomSheet>(null);
-  const { state, dispatch } = usePaymentContext();
+  const { state, dispatch, client } = usePaymentContext();
   const {
     getPaymentDetailsAndBanks,
     startPolling,
@@ -155,7 +156,7 @@ function AtoaPaymentModalInner({
     }
   }, [state.paymentAuth, state.selectedBank, state.isLoadingAuth, currentScreen, startPolling]);
 
-  // Navigate to card confirmation when card auth is ready
+  // Navigate directly to card checkout when card auth is ready (skip confirmation)
   useEffect(() => {
     if (
       state.paymentAuth?.cardCheckoutId &&
@@ -163,7 +164,7 @@ function AtoaPaymentModalInner({
       (currentScreen === 'loading' || currentScreen === 'bankSelection')
     ) {
       setConfirmationMode('card');
-      setCurrentScreen('confirmation');
+      setCurrentScreen('cardCheckout');
     }
   }, [state.paymentAuth, state.isLoadingAuth, currentScreen]);
 
@@ -171,21 +172,24 @@ function AtoaPaymentModalInner({
   useEffect(() => {
     if (
       state.bankAuthError &&
-      (currentScreen === 'bankSelection' || currentScreen === 'loading') &&
-      (state.selectedBank || confirmationMode === 'card')
+      (currentScreen === 'bankSelection' || currentScreen === 'loading')
     ) {
-      setCurrentScreen('confirmation');
+      if (confirmationMode === 'card') {
+        setCurrentScreen('cardError');
+      } else if (state.selectedBank) {
+        setCurrentScreen('confirmation');
+      }
     }
   }, [state.bankAuthError, state.selectedBank, currentScreen, confirmationMode]);
 
-  // Navigate to confirmation when payment details fail for card flow
+  // Navigate to card error when payment details fail for card flow
   useEffect(() => {
     if (
       state.paymentDetailsError &&
       confirmationMode === 'card' &&
       currentScreen === 'loading'
     ) {
-      setCurrentScreen('confirmation');
+      setCurrentScreen('cardError');
     }
   }, [state.paymentDetailsError, confirmationMode, currentScreen]);
 
@@ -233,62 +237,66 @@ function AtoaPaymentModalInner({
 
   const handlePayByCard = useCallback(() => {
     setConfirmationMode('card');
-    setCurrentScreen('confirmation');
+    setCurrentScreen('loading');
     selectCardPayment();
   }, [selectCardPayment]);
 
-  const handleCardConfirmationConfirm = useCallback(() => {
-    if (state.paymentAuth?.cardCheckoutId) {
-      setCurrentScreen('cardCheckout');
-    } else {
-      dispatch({
-        type: 'SET_BANK_AUTH_ERROR',
-        payload: new AtoaException('custom', Strings.api.cardCheckoutUnavailable),
-      });
-    }
-  }, [state.paymentAuth, dispatch]);
-
   const handleCardCheckoutResult = useCallback(
-    (result: CardCheckoutResult) => {
-      const paymentIdempotencyId =
-        result.type === 'success' ? result.paymentIdempotencyId : undefined;
+    async (result: CardCheckoutResult) => {
+      const idempotencyId =
+        result.type === 'success'
+          ? result.paymentIdempotencyId
+          : state.paymentAuth?.paymentIdempotencyId;
 
       if (result.type === 'success') {
-        // Set synthetic transaction details so handleClose passes them to onComplete
-        dispatch({
-          type: 'SET_TRANSACTION_DETAILS',
-          payload: {
-            applicationUserId: '',
-            paidAmount: state.paymentDetails?.amount?.amount ?? 0,
-            currency: state.paymentDetails?.amount?.currency ?? 'GBP',
-            status: TransactionStatus.COMPLETED,
-            createdAt: new Date().toISOString(),
-            paymentIdempotencyId: paymentIdempotencyId ?? '',
-          },
-        });
-        setCurrentScreen('cardPaymentSuccess');
+        let details: TransactionDetails | null = null;
+        if (idempotencyId) {
+          const MAX_ATTEMPTS = 5;
+          const DELAY_MS = 2000;
+          for (let i = 0; i < MAX_ATTEMPTS; i++) {
+            try {
+              details = await client.getPaymentStatus(idempotencyId);
+              dispatch({ type: 'SET_TRANSACTION_DETAILS', payload: details });
+              options.onPaymentStatusChange?.({
+                status: typeof details.status === 'string' ? details.status : '',
+                redirectUrlParams: details.redirectUrlParams,
+                signature: details.signature,
+                signatureHash: details.signatureHash,
+              });
+              if (isCompleted(details) || isFailed(details)) {
+                break;
+              }
+            } catch {
+              // Status fetch failed — retry
+            }
+            if (i < MAX_ATTEMPTS - 1) {
+              await new Promise<void>(r => setTimeout(r, DELAY_MS));
+            }
+          }
+        }
+        if (details && isCompleted(details)) {
+          setCurrentScreen('cardPaymentSuccess');
+        } else {
+          onComplete(details);
+        }
       } else if (result.type === 'failure') {
-        // Close the sheet immediately with FAILED transaction details
-        // so the host app can show its own failure UI (e.g. snackbar)
-        const failedDetails: TransactionDetails = {
-          applicationUserId: '',
-          paidAmount: state.paymentDetails?.amount?.amount ?? 0,
-          currency: state.paymentDetails?.amount?.currency ?? 'GBP',
-          status: TransactionStatus.FAILED,
-          createdAt: new Date().toISOString(),
-          paymentIdempotencyId: '',
-          errorDescription: result.error,
-        };
         stopPolling();
-        onComplete(failedDetails);
+        let details: TransactionDetails | null = null;
+        if (idempotencyId) {
+          try {
+            details = await client.getPaymentStatus(idempotencyId);
+          } catch {
+            // Status fetch failed
+          }
+        }
+        onComplete(details);
       } else if (result.type === 'closed') {
-        // User tapped "switch to bank" in webview
         resetSelectBank();
         setSwitchedFromCard(true);
         setCurrentScreen('bankSelection');
       }
     },
-    [dispatch, state.paymentDetails, stopPolling, onComplete, resetSelectBank]
+    [dispatch, client, options, state.paymentAuth, stopPolling, onComplete, resetSelectBank]
   );
 
   const handleChangeBank = useCallback(() => {
@@ -297,12 +305,9 @@ function AtoaPaymentModalInner({
     setCurrentScreen('bankSelection');
   }, [resetSelectBank]);
 
-  const handleVerifyingClose = useCallback(
-    (_result: 'completed' | 'closed') => {
-      handleClose();
-    },
-    [handleClose]
-  );
+  const navigateToHowToPay = useCallback(() => {
+    setCurrentScreen('howToPay');
+  }, []);
 
   const isPaymentCompleted =
     currentScreen === 'cardPaymentSuccess' ||
@@ -313,6 +318,7 @@ function AtoaPaymentModalInner({
   const needsFixedHeight =
     currentScreen === 'bankSelection' ||
     currentScreen === 'cardCheckout' ||
+    currentScreen === 'cardError' ||
     currentScreen === 'loading' ||
     state.isLoading ||
     state.isLoadingDetails;
@@ -321,12 +327,27 @@ function AtoaPaymentModalInner({
     [needsFixedHeight]
   );
 
+  const bankSelectionBack = useMemo(
+    () =>
+      state.showHowPaymentWorks === false && options.showHowPaymentWorks
+        ? navigateToHowToPay
+        : handleClose,
+    [state.showHowPaymentWorks, options.showHowPaymentWorks, navigateToHowToPay, handleClose]
+  );
+
+  const cardPaymentEnabled = useMemo(
+    () => (options.transactionType == null || switchedFromCard) && isCardPaymentEnabled(state.paymentDetails),
+    [options.transactionType, switchedFromCard, state.paymentDetails]
+  );
+
+  const confirmationOnChange = options.transactionType == null ? handleChangeBank : undefined;
+
   const renderScreen = () => {
     switch (currentScreen) {
       case 'loading':
         return (
           <View style={styles.loadingSplash}>
-            <SDKLoader />
+            <FetchingBankLoader />
           </View>
         );
       case 'howToPay':
@@ -339,43 +360,53 @@ function AtoaPaymentModalInner({
       case 'bankSelection':
         return (
           <BankSelectionScreen
-            onBack={
-              state.showHowPaymentWorks === false &&
-              options.showHowPaymentWorks
-                ? () => setCurrentScreen('howToPay')
-                : handleClose
-            }
-            onHelp={() => setCurrentScreen('howToPay')}
-            cardPaymentEnabled={(options.transactionType == null || switchedFromCard) && isCardPaymentEnabled(state.paymentDetails)}
+            onBack={bankSelectionBack}
+            onHelp={navigateToHowToPay}
+            cardPaymentEnabled={cardPaymentEnabled}
             onPayByCard={handlePayByCard}
           />
         );
       case 'confirmation':
         return (
           <ConfirmationScreen
-            mode={confirmationMode}
             onClose={handleClose}
-            onConfirm={confirmationMode === 'bank' ? handleGoToBank : handleCardConfirmationConfirm}
-            onChangeSelection={confirmationMode === 'bank' || options.transactionType == null ? handleChangeBank : undefined}
+            onConfirm={handleGoToBank}
+            onChangeSelection={confirmationOnChange}
           />
         );
       case 'verifying':
-        return <VerifyingPaymentScreen onClose={handleVerifyingClose} />;
+        return <VerifyingPaymentScreen onClose={handleClose} />;
       case 'cardCheckout': {
         const checkoutId = state.paymentAuth?.cardCheckoutId;
         if (!checkoutId) {
-          return (
-            <View style={styles.loadingSplash}>
-              <SDKLoader />
-            </View>
-          );
+          dispatch({
+            type: 'SET_BANK_AUTH_ERROR',
+            payload: new AtoaException('custom', Strings.api.cardCheckoutUnavailable),
+          });
+          setCurrentScreen('bankSelection');
+          return null;
         }
         return (
           <CardCheckoutScreen
             checkoutId={checkoutId}
             merchantName={state.paymentDetails?.merchantBusinessName ?? ''}
             onResult={handleCardCheckoutResult}
-            onBack={() => setCurrentScreen('confirmation')}
+            onBack={options.transactionType === TransactionType.CARD ? handleClose : handleChangeBank}
+          />
+        );
+      }
+      case 'cardError': {
+        const cardNotEnabled = !isCardPaymentEnabled(state.paymentDetails);
+        const errorTitle = cardNotEnabled ? Strings.cardConfirmation.notEnabledTitle : undefined;
+        const errorMessage = cardNotEnabled
+          ? Strings.cardConfirmation.notEnabledMessage
+          : (state.bankAuthError?.message ?? state.paymentDetailsError?.message);
+        return (
+          <CardErrorScreen
+            title={errorTitle}
+            message={errorMessage}
+            onClose={handleClose}
+            onPayByBank={options.transactionType == null ? handleChangeBank : undefined}
           />
         );
       }
@@ -387,7 +418,6 @@ function AtoaPaymentModalInner({
   return (
     <View style={styles.overlay}>
       <BottomSheet
-        ref={bottomSheetRef}
         index={0}
         snapPoints={snapPoints}
         enableDynamicSizing={!needsFixedHeight}

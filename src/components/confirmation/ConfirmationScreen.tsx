@@ -1,9 +1,8 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Linking, Platform, AppState, type AppStateStatus } from 'react-native';
+import { View, Text, StyleSheet, Linking, Platform, AppState, type AppStateStatus } from 'react-native';
 import { BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
 import { useBankInstitutions } from '../../hooks/useBankInstitutions';
 import { getBankIcon } from '../../types/bank';
-import { isCardPaymentEnabled } from '../../types/payment';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { Strings } from '../../constants/strings';
@@ -19,14 +18,12 @@ import { ERROR_BANK_APP_DOWN, ERROR_BANK_DOWN, INACTIVE_STATE_PATTERN } from '..
 import { getFontFamily } from '../../constants/typography';
 
 interface ConfirmationScreenProps {
-  mode: 'bank' | 'card';
   onClose: () => void;
   onConfirm: () => void;
   onChangeSelection?: () => void;
 }
 
 export function ConfirmationScreen({
-  mode,
   onClose,
   onConfirm,
   onChangeSelection,
@@ -36,12 +33,8 @@ export function ConfirmationScreen({
     state;
   const appStateRef = useRef(AppState.currentState);
 
-  const isBank = mode === 'bank';
-
-  // Re-check bank app availability when app returns from background (bank mode only)
+  // Re-check bank app availability when app returns from background
   useEffect(() => {
-    if (!isBank) { return; }
-
     const handleAppStateChange = (nextAppState: AppStateStatus) => {
       if (
         appStateRef.current.match(INACTIVE_STATE_PATTERN) &&
@@ -57,7 +50,7 @@ export function ConfirmationScreen({
       handleAppStateChange
     );
     return () => subscription.remove();
-  }, [isBank, checkBankAppAvailability]);
+  }, [checkBankAppAvailability]);
 
   const amount = paymentDetails?.amount;
   const amountStr = amount ? formatAmount(amount.amount, amount.currency) : '';
@@ -94,7 +87,7 @@ export function ConfirmationScreen({
   if (state.isLoadingAuth) {
     return (
       <View style={styles.container}>
-        <BottomSheetHeader title={isBank ? Strings.confirmation.title : Strings.cardConfirmation.title} onClose={onClose} />
+        <BottomSheetHeader title={Strings.confirmation.title} onClose={onClose} />
         <View style={styles.loaderContainer}>
           <AtoaLoader />
         </View>
@@ -103,7 +96,7 @@ export function ConfirmationScreen({
   }
 
   // --- Error states ---
-  if (isBank && bankAuthError) {
+  if (bankAuthError) {
     const errMsg = bankAuthError.message?.trim();
     const isBankDown =
       errMsg?.toLowerCase().includes(ERROR_BANK_APP_DOWN) ||
@@ -158,85 +151,7 @@ export function ConfirmationScreen({
     );
   }
 
-  if (!isBank && bankAuthError) {
-    return (
-      <BottomSheetView>
-        <BottomSheetHeader title={Strings.cardConfirmation.title} onClose={onClose} />
-        <View style={styles.errorContent}>
-          <ErrorWidget message={bankAuthError.message} />
-          <View style={styles.spacer} />
-          {onChangeSelection && (
-            <View style={styles.fullWidth}>
-              <LedgerButton
-                title={Strings.cardConfirmation.payByBank}
-                onPress={onChangeSelection}
-                variant="secondary"
-                size="xtraLarge"
-              />
-            </View>
-          )}
-          <View style={styles.spacerXl} />
-        </View>
-      </BottomSheetView>
-    );
-  }
-
-  if (!isBank && state.paymentDetailsError) {
-    return (
-      <BottomSheetView>
-        <BottomSheetHeader title={Strings.cardConfirmation.title} onClose={onClose} />
-        <View style={styles.errorContent}>
-          <ErrorWidget message={state.paymentDetailsError.message} />
-          <View style={styles.spacerXl} />
-        </View>
-      </BottomSheetView>
-    );
-  }
-
-  if (!isBank && !isCardPaymentEnabled(paymentDetails)) {
-    return (
-      <BottomSheetView>
-        <BottomSheetHeader title="" onClose={onClose} />
-        <View style={styles.errorContent}>
-          <ErrorWidget
-            title={Strings.cardConfirmation.notEnabledTitle}
-            message={Strings.cardConfirmation.notEnabledMessage}
-          />
-          {onChangeSelection && (
-            <View style={styles.fullWidth}>
-              <LedgerButton
-                title={Strings.cardConfirmation.payByBank}
-                onPress={onChangeSelection}
-                variant="primary2"
-                size="xtraLarge"
-                backgroundColor={brandingColors?.backgroundColor}
-                foregroundColor={brandingColors?.foregroundColor}
-              />
-            </View>
-          )}
-          <View style={styles.spacerXl} />
-        </View>
-      </BottomSheetView>
-    );
-  }
-
   // --- Main confirmation view ---
-  const infoMessage = isBank
-    ? Strings.confirmation.infoMessage
-    : Strings.cardConfirmation.infoMessage;
-
-  const confirmButtonTitle = isBank
-    ? Strings.confirmation.goToBank(selectedBank?.name ?? Strings.confirmation.defaultBankName)
-    : Strings.cardConfirmation.payByCard;
-
-  const termsPrefix = isBank
-    ? Strings.confirmation.termsPrefix
-    : Strings.cardConfirmation.termsPrefix;
-
-  const termsLink = isBank
-    ? Strings.confirmation.termsLink
-    : Strings.cardConfirmation.termsLink;
-
   return (
     <View style={styles.container}>
       <BottomSheetScrollView
@@ -245,7 +160,7 @@ export function ConfirmationScreen({
       >
         <BottomSheetHeader title={Strings.confirmation.title} onClose={onClose} />
 
-        <InfoWidget message={infoMessage} />
+        <InfoWidget message={Strings.confirmation.infoMessage} />
 
         <View style={styles.spacer} />
 
@@ -259,37 +174,17 @@ export function ConfirmationScreen({
 
         <View style={styles.spacer} />
 
-        {/* Bank details tile (bank mode) */}
-        {isBank && (
-          <ReviewDetailsTile
-            iconUrl={bankIconUrl}
-            heading={Strings.confirmation.from}
-            content={bankName}
-            actionText={onChangeSelection ? Strings.confirmation.change : undefined}
-            onAction={onChangeSelection}
-          />
-        )}
+        {/* Bank details tile */}
+        <ReviewDetailsTile
+          iconUrl={bankIconUrl}
+          heading={Strings.confirmation.from}
+          content={bankName}
+          actionText={onChangeSelection ? Strings.confirmation.change : undefined}
+          onAction={onChangeSelection}
+        />
 
-        {/* Card payment method tile (card mode) */}
-        {!isBank && (
-          <View style={styles.cardMethodTile}>
-            <View style={styles.cardLogosRow}>
-              <SvgIcon name="mastercard" size={20} />
-            </View>
-            <View style={styles.cardMethodTextContainer}>
-              <Text style={styles.cardMethodHeading}>{Strings.cardConfirmation.payWith}</Text>
-              <Text style={styles.cardMethodContent}>{Strings.cardConfirmation.cards}</Text>
-            </View>
-            {onChangeSelection && (
-              <TouchableOpacity onPress={onChangeSelection}>
-                <Text style={styles.changeText}>{Strings.confirmation.change}</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        )}
-
-        {/* App not installed warning (bank mode only) */}
-        {isBank && !isAppInstalled && (
+        {/* App not installed warning */}
+        {!isAppInstalled && (
           <>
             <View style={styles.spacer} />
             <View style={styles.appWarningBanner}>
@@ -312,8 +207,8 @@ export function ConfirmationScreen({
           </>
         )}
 
-        {/* Link expired (bank mode only) */}
-        {isBank && showLinkExpired && (
+        {/* Link expired */}
+        {showLinkExpired && (
           <>
             <View style={styles.spacer} />
             <Text style={styles.linkExpiredText}>
@@ -329,27 +224,27 @@ export function ConfirmationScreen({
         <View style={styles.spacer} />
 
         <LedgerButton
-          title={confirmButtonTitle}
+          title={Strings.confirmation.goToBank(selectedBank?.name ?? Strings.confirmation.defaultBankName)}
           onPress={onConfirm}
           variant="primary2"
           size="xtraLarge"
           backgroundColor={brandingColors?.backgroundColor}
           foregroundColor={brandingColors?.foregroundColor}
-          disabled={isBank && showLinkExpired}
+          disabled={showLinkExpired}
         />
 
         <View style={styles.spacerXl} />
 
         {/* Terms */}
         <Text style={styles.termsText}>
-          {termsPrefix}
+          {Strings.confirmation.termsPrefix}
           <Text
             style={styles.termsLink}
             onPress={() =>
               Linking.openURL('https://paywithatoa.co.uk/terms/')
             }
           >
-            {termsLink}
+            {Strings.confirmation.termsLink}
           </Text>
         </Text>
       </BottomSheetScrollView>
@@ -407,42 +302,6 @@ const styles = StyleSheet.create({
   appWarningLink: {
     fontFamily: getFontFamily('700'),
     textDecorationLine: 'underline',
-  },
-  cardMethodTile: {
-    flexDirection: 'row',
-    backgroundColor: Colors.grey50,
-    padding: Spacing.large,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: Colors.grey200,
-    alignItems: 'center',
-  },
-  cardLogosRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginRight: Spacing.medium,
-  },
-  cardMethodTextContainer: {
-    flex: 1,
-  },
-  cardMethodHeading: {
-    fontFamily: getFontFamily('600'),
-    fontSize: 12,
-    color: Colors.grey500,
-  },
-  cardMethodContent: {
-    fontFamily: getFontFamily('700'),
-    fontSize: 14,
-    color: Colors.black,
-    marginTop: 2,
-  },
-  changeText: {
-    fontFamily: getFontFamily('700'),
-    fontSize: 14,
-    color: Colors.actionRed,
-    textDecorationLine: 'underline',
-    marginLeft: Spacing.small,
   },
   termsText: {
     fontFamily: getFontFamily('400'),

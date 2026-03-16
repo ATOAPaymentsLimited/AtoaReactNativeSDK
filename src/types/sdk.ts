@@ -11,7 +11,7 @@ export interface AtoaPayOptions {
   env: AtoaEnv;
   /** Shows a sheet explaining the steps for making a payment (required) */
   showHowPaymentWorks: boolean;
-  /** Transaction type: OPEN_BANKING (default) or CARD */
+  /** Transaction type: undefined (default, bank + card), OPEN_BANKING (bank only), or CARD (card only) */
   transactionType?: TransactionType;
   /** Customer details for pre-selecting bank (optional) */
   customerDetails?: CustomerDetails;
