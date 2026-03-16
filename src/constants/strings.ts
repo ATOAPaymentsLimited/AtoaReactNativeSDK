@@ -93,13 +93,8 @@ export const Strings = {
       'Server is not reachable. Please check your internet connection and try again',
   },
 
-  cardConfirmation: {
-
-    notEnabledTitle: 'Card payment is not available',
-    notEnabledMessage:
-      'Card payments are not enabled for this merchant. Please use a bank transfer instead.',
+  card: {
     payByCard: 'Pay by card',
-
   },
 
   api: {

@@ -1,11 +1,12 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 
 import { BottomSheetHeader } from '../shared/BottomSheetHeader';
-import { ErrorWidget } from '../shared/ErrorWidget';
 import { LedgerButton } from '../shared/LedgerButton';
 import { Strings } from '../../constants/strings';
+import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
+import { getFontFamily } from '../../constants/typography';
 
 interface CardErrorScreenProps {
   title?: string;
@@ -15,28 +16,24 @@ interface CardErrorScreenProps {
 }
 
 export function CardErrorScreen({
-  title,
+  title = Strings.error.defaultTitle,
   message,
   onClose,
   onPayByBank,
 }: CardErrorScreenProps) {
   return (
     <View style={styles.container}>
-      <BottomSheetHeader title={Strings.cardConfirmation.payByCard} onClose={onClose} />
+      <BottomSheetHeader title={Strings.card.payByCard} onClose={onClose} />
       <View style={styles.content}>
-        <ErrorWidget title={title} message={message} />
+        <Text style={styles.title}>{title}</Text>
+        {message && <Text style={styles.message}>{message}</Text>}
         {onPayByBank && (
-          <>
-            <View style={styles.spacer} />
-            <View style={styles.fullWidth}>
-              <LedgerButton
-                title="Pay by bank"
-                onPress={onPayByBank}
-                variant="secondary"
-                size="xtraLarge"
-              />
-            </View>
-          </>
+          <LedgerButton
+            title="Pay by bank"
+            onPress={onPayByBank}
+            variant="secondary"
+            size="xtraLarge"
+          />
         )}
       </View>
     </View>
@@ -52,12 +49,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.large,
     justifyContent: 'center',
     alignItems: 'center',
+    gap: Spacing.medium,
   },
-  spacer: {
-    height: Spacing.large,
+  title: {
+    fontFamily: getFontFamily('700'),
+    fontSize: 16,
+    color: Colors.black,
+    textAlign: 'center',
+    lineHeight: 23.2,
   },
-  fullWidth: {
-    alignSelf: 'stretch',
-    width: '100%',
+  message: {
+    fontFamily: getFontFamily('400'),
+    fontSize: 14,
+    color: Colors.grey500,
+    textAlign: 'center',
+    lineHeight: 21,
   },
 });

@@ -397,16 +397,16 @@ function AtoaPaymentModalInner({
       }
       case 'cardError': {
         const cardNotEnabled = !isCardPaymentEnabled(state.paymentDetails);
-        const errorTitle = cardNotEnabled ? Strings.cardConfirmation.notEnabledTitle : undefined;
-        const errorMessage = cardNotEnabled
-          ? Strings.cardConfirmation.notEnabledMessage
-          : (state.bankAuthError?.message ?? state.paymentDetailsError?.message);
+        const errorTitle = cardNotEnabled ? Strings.bankSelection.paymentProcessingError : undefined;
+        const errorMessage =
+           state.paymentDetailsError?.message ?? state.bankAuthError?.message;
+        const showPayByBank = cardNotEnabled || options.transactionType == null;
         return (
           <CardErrorScreen
             title={errorTitle}
             message={errorMessage}
             onClose={handleClose}
-            onPayByBank={options.transactionType == null ? handleChangeBank : undefined}
+            onPayByBank={showPayByBank ? handleChangeBank : undefined}
           />
         );
       }
