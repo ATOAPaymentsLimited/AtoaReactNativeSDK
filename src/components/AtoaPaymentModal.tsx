@@ -400,13 +400,12 @@ function AtoaPaymentModalInner({
         const errorTitle = cardNotEnabled ? Strings.bankSelection.paymentProcessingError : undefined;
         const errorMessage =
            state.paymentDetailsError?.message ?? state.bankAuthError?.message;
-        const showPayByBank = cardNotEnabled || options.transactionType == null;
         return (
           <CardErrorScreen
             title={errorTitle}
             message={errorMessage}
             onClose={handleClose}
-            onPayByBank={showPayByBank ? handleChangeBank : undefined}
+            onPayByBank={cardNotEnabled ? handleChangeBank : undefined}
           />
         );
       }
