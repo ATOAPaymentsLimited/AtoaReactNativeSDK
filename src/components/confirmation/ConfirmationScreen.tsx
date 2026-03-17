@@ -19,21 +19,22 @@ import { getFontFamily } from '../../constants/typography';
 
 interface ConfirmationScreenProps {
   onClose: () => void;
-  onConfirm: () => void;
-  onChangeSelection?: () => void;
+  onGoToBank: () => void;
+  onChangeBank: () => void;
 }
 
 export function ConfirmationScreen({
   onClose,
-  onConfirm,
-  onChangeSelection,
+  onGoToBank,
+  onChangeBank,
 }: ConfirmationScreenProps) {
   const { state, dispatch, selectBank, checkBankAppAvailability, brandingColors } = useBankInstitutions();
   const { paymentDetails, selectedBank, isAppInstalled, showLinkExpired, bankAuthError } =
     state;
   const appStateRef = useRef(AppState.currentState);
 
-  // Re-check bank app availability when app returns from background
+  // Re-check bank app availability when app resumes (e.g. user installed app from store)
+  // Re-check when app returns from background (e.g. user installed bank app from store)
   useEffect(() => {
     const handleAppStateChange = (nextAppState: AppStateStatus) => {
       if (
@@ -83,7 +84,6 @@ export function ConfirmationScreen({
     selectBank(selectedBank);
   }, [dispatch, selectBank, selectedBank]);
 
-  // --- Loading state ---
   if (state.isLoadingAuth) {
     return (
       <View style={styles.container}>
@@ -95,13 +95,12 @@ export function ConfirmationScreen({
     );
   }
 
-  // --- Error states ---
   if (bankAuthError) {
     const errMsg = bankAuthError.message?.trim();
     const isBankDown =
       errMsg?.toLowerCase().includes(ERROR_BANK_APP_DOWN) ||
       errMsg?.toLowerCase().includes(ERROR_BANK_DOWN);
-    if (isBankDown) {
+    if (isBankDown && selectedBank) {
       return (
         <BottomSheetView>
           <View style={styles.bankDownContent}>
@@ -111,18 +110,16 @@ export function ConfirmationScreen({
             </View>
             <View style={styles.spacerXl} />
             <Text style={styles.bankDownMessage}>
-              {selectedBank && <Text style={styles.bankDownBankName}>{selectedBank.name}</Text>}
+              <Text style={styles.bankDownBankName}>{selectedBank.name}</Text>
               {Strings.bankDown.message}
             </Text>
             <View style={styles.spacerXl} />
-            {onChangeSelection && (
-              <LedgerButton
-                title={Strings.bankDown.selectAnother}
-                onPress={onChangeSelection}
-                variant="secondary"
-                size="xtraLarge"
-              />
-            )}
+            <LedgerButton
+              title={Strings.bankDown.selectAnother}
+              onPress={onChangeBank}
+              variant="secondary"
+              size="xtraLarge"
+            />
           </View>
         </BottomSheetView>
       );
@@ -133,25 +130,11 @@ export function ConfirmationScreen({
         <BottomSheetHeader title={Strings.confirmation.title} onClose={onClose} />
         <View style={styles.errorContent}>
           <ErrorWidget message={bankAuthError.message} />
-          {onChangeSelection && (
-            <>
-              <View style={styles.spacer} />
-              <View style={styles.fullWidth}>
-                <LedgerButton
-                  title={Strings.bankDown.selectAnother}
-                  onPress={onChangeSelection}
-                  variant="secondary"
-                  size="xtraLarge"
-                />
-              </View>
-            </>
-          )}
         </View>
       </BottomSheetView>
     );
   }
 
-  // --- Main confirmation view ---
   return (
     <View style={styles.container}>
       <BottomSheetScrollView
@@ -179,8 +162,8 @@ export function ConfirmationScreen({
           iconUrl={bankIconUrl}
           heading={Strings.confirmation.from}
           content={bankName}
-          actionText={onChangeSelection ? Strings.confirmation.change : undefined}
-          onAction={onChangeSelection}
+          actionText={Strings.confirmation.change}
+          onAction={onChangeBank}
         />
 
         {/* App not installed warning */}
@@ -207,7 +190,6 @@ export function ConfirmationScreen({
           </>
         )}
 
-        {/* Link expired */}
         {showLinkExpired && (
           <>
             <View style={styles.spacer} />
@@ -225,13 +207,14 @@ export function ConfirmationScreen({
 
         <LedgerButton
           title={Strings.confirmation.goToBank(selectedBank?.name ?? Strings.confirmation.defaultBankName)}
-          onPress={onConfirm}
+          onPress={onGoToBank}
           variant="primary2"
           size="xtraLarge"
           backgroundColor={brandingColors?.backgroundColor}
           foregroundColor={brandingColors?.foregroundColor}
           disabled={showLinkExpired}
         />
+
 
         <View style={styles.spacerXl} />
 
@@ -269,6 +252,9 @@ const styles = StyleSheet.create({
   spacer: {
     height: Spacing.large,
   },
+  spacerMedium: {
+    height: Spacing.medium,
+  },
   spacerXl: {
     height: Spacing.huge,
   },
@@ -303,6 +289,22 @@ const styles = StyleSheet.create({
     fontFamily: getFontFamily('700'),
     textDecorationLine: 'underline',
   },
+  poweredByContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  poweredByText: {
+    fontFamily: getFontFamily('500'),
+    fontSize: 13,
+    color: Colors.grey500,
+  },
+  poweredByLogo: {
+    width: 30,
+    height: 12,
+    overflow: 'hidden',
+    justifyContent: 'center',
+  },
   termsText: {
     fontFamily: getFontFamily('400'),
     fontSize: 11,
@@ -311,7 +313,10 @@ const styles = StyleSheet.create({
     lineHeight: 17.6,
     paddingBottom: Spacing.huge,
   },
-  termsLink: {
+  termsBold: {
+    fontFamily: getFontFamily('600'),
+  },
+   termsLink: {
     color: Colors.grey500,
     fontFamily: getFontFamily('700'),
   },
@@ -343,10 +348,6 @@ const styles = StyleSheet.create({
   },
   bankDownBankName: {
     fontFamily: getFontFamily('700'),
-  },
-  fullWidth: {
-    alignSelf: 'stretch',
-    width: '100%',
   },
   errorContent: {
     paddingHorizontal: Spacing.large,

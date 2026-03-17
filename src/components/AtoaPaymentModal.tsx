@@ -12,6 +12,7 @@ import { isCompleted, isFailed, isCardPaymentEnabled } from '../types/payment';
 import { AtoaException } from '../types/error';
 import { Colors } from '../constants/colors';
 import { Strings } from '../constants/strings';
+import { ERROR_SERVER_NOT_REACHABLE } from '../constants/component-constants';
 import { Spacing } from '../constants/spacing';
 import { BankSelectionScreen } from './bank-selection/BankSelectionScreen';
 import { HowToMakePaymentScreen } from './how-to-pay/HowToMakePaymentScreen';
@@ -327,20 +328,24 @@ function AtoaPaymentModalInner({
     [needsFixedHeight]
   );
 
+  const isServerNotReachable = useMemo(() => {
+    const msgs = [state.bankAuthError, state.bankFetchingError, state.paymentDetailsError]
+      .map(e => e?.message ?? '');
+    return msgs.some(m => m.includes(ERROR_SERVER_NOT_REACHABLE));
+  }, [state.bankAuthError, state.bankFetchingError, state.paymentDetailsError]);
+
   const bankSelectionBack = useMemo(
     () =>
-      state.showHowPaymentWorks === false && options.showHowPaymentWorks
+      state.showHowPaymentWorks === false && options.showHowPaymentWorks && !isServerNotReachable
         ? navigateToHowToPay
         : handleClose,
-    [state.showHowPaymentWorks, options.showHowPaymentWorks, navigateToHowToPay, handleClose]
+    [state.showHowPaymentWorks, options.showHowPaymentWorks, isServerNotReachable, navigateToHowToPay, handleClose]
   );
 
   const cardPaymentEnabled = useMemo(
     () => (options.transactionType == null || switchedFromCard) && isCardPaymentEnabled(state.paymentDetails),
     [options.transactionType, switchedFromCard, state.paymentDetails]
   );
-
-  const confirmationOnChange = options.transactionType == null ? handleChangeBank : undefined;
 
   const renderScreen = () => {
     switch (currentScreen) {
@@ -370,8 +375,8 @@ function AtoaPaymentModalInner({
         return (
           <ConfirmationScreen
             onClose={handleClose}
-            onConfirm={handleGoToBank}
-            onChangeSelection={confirmationOnChange}
+            onGoToBank={handleGoToBank}
+            onChangeBank={handleChangeBank}
           />
         );
       case 'verifying':

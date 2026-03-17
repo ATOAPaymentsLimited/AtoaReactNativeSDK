@@ -35,7 +35,7 @@ export function VerifyingPaymentScreen({
   const selectedBank = state.selectedBank;
   const bankIconUrl = selectedBank ? getBankIcon(selectedBank) : undefined;
 
-  // Start authorization and polling on mount (bank flow only)
+  // Start authorization and polling on mount
   useEffect(() => {
     if (hasStartedRef.current || !paymentAuth) {
       return;
@@ -43,7 +43,7 @@ export function VerifyingPaymentScreen({
     hasStartedRef.current = true;
 
     const start = async () => {
-      // Delay then open bank app via deep link
+      // Delay 1 second before opening bank app
       await new Promise<void>((resolve) => setTimeout(resolve, 1000));
       await authorizeBank();
       startPolling();

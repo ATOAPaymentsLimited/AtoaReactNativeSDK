@@ -174,9 +174,7 @@ export function useBankInstitutions() {
       }
 
       dispatch({ type: 'SET_SELECTED_BANK', payload: selectedBank });
-      dispatch({ type: 'SET_LOADING_AUTH', payload: true });
-      dispatch({ type: 'SET_PAYMENT_AUTH', payload: null });
-      dispatch({ type: 'SET_BANK_AUTH_ERROR', payload: null });
+      dispatch({ type: 'START_AUTH' });
 
       const paymentDetails = state.paymentDetails;
       if (!paymentDetails) {
@@ -191,7 +189,6 @@ export function useBankInstitutions() {
           paymentRequestId: options.paymentId,
           features: selectedBank.features,
           requestCreatedAt: paymentDetails.requestCreatedAt ?? '',
-          transactionType: 'OPEN_BANKING',
         });
 
         const paymentAuth = await client.getPaymentAuth(body);
@@ -221,15 +218,12 @@ export function useBankInstitutions() {
 
   const selectCardPayment = useCallback(
     async (): Promise<'success' | 'error'> => {
-      dispatch({ type: 'SET_LOADING_AUTH', payload: true });
-      dispatch({ type: 'SET_PAYMENT_AUTH', payload: null });
-      dispatch({ type: 'SET_BANK_AUTH_ERROR', payload: null });
-
       const paymentDetails = state.paymentDetails;
       if (!paymentDetails) {
-        dispatch({ type: 'SET_LOADING_AUTH', payload: false });
         return 'error';
       }
+
+      dispatch({ type: 'START_AUTH' });
 
       try {
         const body = buildPaymentAuthBody({

@@ -30,9 +30,6 @@ export const Colors = {
   positiveLighter: '#B3EDCA',
   positiveDarker: '#00802B',
 
-  // Semantics - Action
-  actionRed: '#E42646',
-
   // Semantics - Warning
   warningSubtle: '#FFF8E6',
   warningDarker: '#CC8800',
