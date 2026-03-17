@@ -73,6 +73,7 @@ function AtoaPaymentModalInner({
   const {
     getPaymentDetails,
     getPaymentDetailsAndBanks,
+    fetchBanks,
     startPolling,
     stopPolling,
     resetSelectBank,
@@ -297,18 +298,25 @@ function AtoaPaymentModalInner({
         onComplete(details);
       } else if (result.type === 'closed') {
         resetSelectBank();
+        setConfirmationMode('bank');
         setSwitchedFromCard(true);
+        if (state.bankList.length === 0) {
+          fetchBanks();
+        }
         setCurrentScreen('bankSelection');
       }
     },
-    [dispatch, client, options, state.paymentAuth, stopPolling, onComplete, resetSelectBank]
+    [dispatch, client, options, state.paymentAuth, state.bankList.length, stopPolling, onComplete, resetSelectBank, fetchBanks]
   );
 
   const handleChangeBank = useCallback(() => {
     resetSelectBank();
     setConfirmationMode('bank');
+    if (state.bankList.length === 0) {
+      fetchBanks();
+    }
     setCurrentScreen('bankSelection');
-  }, [resetSelectBank]);
+  }, [resetSelectBank, state.bankList.length, fetchBanks]);
 
   const navigateToHowToPay = useCallback(() => {
     setCurrentScreen('howToPay');
@@ -400,7 +408,7 @@ function AtoaPaymentModalInner({
             checkoutId={checkoutId}
             merchantName={state.paymentDetails?.merchantBusinessName ?? ''}
             onResult={handleCardCheckoutResult}
-            onBack={options.transactionType === TransactionType.CARD ? handleClose : handleChangeBank}
+            onBack={handleClose}
           />
         );
       }

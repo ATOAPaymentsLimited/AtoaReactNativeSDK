@@ -203,7 +203,7 @@ const result = await AtoaSdk.pay({
 });
 ```
 
-> **Note:** Card payments must be enabled for your merchant account by Atoa. Contact [hello@paywithatoa.co.uk](mailto:hello@paywithatoa.co.uk) to enable card payments. Once enabled, the card payment option is shown automatically — there is no SDK-level toggle.
+> **Note:** Card payments need to be enabled for your merchant account. To enable card payments, please contact the Atoa team at [hello@paywithatoa.co.uk](mailto:hello@paywithatoa.co.uk). Once enabled, the card payment option appears automatically in the SDK — no additional configuration is required.
 
 ## API Reference
 
