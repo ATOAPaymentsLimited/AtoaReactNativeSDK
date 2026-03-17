@@ -7,8 +7,7 @@ import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { Strings } from '../../constants/strings';
 import { getFontFamily } from '../../constants/typography';
-
-const AUTO_CLOSE_DELAY_MS = 2000;
+import { AUTO_CLOSE_DELAY_MS } from '../../constants/component-constants';
 
 interface PaymentSuccessViewProps {
   transactionDetails?: TransactionDetails;

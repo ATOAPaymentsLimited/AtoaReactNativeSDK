@@ -63,3 +63,4 @@ export const ERROR_BANK_DOWN = 'bank is down';
 // --- ConfirmationScreen ---
 export const INACTIVE_STATE_PATTERN = /inactive|background/;
 
+export const AUTO_CLOSE_DELAY_MS = 2000;
