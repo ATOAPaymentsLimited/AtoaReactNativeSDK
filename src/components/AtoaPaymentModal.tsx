@@ -257,7 +257,7 @@ function AtoaPaymentModalInner({
       if (result.type === 'success') {
         let details: TransactionDetails | null = null;
         if (idempotencyId) {
-          const MAX_ATTEMPTS = 5;
+          const MAX_ATTEMPTS = 2;
           const DELAY_MS = 2000;
           for (let i = 0; i < MAX_ATTEMPTS; i++) {
             try {
