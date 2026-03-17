@@ -47,19 +47,32 @@ export function BankSelectionScreen({
     businessBanksEnabled,
     personalBanksDisabledByAmount,
     businessBanksDisabledByAmount,
+    popularPersonalBanks,
+    popularBusinessBanks,
     paymentAmount,
   } = useBankInstitutions();
 
+
+
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const [bankDownBank, setBankDownBank] = useState<BankInstitution | null>(null);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const { width } = useWindowDimensions();
 
   const isLoading = state.isLoading || state.isLoadingDetails || state.hasLastPaymentDetails;
   const hasError = state.bankFetchingError || state.paymentDetailsError;
   const isSearching = state.searchTerm.length > 0;
+  const showListView = isSearching || isSearchFocused;
 
-  const tabbedBanksEnabled = selectedTabIndex === 0 ? personalBanksEnabled : businessBanksEnabled;
-  const tabbedBanksDisabledByAmount = selectedTabIndex === 0 ? personalBanksDisabledByAmount : businessBanksDisabledByAmount;
+
+  const popularBanks = selectedTabIndex === 0 ? popularPersonalBanks : popularBusinessBanks;
+  const enabledBanks = selectedTabIndex === 0 ? personalBanksEnabled : businessBanksEnabled;
+  const banks = useMemo(() => {
+    const popularIds = new Set(popularBanks.map(b => b.id));
+    const remaining = enabledBanks.filter(b => !popularIds.has(b.id));
+    return [...popularBanks, ...remaining];
+  }, [popularBanks, enabledBanks]);
+  const banksDisabledByAmount = selectedTabIndex === 0 ? personalBanksDisabledByAmount : businessBanksDisabledByAmount;
 
   const handleBankPress = useCallback(
     async (bank: BankInstitution) => {
@@ -231,11 +244,13 @@ export function BankSelectionScreen({
       <AnimatedSearchField
         value={state.searchTerm}
         onChangeText={(text) => search(text)}
+        onFocus={() => setIsSearchFocused(true)}
+        onBlur={() => setIsSearchFocused(false)}
       />
 
       <View style={styles.spacer} />
 
-      {!isSearching && (
+      {!showListView && (
         <>
           <View style={styles.tabBarContainer}>
             <BankTabBar selectedIndex={selectedTabIndex} onTabChange={setSelectedTabIndex} />
@@ -251,23 +266,40 @@ export function BankSelectionScreen({
         />
       </View>
 
-      {!isSearching && <View style={styles.spacerLarge} />}
+      {!showListView && <View style={styles.spacerLarge} />}
 
-      {isSearching ? (
+      {showListView ? (
         <>
-          <View style={styles.resultsHeaderContainer}>
-            <Text style={styles.sectionLabel}>{Strings.bankSelection.resultsLabel}</Text>
-          </View>
+          {isSearching && (
+            <View style={styles.resultsHeaderContainer}>
+              <Text style={styles.sectionLabel}>{Strings.bankSelection.resultsLabel}</Text>
+            </View>
+          )}
           <BottomSheetFlatList
-            data={allBanksEnabled}
+            data={isSearching ? allBanksEnabled : banks}
             keyExtractor={(item: BankInstitution) => item.id}
             renderItem={renderListItem}
             contentContainerStyle={[styles.listContent, styles.searchListContent]}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
-            ListFooterComponent={renderAmountLimitedSection(allBanksDisabledByAmount)}
+            ListFooterComponent={
+              allBanksDisabledByAmount.length > 0 && paymentAmount != null ? (
+                <View style={styles.bankLimitBanner}>
+                  <BankLimitCard amount={paymentAmount} />
+                  {allBanksDisabledByAmount.map(bank => (
+                    <BankListItem
+                      key={bank.id}
+                      bank={bank}
+                      isSelected={false}
+                      onPress={handleBankPress}
+                      forceDisabled
+                    />
+                  ))}
+                </View>
+              ) : null
+            }
             ListEmptyComponent={
-              allBanksDisabledByAmount.length === 0 ? (
+              isSearching && allBanksDisabledByAmount.length === 0 ? (
                 <View style={styles.emptyContainer}>
                   <Text style={styles.emptyTitle}>{Strings.bankSelection.noResults}</Text>
                   <Text style={styles.emptySubtitle}>
@@ -280,7 +312,7 @@ export function BankSelectionScreen({
         </>
       ) : (
         <BottomSheetFlatList
-          data={tabbedBanksEnabled}
+          data={banks}
           keyExtractor={(item: BankInstitution) => item.id}
           renderItem={renderGridItem}
           numColumns={4}
@@ -288,11 +320,11 @@ export function BankSelectionScreen({
           columnWrapperStyle={styles.gridRow}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
-          ListFooterComponent={renderAmountLimitedSection(tabbedBanksDisabledByAmount)}
+          ListFooterComponent={renderAmountLimitedSection(banksDisabledByAmount)}
         />
       )}
 
-      {cardPaymentEnabled && onPayByCard && !isSearching && (
+      {cardPaymentEnabled && onPayByCard && !showListView && (
         <View style={styles.payByCardFooter}>
           <Pressable style={styles.payByCardButton} onPress={onPayByCard}>
             <View style={styles.payByCardTextContainer}>
@@ -357,6 +389,9 @@ const styles = StyleSheet.create({
   },
   infoBannerContainer: {
     paddingHorizontal: Spacing.large,
+  },
+  bankLimitBanner: {
+    paddingBottom: Spacing.medium,
   },
   allBanksContainer: {
     marginTop: Spacing.large,

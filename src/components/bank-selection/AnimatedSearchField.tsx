@@ -17,11 +17,15 @@ const PLACEHOLDER_TEXTS = Strings.bankSelection.searchPlaceholders;
 interface AnimatedSearchFieldProps {
   value: string;
   onChangeText: (text: string) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
 export function AnimatedSearchField({
   value,
   onChangeText,
+  onFocus,
+  onBlur,
 }: AnimatedSearchFieldProps) {
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -58,6 +62,8 @@ export function AnimatedSearchField({
           style={styles.input}
           value={value}
           onChangeText={onChangeText}
+          onFocus={onFocus}
+          onBlur={onBlur}
           placeholder=""
           placeholderTextColor={Colors.grey500}
           cursorColor={Colors.black}
