@@ -71,6 +71,7 @@ function AtoaPaymentModalInner({
   const [switchedFromCard, setSwitchedFromCard] = useState(false);
   const { state, dispatch, client } = usePaymentContext();
   const {
+    getPaymentDetails,
     getPaymentDetailsAndBanks,
     startPolling,
     stopPolling,
@@ -82,14 +83,17 @@ function AtoaPaymentModalInner({
   const [isDataReady, setIsDataReady] = useState(false);
   const handleCloseRef = useRef<() => void>(() => {});
 
-  // Initialize: fetch payment details and banks
+  // Initialize: fetch payment details (and banks, unless card-only)
   useEffect(() => {
     if (hasInitializedRef.current) {
       return;
     }
     hasInitializedRef.current = true;
-    getPaymentDetailsAndBanks().then(() => setIsDataReady(true));
-  }, [getPaymentDetailsAndBanks]);
+    const init = options.transactionType === TransactionType.CARD
+      ? getPaymentDetails().then(() => {})
+      : getPaymentDetailsAndBanks();
+    init.then(() => setIsDataReady(true));
+  }, [options.transactionType, getPaymentDetails, getPaymentDetailsAndBanks]);
 
   // Determine showHowPaymentWorks after data is fully loaded (including matchLastBank)
   useEffect(() => {
@@ -410,7 +414,6 @@ function AtoaPaymentModalInner({
             title={errorTitle}
             message={errorMessage}
             onClose={handleClose}
-            onPayByBank={cardNotEnabled ? handleChangeBank : undefined}
           />
         );
       }

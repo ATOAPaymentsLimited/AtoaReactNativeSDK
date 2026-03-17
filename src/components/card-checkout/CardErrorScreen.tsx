@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
 import { BottomSheetHeader } from '../shared/BottomSheetHeader';
-import { LedgerButton } from '../shared/LedgerButton';
 import { Strings } from '../../constants/strings';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
@@ -12,14 +11,12 @@ interface CardErrorScreenProps {
   title?: string;
   message?: string;
   onClose: () => void;
-  onPayByBank?: () => void;
 }
 
 export function CardErrorScreen({
   title = Strings.error.defaultTitle,
   message,
   onClose,
-  onPayByBank,
 }: CardErrorScreenProps) {
   return (
     <View style={styles.container}>
@@ -27,14 +24,6 @@ export function CardErrorScreen({
       <View style={styles.content}>
         <Text style={styles.title}>{title}</Text>
         {message && <Text style={styles.message}>{message}</Text>}
-        {onPayByBank && (
-          <LedgerButton
-            title="Pay by bank"
-            onPress={onPayByBank}
-            variant="secondary"
-            size="xtraLarge"
-          />
-        )}
       </View>
     </View>
   );

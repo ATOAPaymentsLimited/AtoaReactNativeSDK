@@ -203,7 +203,7 @@ const result = await AtoaSdk.pay({
 });
 ```
 
-> **Note:** The card payment option visibility is controlled by the merchant's Atoa dashboard settings. There is no SDK-level toggle — if card payments are enabled for the merchant account, the option is shown automatically.
+> **Note:** Card payments must be enabled for your merchant account by Atoa. Contact [hello@paywithatoa.co.uk](mailto:hello@paywithatoa.co.uk) to enable card payments. Once enabled, the card payment option is shown automatically — there is no SDK-level toggle.
 
 ## API Reference
 
