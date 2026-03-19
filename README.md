@@ -47,17 +47,18 @@ The SDK uses a few community libraries for its payment sheet UI. **Most React Na
 | `@gorhom/bottom-sheet`            | Payment sheet modal            | —                                         |
 | `@react-native-community/netinfo` | Network connectivity detection | —                                         |
 | `lottie-react-native`             | Payment status animations      | —                                         |
+| `react-native-webview`            | Required for card payments     | —                                         |
 
 Install all at once (skip any you already have):
 
 ```sh
-npm install @gorhom/bottom-sheet react-native-gesture-handler react-native-reanimated react-native-svg @react-native-community/netinfo lottie-react-native
+npm install @gorhom/bottom-sheet react-native-gesture-handler react-native-reanimated react-native-svg @react-native-community/netinfo lottie-react-native react-native-webview
 ```
 
 Using Expo? Use `npx expo install` instead to ensure compatible versions:
 
 ```sh
-npx expo install @gorhom/bottom-sheet react-native-gesture-handler react-native-reanimated react-native-svg @react-native-community/netinfo lottie-react-native
+npx expo install @gorhom/bottom-sheet react-native-gesture-handler react-native-reanimated react-native-svg @react-native-community/netinfo lottie-react-native react-native-webview
 ```
 
 > **Note:** `react-native-reanimated` requires a Babel plugin. If you haven't already, add `'react-native-reanimated/plugin'` to your `babel.config.js`. See the [Reanimated installation guide](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/getting-started/) for details.

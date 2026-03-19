@@ -27,7 +27,6 @@ export function usePaymentStatus() {
         dispatch({ type: 'SET_TRANSACTION_DETAILS', payload: details });
         dispatch({ type: 'SET_PAYMENT_STATUS_ERROR', payload: null });
 
-
         options.onPaymentStatusChange?.({
           status: typeof details.status === 'string' ? details.status : '',
           redirectUrlParams: details.redirectUrlParams,
