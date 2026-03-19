@@ -5,6 +5,7 @@ import BottomSheet from '@gorhom/bottom-sheet';
 import { PaymentProvider, usePaymentContext } from '../hooks/PaymentContext';
 import { ConnectivityProvider } from '../hooks/ConnectivityContext';
 import { useBankInstitutions } from '../hooks/useBankInstitutions';
+import { useCardPayment } from '../hooks/useCardPayment';
 import { TransactionType } from '../types/transaction';
 import type { AtoaPayOptions } from '../types/sdk';
 import type { TransactionDetails } from '../types/payment';
@@ -78,8 +79,8 @@ function AtoaPaymentModalInner({
     stopPolling,
     resetSelectBank,
     selectBank,
-    selectCardPayment,
   } = useBankInstitutions();
+  const { selectCardPayment } = useCardPayment();
   const hasInitializedRef = useRef(false);
   const [isDataReady, setIsDataReady] = useState(false);
   const handleCloseRef = useRef<() => void>(() => {});

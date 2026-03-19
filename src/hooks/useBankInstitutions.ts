@@ -4,16 +4,11 @@ import { usePaymentContext } from './PaymentContext';
 import { useConnectivityContext } from './ConnectivityContext';
 import type { BankInstitution } from '../types/bank';
 import type { PaymentRequestData, PaymentAuthResponse } from '../types/payment';
-import { AtoaException } from '../types/error';
 import { buildPaymentAuthBody } from '../utils/buildPaymentAuthBody';
+import { atoaException } from '../utils/atoaException';
 import { isAppInstalled } from '../utils/appInstalled';
 import { getBrandingColors } from '../utils/brandingColors';
 import { ERROR_BANK_APP_DOWN, ERROR_BANK_DOWN, ERROR_SERVER_NOT_REACHABLE } from '../constants/component-constants';
-
-function toAtoaException(e: unknown): AtoaException {
-  if (e instanceof AtoaException) { return e; }
-  return new AtoaException('custom', e instanceof Error ? e.message : String(e));
-}
 
 export function useBankInstitutions() {
   const { state, dispatch, client, options } = usePaymentContext();
@@ -48,7 +43,7 @@ export function useBankInstitutions() {
       dispatch({ type: 'SET_PAYMENT_DETAILS', payload: paymentRes });
       return paymentRes;
     } catch (e) {
-      const err = toAtoaException(e);
+      const err = atoaException(e);
       options.onError?.(err);
       if (err.message.includes(ERROR_SERVER_NOT_REACHABLE)) {
         checkConnection();
@@ -68,7 +63,7 @@ export function useBankInstitutions() {
       dispatch({ type: 'SET_BANK_LIST', payload: res });
       return res;
     } catch (e) {
-      const err = toAtoaException(e);
+      const err = atoaException(e);
       options.onError?.(err);
       if (err.message.includes(ERROR_SERVER_NOT_REACHABLE)) {
         checkConnection();
@@ -107,7 +102,7 @@ export function useBankInstitutions() {
         const res = await client.fetchInstitutions(searchTerm);
         dispatch({ type: 'SET_BANK_LIST', payload: res });
       } catch (e) {
-        const err = toAtoaException(e);
+        const err = atoaException(e);
         options.onError?.(err);
         dispatch({ type: 'SET_BANK_FETCHING_ERROR', payload: err });
       } finally {
@@ -199,7 +194,7 @@ export function useBankInstitutions() {
         await checkBankAppAvailability(paymentAuth);
         return 'success';
       } catch (e) {
-        const err = toAtoaException(e);
+        const err = atoaException(e);
         options.onError?.(err);
         dispatch({ type: 'SET_PAYMENT_AUTH', payload: null });
         dispatch({ type: 'SET_BANK_AUTH_ERROR', payload: err });
@@ -214,41 +209,6 @@ export function useBankInstitutions() {
       }
     },
     [state.paymentDetails, dispatch, client, options, checkBankAppAvailability]
-  );
-
-  const selectCardPayment = useCallback(
-    async (): Promise<'success' | 'error'> => {
-      const paymentDetails = state.paymentDetails;
-      if (!paymentDetails) {
-        return 'error';
-      }
-
-      dispatch({ type: 'START_AUTH' });
-
-      try {
-        const body = buildPaymentAuthBody({
-          paymentDetails,
-          institutionId: 'rapyd',
-          paymentRequestId: options.paymentId,
-          features: ['CREATE_DOMESTIC_SINGLE_PAYMENT'],
-          requestCreatedAt: paymentDetails.requestCreatedAt ?? '',
-          transactionType: 'CARD',
-        });
-
-        const paymentAuth = await client.getPaymentAuth(body);
-        dispatch({ type: 'SET_PAYMENT_AUTH', payload: paymentAuth });
-        return 'success';
-      } catch (e) {
-        const err = toAtoaException(e);
-        options.onError?.(err);
-        dispatch({ type: 'SET_PAYMENT_AUTH', payload: null });
-        dispatch({ type: 'SET_BANK_AUTH_ERROR', payload: err });
-        return 'error';
-      } finally {
-        dispatch({ type: 'SET_LOADING_AUTH', payload: false });
-      }
-    },
-    [state.paymentDetails, dispatch, client, options]
   );
 
   const authorizeBank = useCallback(async (): Promise<boolean> => {
@@ -280,7 +240,7 @@ export function useBankInstitutions() {
         return true;
       }
     } catch (e) {
-      const err = toAtoaException(e);
+      const err = atoaException(e);
       options.onError?.(err);
       dispatch({ type: 'SET_ERROR', payload: err });
       return false;
@@ -338,7 +298,6 @@ export function useBankInstitutions() {
 
   const personalBanks = state.bankList.filter((b) => !b.businessBank);
   const businessBanks = state.bankList.filter((b) => b.businessBank);
-
   const brandingColors = getBrandingColors(
     state.paymentDetails?.merchantThemeDetails
   );
@@ -427,7 +386,6 @@ export function useBankInstitutions() {
     fetchFilteredBanks,
     search,
     selectBank,
-    selectCardPayment,
     authorizeBank,
     checkBankAppAvailability,
     getPaymentDetailsAndBanks,
