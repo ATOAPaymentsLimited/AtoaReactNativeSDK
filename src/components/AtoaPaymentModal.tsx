@@ -13,7 +13,7 @@ import { isCompleted, isFailed, isCardPaymentEnabled } from '../types/payment';
 import { AtoaException } from '../types/error';
 import { Colors } from '../constants/colors';
 import { Strings } from '../constants/strings';
-import { ERROR_SERVER_NOT_REACHABLE } from '../constants/component-constants';
+import { CARD_PAYMENTS_POLLING_INTERVAL_MS, ERROR_SERVER_NOT_REACHABLE, MAX_POLLING_ATTEMPTS } from '../constants/component-constants';
 import { Spacing } from '../constants/spacing';
 import { BankSelectionScreen } from './bank-selection/BankSelectionScreen';
 import { HowToMakePaymentScreen } from './how-to-pay/HowToMakePaymentScreen';
@@ -258,9 +258,7 @@ function AtoaPaymentModalInner({
       if (result.type === 'success') {
         let details: TransactionDetails | null = null;
         if (idempotencyId) {
-          const MAX_ATTEMPTS = 2;
-          const DELAY_MS = 2000;
-          for (let i = 0; i < MAX_ATTEMPTS; i++) {
+          for (let i = 0; i < MAX_POLLING_ATTEMPTS; i++) {
             try {
               details = await client.getPaymentStatus(idempotencyId);
               dispatch({ type: 'SET_TRANSACTION_DETAILS', payload: details });
@@ -276,8 +274,8 @@ function AtoaPaymentModalInner({
             } catch {
               // Status fetch failed — retry
             }
-            if (i < MAX_ATTEMPTS - 1) {
-              await new Promise<void>(r => setTimeout(r, DELAY_MS));
+            if (i < MAX_POLLING_ATTEMPTS - 1) {
+              await new Promise<void>(r => setTimeout(r, CARD_PAYMENTS_POLLING_INTERVAL_MS));
             }
           }
         }
