@@ -1,16 +1,24 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import { View, StyleSheet, BackHandler, Platform, Pressable } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  BackHandler,
+  Platform,
+  Pressable,
+} from 'react-native';
 import { WebView } from 'react-native-webview';
 import type { WebViewNavigation } from 'react-native-webview';
 import { usePaymentContext } from '../../hooks/PaymentContext';
 import { getCardCheckoutUrl, IOS_USER_AGENT } from '../../api/config';
 import { SvgIcon } from '../shared/SvgIcon';
+import { FetchingBankLoader } from '../shared/FetchingBankLoader';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
+import { Strings } from '../../constants/strings';
 
 export type CardCheckoutResult =
   | { type: 'success'; paymentIdempotencyId?: string }
-  | { type: 'failure'; error?: string }
+  | { type: 'failure'; error?: string; isLoadError?: boolean }
   | { type: 'closed' };
 
 interface CardCheckoutScreenProps {
@@ -114,12 +122,27 @@ export function CardCheckoutScreen({
     [onResult]
   );
 
+  const handleWebViewError = useCallback(() => {
+    if (!hasCompletedRef.current) {
+      hasCompletedRef.current = true;
+      onResult({ type: 'failure', error: Strings.api.cardCheckoutUnavailable, isLoadError: true });
+    }
+  }, [onResult]);
+
   return (
     <View style={styles.container}>
       <WebView
         source={{ uri: checkoutUrl }}
         onNavigationStateChange={handleNavigationStateChange}
         onShouldStartLoadWithRequest={handleShouldStartLoad}
+        onError={handleWebViewError}
+        onHttpError={handleWebViewError}
+        startInLoadingState
+        renderLoading={() => (
+          <View style={styles.loadingContainer}>
+            <FetchingBankLoader />
+          </View>
+        )}
         javaScriptEnabled
         domStorageEnabled
         thirdPartyCookiesEnabled
@@ -156,5 +179,11 @@ const styles = StyleSheet.create({
   },
   webview: {
     flex: 1,
+  },
+  loadingContainer: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.white,
   },
 });

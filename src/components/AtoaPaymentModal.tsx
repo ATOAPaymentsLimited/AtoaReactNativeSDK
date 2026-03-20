@@ -19,8 +19,7 @@ import { BankSelectionScreen } from './bank-selection/BankSelectionScreen';
 import { HowToMakePaymentScreen } from './how-to-pay/HowToMakePaymentScreen';
 import { ConfirmationScreen } from './confirmation/ConfirmationScreen';
 import { VerifyingPaymentScreen } from './verifying-payment/VerifyingPaymentScreen';
-import { CardCheckoutScreen, type CardCheckoutResult } from './card-checkout';
-import { CardErrorScreen } from './card-checkout/CardErrorScreen';
+import { CardCheckoutScreen, CardErrorScreen, type CardCheckoutResult } from './card-checkout';
 import { PaymentSuccessView } from './shared/PaymentSuccessView';
 import { ConnectivityWrapper } from './shared/ConnectivityWrapper';
 import { FetchingBankLoader } from './shared/FetchingBankLoader';
@@ -286,6 +285,15 @@ function AtoaPaymentModalInner({
         }
       } else if (result.type === 'failure') {
         stopPolling();
+        if (result.isLoadError) {
+          // WebView failed to load — no payment was attempted
+          dispatch({
+            type: 'SET_BANK_AUTH_ERROR',
+            payload: new AtoaException('custom', result.error ?? 'Payment failed'),
+          });
+          setCurrentScreen('cardError');
+          return;
+        }
         let details: TransactionDetails | null = null;
         if (idempotencyId) {
           try {
