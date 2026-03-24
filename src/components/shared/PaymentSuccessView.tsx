@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useRef } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { BottomSheetView } from '@gorhom/bottom-sheet';
 import LottieView from 'lottie-react-native';
 import type { TransactionDetails } from '../../types/payment';
 import { isCompleted } from '../../types/payment';
@@ -7,80 +8,79 @@ import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { Strings } from '../../constants/strings';
 import { getFontFamily } from '../../constants/typography';
-import { AUTO_CLOSE_DELAY_MS } from '../../constants/component-constants';
 
 interface PaymentSuccessViewProps {
   transactionDetails?: TransactionDetails;
   onClose: () => void;
 }
 
-export function PaymentSuccessView({ transactionDetails, onClose }: PaymentSuccessViewProps) {
+export function PaymentSuccessView({
+  transactionDetails,
+  onClose,
+}: PaymentSuccessViewProps) {
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
-  const lottieRef = useRef<LottieView>(null);
 
   // If transactionDetails is provided but not completed, close immediately
   useEffect(() => {
     if (transactionDetails && !isCompleted(transactionDetails)) {
       onCloseRef.current();
+      return;
     }
   }, [transactionDetails]);
 
-  // Explicitly play after layout settles — autoPlay alone is unreliable
-  // when the BottomSheet is still transitioning.
-  const onLayout = useCallback(() => {
-    lottieRef.current?.play();
-  }, []);
-
-  // Auto-close after delay
+  // Auto-close after 2s for completed payments
   useEffect(() => {
     const timer = setTimeout(() => {
       onCloseRef.current();
-    }, AUTO_CLOSE_DELAY_MS);
+    }, 2000);
     return () => clearTimeout(timer);
   }, []);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.content} onLayout={onLayout}>
+    <BottomSheetView style={styles.container}>
+      <View style={styles.successContent}>
         <LottieView
-          ref={lottieRef}
           source={require('../../assets/animations/tick_mark.json')}
           autoPlay
           loop={false}
-          style={styles.animation}
+          style={styles.tickAnimation}
         />
         <View style={styles.spacer} />
-        <Text style={styles.titleText}>
-          {Strings.verifyingPayment.paymentSuccessful}
-        </Text>
+        <Text style={styles.successText}>{Strings.verifyingPayment.paymentSuccessful}</Text>
       </View>
-    </View>
+    </BottomSheetView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: Colors.white,
   },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
+  successContent: {
     alignItems: 'center',
-    paddingHorizontal: Spacing.large,
+    paddingVertical: Spacing.xtraLarge * 8,
   },
-  animation: {
+  tickAnimation: {
     width: Spacing.xtraLarge * 3,
     height: Spacing.xtraLarge * 3,
   },
   spacer: {
     height: Spacing.medium,
   },
-  titleText: {
+  successText: {
     fontFamily: getFontFamily('700'),
     fontSize: 16,
     color: Colors.black,
-    textAlign: 'center',
+  },
+  centerContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 32,
+  },
+  statusText: {
+    fontFamily: getFontFamily('500'),
+    fontSize: 16,
+    color: Colors.grey600,
   },
 });

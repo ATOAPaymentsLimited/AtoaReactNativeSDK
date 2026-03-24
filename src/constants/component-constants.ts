@@ -61,7 +61,5 @@ export const ERROR_BANK_DOWN = 'bank is down';
 // --- ConfirmationScreen ---
 export const INACTIVE_STATE_PATTERN = /inactive|background/;
 
-export const AUTO_CLOSE_DELAY_MS = 2000;
-
-export const MAX_POLLING_ATTEMPTS = 5;
+export const MAX_POLLING_ATTEMPTS = 3;
 export const CARD_PAYMENTS_POLLING_INTERVAL_MS = 2000;
