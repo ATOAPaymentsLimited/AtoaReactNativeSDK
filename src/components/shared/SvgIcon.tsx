@@ -1,5 +1,5 @@
 import React from 'react';
-import Svg, { Path, Circle, G, Mask, Rect, Defs, LinearGradient, Stop } from 'react-native-svg';
+import Svg, { Path, Circle, G, Mask, Rect, Defs, ClipPath, LinearGradient, Stop } from 'react-native-svg';
 
 interface SvgIconProps {
   name: keyof typeof icons;
@@ -331,6 +331,57 @@ function IconHighImportance({ size, color = '#97A6B2' }: IconProps) {
   );
 }
 
+function IconVisa({ size }: IconProps) {
+  const w = size * 1.6;
+  // Paths from visa.svg (21x7 viewBox), rendered inside a rounded card frame
+  return (
+    <Svg width={w} height={size} viewBox="0 0 32 20" fill="none">
+      <Rect x={0.5} y={0.5} width={31} height={19} rx={3.5} fill="white" stroke="#E5E7EB" />
+      <G clipPath="url(#visa_clip)" transform="translate(5.5, 6.5)">
+        <Path
+          d="M13.6805 -0.000976562C12.1913 -0.000976562 10.8543 0.797847 10.8543 2.26373C10.8543 3.95196 13.2161 4.06726 13.2161 4.90726C13.2161 5.26138 12.8158 5.58255 12.1433 5.58255C11.1826 5.58255 10.462 5.13785 10.462 5.13785L10.1578 6.6202C10.1578 6.6202 10.9824 6.99902 12.0873 6.99902C13.7205 6.99902 15.0015 6.16726 15.0015 4.66844C15.0015 2.88961 12.6317 2.77432 12.6317 1.99196C12.6317 1.71196 12.9599 1.40726 13.6324 1.40726C14.393 1.40726 15.0175 1.72844 15.0175 1.72844L15.3217 0.295494C15.3137 0.295494 14.6332 -0.000976562 13.6805 -0.000976562ZM0.0380774 0.106082L-0.00195312 0.3202C-0.00195312 0.3202 0.622523 0.435494 1.19096 0.674318C1.91951 0.946082 1.96755 1.10255 2.09565 1.58844L3.43266 6.88373H5.22603L7.97212 0.106082H6.18676L4.41741 4.71785L3.69687 0.806082C3.63282 0.361376 3.29656 0.106082 2.88024 0.106082H0.0380774ZM8.69267 0.106082L7.2916 6.88373H8.9969L10.39 0.106082H8.69267ZM18.1879 0.106082C17.7796 0.106082 17.5634 0.328435 17.4033 0.723729L14.9054 6.88373H16.6908L17.035 5.85432H19.2127L19.4208 6.88373H20.998L19.629 0.106082H18.1879ZM18.4201 1.94255L18.9485 4.48726H17.5314L18.4201 1.94255Z"
+          fill="#0D1011"
+        />
+      </G>
+      <Defs>
+        <ClipPath id="visa_clip">
+          <Rect width={21} height={7} fill="white" />
+        </ClipPath>
+      </Defs>
+    </Svg>
+  );
+}
+
+function IconMastercard({ size }: IconProps) {
+  const w = size * 1.6;
+  // Paths from mastercard.svg (16x10 viewBox), rendered inside a rounded card frame
+  return (
+    <Svg width={w} height={size} viewBox="0 0 32 20" fill="none">
+      <Rect x={0.5} y={0.5} width={31} height={19} rx={3.5} fill="white" stroke="#E5E7EB" />
+      <G clipPath="url(#mc_clip)" transform="translate(8, 5)">
+        <Path d="M10.1621 1.06934H5.83594V8.93045H10.1621V1.06934Z" fill="#FF5F00" />
+        <Path
+          d="M6.11078 5.00018C6.11078 3.4724 6.81121 2.01407 7.99232 1.06962C5.84983 -0.638709 2.74597 -0.263709 1.0567 1.91685C-0.63257 4.08351 -0.261754 7.2224 1.89447 8.93074C3.69361 10.3613 6.20692 10.3613 8.00606 8.93074C6.81121 7.98629 6.11078 6.52796 6.11078 5.00018Z"
+          fill="#EB001B"
+        />
+        <Path
+          d="M15.999 5.00018C15.999 7.76407 13.7878 10.0002 11.0548 10.0002C9.94234 10.0002 8.8711 9.62518 8.00586 8.93073C10.1483 7.2224 10.5192 4.08351 8.82989 1.90296C8.58268 1.5974 8.30801 1.30573 8.00586 1.06962C10.1483 -0.638709 13.2659 -0.263709 14.9415 1.91685C15.6282 2.79185 15.999 3.87518 15.999 5.00018Z"
+          fill="#F79E1B"
+        />
+        <Path
+          d="M15.5317 8.09776V7.9311H15.6004V7.90332H15.4355V7.9311H15.5042V8.09776H15.5317ZM15.8476 8.09776V7.90332H15.7926L15.7377 8.04221L15.6828 7.90332H15.6278V8.09776H15.669V7.94499L15.724 8.06999H15.7652L15.8201 7.94499V8.09776H15.8476Z"
+          fill="#F79E1B"
+        />
+      </G>
+      <Defs>
+        <ClipPath id="mc_clip">
+          <Rect width={16} height={10} fill="white" />
+        </ClipPath>
+      </Defs>
+    </Svg>
+  );
+}
+
 const icons = {
   back: IconBack,
   close: IconClose,
@@ -356,4 +407,6 @@ const icons = {
   refund: IconRefund,
   refunded: IconRefunded,
   highImportance: IconHighImportance,
+  visa: IconVisa,
+  mastercard: IconMastercard,
 };

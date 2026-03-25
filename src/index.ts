@@ -14,4 +14,5 @@ export type {
 export { TransactionStatus, isCompleted, isFailed, isPending } from './types/payment';
 export { AtoaException } from './types/error';
 export type { AtoaExceptionType } from './types/error';
+export { TransactionType } from './types/transaction';
 export type { AtoaPayOptions } from './types/sdk';

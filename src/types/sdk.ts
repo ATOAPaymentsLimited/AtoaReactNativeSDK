@@ -2,6 +2,7 @@ import type { AtoaEnv } from './environment';
 import type { CustomerDetails } from './customer';
 import type { AtoaException } from './error';
 import type { TransactionDetails } from './payment';
+import type { TransactionType } from './transaction';
 
 export interface AtoaPayOptions {
   /** The payment request ID (required) */
@@ -10,6 +11,8 @@ export interface AtoaPayOptions {
   env: AtoaEnv;
   /** Shows a sheet explaining the steps for making a payment (required) */
   showHowPaymentWorks: boolean;
+  /** Transaction type: OPEN_BANKING (bank), or CARD (card) */
+  transactionType?: TransactionType;
   /** Customer details for pre-selecting bank (optional) */
   customerDetails?: CustomerDetails;
   /** Called when the user closes the payment flow */
