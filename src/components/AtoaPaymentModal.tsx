@@ -7,6 +7,7 @@ import { ConnectivityProvider } from '../hooks/ConnectivityContext';
 import { useBankInstitutions } from '../hooks/useBankInstitutions';
 import { useCardPayment } from '../hooks/useCardPayment';
 import { TransactionType } from '../types/transaction';
+import { TransactionStatus } from '../constants/transaction-status';
 import type { AtoaPayOptions } from '../types/sdk';
 import type { TransactionDetails } from '../types/payment';
 import { isCompleted, isFailed, isCardPaymentEnabled } from '../types/payment';
@@ -254,7 +255,19 @@ function AtoaPaymentModalInner({
           ? result.paymentIdempotencyId
           : state.paymentAuth?.paymentIdempotencyId;
 
-      if (result.type === 'success') {
+      if (result.type === 'failure') {
+        stopPolling();
+        if (result.isLoadError || result.isSystemError) {
+          dispatch({
+            type: 'SET_BANK_AUTH_ERROR',
+            payload: new AtoaException('custom', result.error ?? 'Payment failed'),
+          });
+          setCurrentScreen('cardError');
+          return;
+        }
+      }
+
+      if (result.type === 'success' || result.type === 'failure') {
         let details: TransactionDetails | null = null;
         if (idempotencyId) {
           for (let i = 0; i < MAX_POLLING_ATTEMPTS; i++) {
@@ -278,31 +291,24 @@ function AtoaPaymentModalInner({
             }
           }
         }
+
+        // If failure result and still pending after polling, treat as failed
+        if (result.type === 'failure' && details && !isCompleted(details) && !isFailed(details)) {
+          details = { ...details, status: TransactionStatus.FAILED };
+          dispatch({ type: 'SET_TRANSACTION_DETAILS', payload: details });
+          options.onPaymentStatusChange?.({
+            status: details.status,
+            redirectUrlParams: details.redirectUrlParams,
+            signature: details.signature,
+            signatureHash: details.signatureHash,
+          });
+        }
+
         if (details && isCompleted(details)) {
           setCurrentScreen('cardPaymentSuccess');
         } else {
           onComplete(details);
         }
-      } else if (result.type === 'failure') {
-        stopPolling();
-        if (result.isLoadError) {
-          // WebView failed to load — no payment was attempted
-          dispatch({
-            type: 'SET_BANK_AUTH_ERROR',
-            payload: new AtoaException('custom', result.error ?? 'Payment failed'),
-          });
-          setCurrentScreen('cardError');
-          return;
-        }
-        let details: TransactionDetails | null = null;
-        if (idempotencyId) {
-          try {
-            details = await client.getPaymentStatus(idempotencyId);
-          } catch {
-            // Status fetch failed
-          }
-        }
-        onComplete(details);
       } else if (result.type === 'closed') {
         resetSelectBank();
         setConfirmationMode('bank');

@@ -249,12 +249,8 @@ export function useBankInstitutions() {
 
   const getPaymentDetailsAndBanks = useCallback(
     async () => {
-      // Run both API calls in parallel — fetchInstitutions doesn't depend on payment details
-      const [paymentDetails, banks] = await Promise.all([
-        getPaymentDetails(),
-        fetchBanks(),
-      ]);
-      // Now that both are done, check last-used bank against the fetched bank list
+      const paymentDetails = await getPaymentDetails();
+      const banks = await fetchBanks();
       matchLastBank(banks, paymentDetails);
     },
     [getPaymentDetails, fetchBanks, matchLastBank]

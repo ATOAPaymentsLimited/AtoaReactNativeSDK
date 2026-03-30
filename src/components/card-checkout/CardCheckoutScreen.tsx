@@ -18,7 +18,7 @@ import { Strings } from '../../constants/strings';
 
 export type CardCheckoutResult =
   | { type: 'success'; paymentIdempotencyId?: string }
-  | { type: 'failure'; error?: string; isLoadError?: boolean }
+  | { type: 'failure'; error?: string; isLoadError?: boolean; isSystemError?: boolean }
   | { type: 'closed' };
 
 interface CardCheckoutScreenProps {
@@ -69,10 +69,17 @@ function handleRedirectUrl(
       return false;
 
     case 'paymentFailed':
+      onResult({
+        type: 'failure',
+        error: params.error && params.error !== 'null' ? params.error : undefined,
+      });
+      return false;
+
     case 'paymentSystemInitializationFailed':
       onResult({
         type: 'failure',
         error: params.error && params.error !== 'null' ? params.error : undefined,
+        isSystemError: true,
       });
       return false;
 
