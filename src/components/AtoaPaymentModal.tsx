@@ -14,7 +14,7 @@ import { isCompleted, isFailed, isCardPaymentEnabled } from '../types/payment';
 import { AtoaException } from '../types/error';
 import { Colors } from '../constants/colors';
 import { Strings } from '../constants/strings';
-import { CARD_PAYMENTS_POLLING_INTERVAL_MS, ERROR_SERVER_NOT_REACHABLE, MAX_POLLING_ATTEMPTS } from '../constants/component-constants';
+import { CARD_PAYMENTS_POLLING_INTERVAL_MS, ERROR_BANK_APP_DOWN, ERROR_BANK_DOWN, ERROR_SERVER_NOT_REACHABLE, MAX_POLLING_ATTEMPTS } from '../constants/component-constants';
 import { Spacing } from '../constants/spacing';
 import { BankSelectionScreen } from './bank-selection/BankSelectionScreen';
 import { HowToMakePaymentScreen } from './how-to-pay/HowToMakePaymentScreen';
@@ -175,19 +175,28 @@ function AtoaPaymentModalInner({
     }
   }, [state.paymentAuth, state.isLoadingAuth, currentScreen]);
 
-  // Navigate to confirmation when secure payment auth fails
+  // Navigate to confirmation when secure payment auth fails.
+  // Bank-down errors on bankSelection are handled by BankDownBottomSheet.
   useEffect(() => {
     if (
       state.bankAuthError &&
       (currentScreen === 'bankSelection' || currentScreen === 'loading')
     ) {
+      if (currentScreen === 'bankSelection') {
+        const msg = state.bankAuthError.message?.toLowerCase() ?? '';
+        if (msg.includes(ERROR_BANK_APP_DOWN) || msg.includes(ERROR_BANK_DOWN)) {
+          dispatch({ type: 'SET_SELECTED_BANK', payload: null });
+          return;
+        }
+      }
+
       if (confirmationMode === 'card') {
         setCurrentScreen('cardError');
       } else if (state.selectedBank) {
         setCurrentScreen('confirmation');
       }
     }
-  }, [state.bankAuthError, state.selectedBank, currentScreen, confirmationMode]);
+  }, [state.bankAuthError, state.selectedBank, currentScreen, confirmationMode, dispatch]);
 
   // Navigate to card error when payment details fail for card flow
   useEffect(() => {
