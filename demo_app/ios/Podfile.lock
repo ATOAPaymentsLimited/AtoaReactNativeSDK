@@ -1,5 +1,5 @@
 PODS:
-  - atoa-react-native-sdk (1.0.1):
+  - atoa-react-native-sdk (1.0.2):
     - boost
     - DoubleConversion
     - fast_float
@@ -3240,7 +3240,7 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  atoa-react-native-sdk: 98c4d0441aa4b4fb792d1a69dee9196497e0e4fa
+  atoa-react-native-sdk: acc667cba7d99225d418d8344035b8122faa1988
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   fast_float: b32c788ed9c6a8c584d114d0047beda9664e7cc6
