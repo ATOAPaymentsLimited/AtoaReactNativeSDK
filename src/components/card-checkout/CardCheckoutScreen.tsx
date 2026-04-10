@@ -167,6 +167,7 @@ export function CardCheckoutScreen({
             <FetchingBankLoader />
           </View>
         )}
+        originWhitelist={['http://*', 'https://*', 'about:*']}
         javaScriptEnabled
         domStorageEnabled
         thirdPartyCookiesEnabled
