@@ -105,6 +105,7 @@ export function CardCheckoutScreen({
   onBack,
 }: CardCheckoutScreenProps) {
   const hasCompletedRef = useRef(false);
+  const webViewRef = useRef<WebView>(null);
   const { client } = usePaymentContext();
 
   const checkoutUrl = getCardCheckoutUrl(client.environment, checkoutId, merchantName);
@@ -117,6 +118,16 @@ export function CardCheckoutScreen({
     return () => handler.remove();
   }, [onBack]);
 
+  // Catch window.open() / target="_blank" that bypass the JS override (e.g. native anchors).
+  // Navigate in the same WebView instead of dropping the request.
+  const handleOpenWindow = useCallback(
+    (event: { nativeEvent: { targetUrl: string } }) => {
+      webViewRef.current?.injectJavaScript(
+        `window.location.href = ${JSON.stringify(event.nativeEvent.targetUrl)};true;`
+      );
+    },
+    []
+  );
 
   const handleNavigationStateChange = useCallback(
     (event: WebViewNavigation) => {
@@ -142,13 +153,19 @@ export function CardCheckoutScreen({
   return (
     <View style={styles.container}>
       <WebView
+        ref={webViewRef}
         source={{ uri: checkoutUrl }}
         onNavigationStateChange={handleNavigationStateChange}
         onShouldStartLoadWithRequest={handleShouldStartLoad}
         onError={handleWebViewError}
         onHttpError={handleWebViewError}
-        // Override window.open() before page JS runs so iOS doesn't block it
+        // Override window.open() in all frames (main + iframes) before page JS runs
         injectedJavaScriptBeforeContentLoaded={WINDOW_OPEN_OVERRIDE_JS}
+        injectedJavaScriptBeforeContentLoadedForMainFrameOnly={false}
+        // Allow window.open() without user gesture (fallback for calls the JS override misses)
+        javaScriptCanOpenWindowsAutomatically
+        // Catch target="_blank" anchors that bypass the JS override
+        onOpenWindow={handleOpenWindow}
         startInLoadingState
         renderLoading={() => (
           <View style={styles.loadingContainer}>
