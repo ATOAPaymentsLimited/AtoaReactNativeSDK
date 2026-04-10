@@ -31,7 +31,6 @@ interface CardCheckoutScreenProps {
 
 const REDIRECT_PATH = '/card-checkout-redirect';
 
-
 /**
  * Parse query parameters from a URL string.
  */
@@ -105,7 +104,6 @@ export function CardCheckoutScreen({
   onBack,
 }: CardCheckoutScreenProps) {
   const hasCompletedRef = useRef(false);
-  const webViewRef = useRef<WebView>(null);
   const { client } = usePaymentContext();
 
   const checkoutUrl = getCardCheckoutUrl(client.environment, checkoutId, merchantName);
@@ -118,17 +116,6 @@ export function CardCheckoutScreen({
     return () => handler.remove();
   }, [onBack]);
 
-  // Catch window.open() / target="_blank" that bypass the JS override (e.g. native anchors).
-  // Navigate in the same WebView instead of dropping the request.
-  const handleOpenWindow = useCallback(
-    (event: { nativeEvent: { targetUrl: string } }) => {
-      webViewRef.current?.injectJavaScript(
-        `window.location.href = ${JSON.stringify(event.nativeEvent.targetUrl)};true;`
-      );
-    },
-    []
-  );
-
   const handleNavigationStateChange = useCallback(
     (event: WebViewNavigation) => {
       handleRedirectUrl(event.url, hasCompletedRef, onResult);
@@ -136,6 +123,10 @@ export function CardCheckoutScreen({
     [onResult]
   );
 
+  // Android only: intercept navigations to block redirect URL loading.
+  // Omitted on iOS because onShouldStartLoadWithRequest fires for ALL frames
+  // (main + iframes) and each call round-trips through a singleton decision
+  // manager, which can stall 3DS iframe navigations and cause a blank screen.
   const handleShouldStartLoad = useCallback(
     (event: WebViewNavigation): boolean => {
       return handleRedirectUrl(event.url, hasCompletedRef, onResult);
@@ -153,19 +144,23 @@ export function CardCheckoutScreen({
   return (
     <View style={styles.container}>
       <WebView
-        ref={webViewRef}
         source={{ uri: checkoutUrl }}
         onNavigationStateChange={handleNavigationStateChange}
-        onShouldStartLoadWithRequest={handleShouldStartLoad}
         onError={handleWebViewError}
         onHttpError={handleWebViewError}
-        // Override window.open() in all frames (main + iframes) before page JS runs
+        // Android: block redirect URL loading (safe — only fires for main frame).
+        // iOS: omitted — fires for all frames and can stall 3DS iframe navigations.
+        {...(Platform.OS !== 'ios' && {
+          onShouldStartLoadWithRequest: handleShouldStartLoad,
+        })}
+        // Override window.open() → window.top.location.href in all frames
+        // before page JS runs, so 3DS iframes navigate the main frame.
         injectedJavaScriptBeforeContentLoaded={WINDOW_OPEN_OVERRIDE_JS}
         injectedJavaScriptBeforeContentLoadedForMainFrameOnly={false}
-        // Allow window.open() without user gesture (fallback for calls the JS override misses)
+        // Allow window.open() without user gesture at the native level.
+        // Combined with NO onOpenWindow prop, iOS native code falls back to
+        // [webView loadRequest:] which reliably loads the URL in the same WebView.
         javaScriptCanOpenWindowsAutomatically
-        // Catch target="_blank" anchors that bypass the JS override
-        onOpenWindow={handleOpenWindow}
         startInLoadingState
         renderLoading={() => (
           <View style={styles.loadingContainer}>
@@ -177,9 +172,7 @@ export function CardCheckoutScreen({
         thirdPartyCookiesEnabled
         nestedScrollEnabled
         mixedContentMode="compatibility"
-        // iOS: spoof Safari user-agent to prevent "switch browser" dialog
         {...(Platform.OS === 'ios' && { userAgent: IOS_USER_AGENT })}
-        // iOS: share cookies with Safari so the checkout page works seamlessly
         sharedCookiesEnabled={Platform.OS === 'ios'}
         allowsInlineMediaPlayback
         injectedJavaScript={FIT_PAGE_JS}
