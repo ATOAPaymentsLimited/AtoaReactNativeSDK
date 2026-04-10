@@ -63,3 +63,7 @@ export const INACTIVE_STATE_PATTERN = /inactive|background/;
 
 export const MAX_POLLING_ATTEMPTS = 3;
 export const CARD_PAYMENTS_POLLING_INTERVAL_MS = 2000;
+
+// --- CardCheckoutScreen ---
+export const WEBVIEW_ZOOM_LEVEL = '0.92';
+export const FIT_PAGE_JS = `document.body.style.zoom='${WEBVIEW_ZOOM_LEVEL}';true;`;
