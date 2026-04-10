@@ -15,7 +15,7 @@ import { FetchingBankLoader } from '../shared/FetchingBankLoader';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { Strings } from '../../constants/strings';
-import { FIT_PAGE_JS } from '../../constants/component-constants';
+import { FIT_PAGE_JS, WINDOW_OPEN_OVERRIDE_JS } from '../../constants/component-constants';
 
 export type CardCheckoutResult =
   | { type: 'success'; paymentIdempotencyId?: string }
@@ -105,7 +105,6 @@ export function CardCheckoutScreen({
   onBack,
 }: CardCheckoutScreenProps) {
   const hasCompletedRef = useRef(false);
-  const webViewRef = useRef<WebView>(null);
   const { client } = usePaymentContext();
 
   const checkoutUrl = getCardCheckoutUrl(client.environment, checkoutId, merchantName);
@@ -118,16 +117,6 @@ export function CardCheckoutScreen({
     return () => handler.remove();
   }, [onBack]);
 
-  // Handle new window requests (e.g. target="_blank" from payment provider pages).
-  // Without this, iOS WKWebView silently drops the request → blank screen.
-  const handleOpenWindow = useCallback(
-    (event: { nativeEvent: { targetUrl: string } }) => {
-      webViewRef.current?.injectJavaScript(
-        `window.location.href = ${JSON.stringify(event.nativeEvent.targetUrl)};true;`
-      );
-    },
-    []
-  );
 
   const handleNavigationStateChange = useCallback(
     (event: WebViewNavigation) => {
@@ -153,16 +142,13 @@ export function CardCheckoutScreen({
   return (
     <View style={styles.container}>
       <WebView
-        ref={webViewRef}
         source={{ uri: checkoutUrl }}
         onNavigationStateChange={handleNavigationStateChange}
         onShouldStartLoadWithRequest={handleShouldStartLoad}
         onError={handleWebViewError}
         onHttpError={handleWebViewError}
-        // iOS: allow window.open() without user gesture (3DS approval redirect)
-        javaScriptCanOpenWindowsAutomatically
-        // Navigate window.open() / target="_blank" in-place instead of dropping them
-        onOpenWindow={handleOpenWindow}
+        // Override window.open() before page JS runs so iOS doesn't block it
+        injectedJavaScriptBeforeContentLoaded={WINDOW_OPEN_OVERRIDE_JS}
         startInLoadingState
         renderLoading={() => (
           <View style={styles.loadingContainer}>

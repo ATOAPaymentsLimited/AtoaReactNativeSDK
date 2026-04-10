@@ -67,3 +67,9 @@ export const CARD_PAYMENTS_POLLING_INTERVAL_MS = 2000;
 // --- CardCheckoutScreen ---
 export const WEBVIEW_ZOOM_LEVEL = '0.92';
 export const FIT_PAGE_JS = `document.body.style.zoom='${WEBVIEW_ZOOM_LEVEL}';true;`;
+
+// Override window.open() to navigate in-place. Injected before every page
+// load so the 3DS "please do not refresh" page cannot open a new window
+// that iOS WKWebView would silently drop.
+export const WINDOW_OPEN_OVERRIDE_JS =
+  '(function(){window.open=function(url){if(url)window.location.href=url;return window;};})();true;';
