@@ -63,3 +63,14 @@ export const INACTIVE_STATE_PATTERN = /inactive|background/;
 
 export const MAX_POLLING_ATTEMPTS = 3;
 export const CARD_PAYMENTS_POLLING_INTERVAL_MS = 2000;
+
+// --- CardCheckoutScreen ---
+export const WEBVIEW_ZOOM_LEVEL = '0.92';
+export const FIT_PAGE_JS = `document.body.style.zoom='${WEBVIEW_ZOOM_LEVEL}';true;`;
+
+// Override window.open() to navigate the top frame in-place.
+// Uses window.top.location.href so that calls from 3DS iframes navigate
+// the main WebView frame, not the iframe itself (which would fail if the
+// target page sets X-Frame-Options).
+export const WINDOW_OPEN_OVERRIDE_JS =
+  '(function(){window.open=function(url){if(url){try{window.top.location.href=url}catch(e){window.location.href=url}}return window};})();true;';

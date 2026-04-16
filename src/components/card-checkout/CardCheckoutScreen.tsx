@@ -15,6 +15,7 @@ import { FetchingBankLoader } from '../shared/FetchingBankLoader';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { Strings } from '../../constants/strings';
+import { FIT_PAGE_JS, WINDOW_OPEN_OVERRIDE_JS } from '../../constants/component-constants';
 
 export type CardCheckoutResult =
   | { type: 'success'; paymentIdempotencyId?: string }
@@ -122,6 +123,10 @@ export function CardCheckoutScreen({
     [onResult]
   );
 
+  // Android only: intercept navigations to block redirect URL loading.
+  // Omitted on iOS because onShouldStartLoadWithRequest fires for ALL frames
+  // (main + iframes) and each call round-trips through a singleton decision
+  // manager, which can stall 3DS iframe navigations and cause a blank screen.
   const handleShouldStartLoad = useCallback(
     (event: WebViewNavigation): boolean => {
       return handleRedirectUrl(event.url, hasCompletedRef, onResult);
@@ -141,24 +146,37 @@ export function CardCheckoutScreen({
       <WebView
         source={{ uri: checkoutUrl }}
         onNavigationStateChange={handleNavigationStateChange}
-        onShouldStartLoadWithRequest={handleShouldStartLoad}
         onError={handleWebViewError}
         onHttpError={handleWebViewError}
+        // Android: block redirect URL loading (safe — only fires for main frame).
+        // iOS: omitted — fires for all frames and can stall 3DS iframe navigations.
+        {...(Platform.OS !== 'ios' && {
+          onShouldStartLoadWithRequest: handleShouldStartLoad,
+        })}
+        // Override window.open() → window.top.location.href in all frames
+        // before page JS runs, so 3DS iframes navigate the main frame.
+        injectedJavaScriptBeforeContentLoaded={WINDOW_OPEN_OVERRIDE_JS}
+        injectedJavaScriptBeforeContentLoadedForMainFrameOnly={false}
+        // Allow window.open() without user gesture at the native level.
+        // Combined with NO onOpenWindow prop, iOS native code falls back to
+        // [webView loadRequest:] which reliably loads the URL in the same WebView.
+        javaScriptCanOpenWindowsAutomatically
         startInLoadingState
         renderLoading={() => (
           <View style={styles.loadingContainer}>
             <FetchingBankLoader />
           </View>
         )}
+        originWhitelist={['http://*', 'https://*', 'about:*']}
         javaScriptEnabled
         domStorageEnabled
         thirdPartyCookiesEnabled
+        nestedScrollEnabled
         mixedContentMode="compatibility"
-        // iOS: spoof Safari user-agent to prevent "switch browser" dialog
         {...(Platform.OS === 'ios' && { userAgent: IOS_USER_AGENT })}
-        // iOS: share cookies with Safari so the checkout page works seamlessly
         sharedCookiesEnabled={Platform.OS === 'ios'}
         allowsInlineMediaPlayback
+        injectedJavaScript={FIT_PAGE_JS}
         style={styles.webview}
       />
       <Pressable onPress={onBack} style={styles.backButton} hitSlop={8}>
