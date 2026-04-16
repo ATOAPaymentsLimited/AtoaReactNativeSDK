@@ -95,6 +95,7 @@ export const Strings = {
 
   card: {
     payByCard: 'Pay by card',
+    tapToOpenCheckout: 'Not redirected automatically? Click here',
   },
 
   api: {

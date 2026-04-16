@@ -68,6 +68,13 @@
         <category android:name="android.intent.category.BROWSABLE" />
         <data android:scheme="https" android:host="devapp.atoa.me" android:path="/sdk-redirect" />
       </intent-filter>
+      <!-- Card checkout redirect back to app via https -->
+      <intent-filter android:autoVerify="true">
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="https" android:host="devapp.atoa.me" android:path="/card-checkout-redirect" />
+      </intent-filter>
     </activity>
   </application>
 </manifest>
