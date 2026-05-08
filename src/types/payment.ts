@@ -56,6 +56,10 @@ export interface PaymentRequestData {
   redirectOnCompleted?: boolean;
 }
 
+export function isCardPaymentEnabled(data: PaymentRequestData | null | undefined): boolean {
+  return data?.options?.cardPaymentEnabled === true;
+}
+
 export interface PaymentAuthResponse {
   authorisationUrl: string;
   paymentIdempotencyId: string;
@@ -70,6 +74,7 @@ export interface PaymentAuthResponse {
   playStoreLink?: string;
   androidPackageName?: string;
   iOSPackageName?: string;
+  cardCheckoutId?: string;
 }
 
 export interface PaymentAuthRequestBody {
@@ -87,6 +92,7 @@ export interface PaymentAuthRequestBody {
   paymentDevice: DeviceInfo;
   consumerName?: string;
   paymentRequest?: { paymentType: string };
+  transactionType?: string;
   employeeId?: string;
   encryptedNotesDetails?: string;
   storeDetails?: StoreDetails;

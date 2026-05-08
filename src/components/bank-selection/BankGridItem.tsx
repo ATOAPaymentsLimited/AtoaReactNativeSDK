@@ -22,6 +22,7 @@ export const BankGridItem = React.memo(function BankGridItem({ bank, isSelected,
     <TouchableOpacity
       style={[
         styles.container,
+        isDisabled && styles.containerDisabled,
       ]}
       onPress={() => onPress(bank)}
       disabled={!!forceDisabled}
@@ -68,6 +69,9 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     alignItems: 'center',
+  },
+  containerDisabled: {
+    opacity: 0.4,
   },
   iconContainer: {
     width: '100%',
