@@ -19,6 +19,7 @@ export const Strings = {
     paymentProcessingError: 'Error processing payment',
     bankLimitWarning:
       'Some banks listed below might not handle the payments of ',
+    cardPaymentOptions: 'Card payment options',
   },
 
   confirmation: {
@@ -90,6 +91,20 @@ export const Strings = {
     title: 'Oops! No internet connection',
     message:
       'Server is not reachable. Please check your internet connection and try again',
+  },
+
+  card: {
+    payByCard: 'Pay by card',
+  },
+
+  api: {
+    maintenanceMessage:
+      "Sorry, we're currently down for maintenance. Please check back later.",
+    unknownError: 'Unknown Error',
+    serverNotReachable:
+      'Server is not reachable. Please verify your internet connection and try again',
+    cardCheckoutUnavailable:
+      'Card checkout is not available. Please try again.',
   },
 
   paymentPaid: {
