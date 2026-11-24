@@ -24,7 +24,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "clean": "del-cli lib",
-    "prepare": "bob build",
+    "prepare": "bob build && git config core.hooksPath .githooks",
     "release": "release-it"
   },
   "keywords": [
